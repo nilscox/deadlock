@@ -1,11 +1,11 @@
-import { Tool, Layer } from 'paper';
+import { Layer } from 'paper';
 
-import { Direction, getDirectionVector, isDirection } from './direction';
+import { Controls, EventListener, EventType } from './controls';
+import { Direction, getDirectionVector } from './direction';
 import { Cell, CellType, Level, LevelDescription } from './level';
 import { levels } from './levels';
 
 export class Game {
-  private tool = new Tool();
   private level = new Level();
   private player = new Player(this.level);
 
@@ -15,9 +15,8 @@ export class Game {
     return levels[this.currentLevelIndex];
   }
 
-  constructor(private canvas: HTMLCanvasElement) {
-    this.tool.onKeyDown = this.onKeyDown;
-
+  constructor(private canvas: HTMLCanvasElement, private controls: Controls) {
+    this.controls.addListener(this.handleEvent);
     this.load(this.currentLevel);
   }
 
@@ -29,17 +28,17 @@ export class Game {
     this.canvas.height = level.height * 40;
   }
 
-  onKeyDown = (event: paper.KeyEvent) => {
+  handleEvent: EventListener = (event) => {
     if (this.isLevelCompleted()) {
       return;
     }
 
-    if (event.key === 'space') {
+    if (event.type === EventType.restartLevel) {
       this.restartLevel();
     }
 
-    if (isDirection(event.key)) {
-      this.player.move(event.key);
+    if (event.type === EventType.move) {
+      this.player.move(event.direction);
 
       if (this.isLevelCompleted()) {
         this.level.setCompleted();
