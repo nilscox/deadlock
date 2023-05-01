@@ -1,4 +1,4 @@
-import { CellType, LevelDescription, Point } from './level';
+import { CellType, LevelDescription, Point } from './types';
 
 const mapCellType: Record<string, CellType> = {
   S: CellType.player,
@@ -28,6 +28,12 @@ export const levels = [
   ]),
 
   createLevel([
+    'S   .',
+    '     ',
+    ' x   ',
+  ]),
+
+  createLevel([
     'S    ',
     '     ',
     ' x   ',
@@ -36,25 +42,34 @@ export const levels = [
 
 function createLevel(map: string[]): LevelDescription {
   let startPosition: Point | undefined;
-  const width = map[0].length;
-  const height = map.length;
 
-  const cells = map.map((line, j) => {
-    if (line.length !== width) {
-      throw new Error(`Line ${j + 1} has invalid length`);
-    }
+  const cells = map
+    .flatMap((line, j) => {
+      return line.split('').map((char, i) => {
+        if (char === '.') {
+          return;
+        }
 
-    return line.split('').map((char, i) => {
-      const cellType = charToCellType(char);
+        const type = charToCellType(char);
 
-      if (cellType === CellType.player) {
-        startPosition = [i, j];
-        return CellType.empty;
-      }
+        if (type === CellType.player) {
+          startPosition = [i, j];
 
-      return cellType;
-    });
-  });
+          return {
+            type: CellType.empty,
+            x: i,
+            y: j,
+          };
+        }
+
+        return {
+          type,
+          x: i,
+          y: j,
+        };
+      });
+    })
+    .filter(Boolean);
 
   if (!startPosition) {
     throw new Error('No start position found');
@@ -62,8 +77,6 @@ function createLevel(map: string[]): LevelDescription {
 
   return {
     startPosition,
-    width,
-    height,
     cells,
   };
 }
