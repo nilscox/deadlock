@@ -1,21 +1,18 @@
-import { Player } from './player';
 import { ControlEvent, Controls, EventType } from './controls';
-import { Listener } from './emitter';
+import { Direction } from './direction';
+import { Emitter, Listener } from './emitter';
 import { Level } from './level';
 import { levels } from './levels';
-import { Renderer } from './renderer';
+import { Player } from './player';
 
-export class Game {
+export class Game extends Emitter<GameEvent> {
   private currentLevelIndex = 0;
 
-  private level = new Level(levels[this.currentLevelIndex]);
-  private player = new Player(this.level);
+  public level = new Level(levels[this.currentLevelIndex]);
+  public player = new Player(this.level);
 
-  constructor(private renderer: Renderer, controls: Controls) {
-    renderer.setLevel(this.level);
-    renderer.setPlayer(this.player);
-    renderer.update();
-
+  constructor(controls: Controls) {
+    super();
     controls.addListener(this.handleEvent);
   }
 
@@ -29,14 +26,7 @@ export class Game {
     }
 
     if (event.type === EventType.move) {
-      this.player.move(event.direction);
-
-      if (this.isLevelCompleted()) {
-        this.level.completed = true;
-        setTimeout(() => this.nextLevel(), 1000);
-      }
-
-      this.renderer.update();
+      this.handleMove(event.direction);
     }
   };
 
@@ -45,13 +35,23 @@ export class Game {
   }
 
   restartLevel() {
-    this.level = new Level(levels[this.currentLevelIndex]);
-    this.player = new Player(this.level);
-    this.player.position = levels[this.currentLevelIndex].startPosition;
+    const level = levels[this.currentLevelIndex];
 
-    this.renderer.setLevel(this.level);
-    this.renderer.setPlayer(this.player);
-    this.renderer.update();
+    this.level = new Level(level);
+    this.player = new Player(this.level);
+    this.player.position = level.startPosition;
+
+    this.emit({ type: GameEventType.levelStarted });
+  }
+
+  handleMove(direction: Direction) {
+    this.player.move(direction);
+    this.emit({ type: GameEventType.playerMoved });
+
+    if (this.isLevelCompleted()) {
+      this.level.completed = true;
+      this.emit({ type: GameEventType.levelCompleted });
+    }
   }
 
   nextLevel() {
@@ -63,3 +63,23 @@ export class Game {
     this.restartLevel();
   }
 }
+
+export enum GameEventType {
+  playerMoved = 'playerMoved',
+  levelStarted = 'levelRestarted',
+  levelCompleted = 'levelCompleted',
+}
+
+type PlayerMovedEvent = {
+  type: GameEventType.playerMoved;
+};
+
+type LevelRestartedEvent = {
+  type: GameEventType.levelStarted;
+};
+
+type LevelCompleted = {
+  type: GameEventType.levelCompleted;
+};
+
+export type GameEvent = PlayerMovedEvent | LevelRestartedEvent | LevelCompleted;

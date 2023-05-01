@@ -1,62 +1,71 @@
-import { Layer, Color, Shape, CompoundPath } from 'paper';
+import { Color, CompoundPath, Layer, Shape } from 'paper';
 
-import { Player } from './player';
+import { Listener } from './emitter';
+import { Game, GameEvent, GameEventType } from './game';
 import { Cell, Level } from './level';
 import { CellType, Point } from './types';
 
-export interface Renderer {
-  setLevel(level: Level): void;
-  setPlayer(player: Player): void;
-  update(): void;
-}
-
-export class PaperRenderer implements Renderer {
-  private level!: Level;
-  private player!: Player;
-
-  private boundaries!: PaperLevelBoundaries;
+export class PaperRenderer {
   private cells = new Map<Cell, PaperCell>();
+  private boundaries!: PaperLevelBoundaries;
   private playerCell!: PaperCell;
 
-  private levelLayer?: paper.Layer;
-  private playerLayer?: paper.Layer;
+  private levelLayer = new Layer();
+  private playerLayer = new Layer();
 
-  setLevel(level: Level): void {
-    this.levelLayer?.remove();
-    this.levelLayer = new Layer();
+  constructor(private game: Game) {
+    this.playerLayer.activate();
+
+    this.initialize();
+    this.game.addListener(this.handleGameEvent);
+  }
+
+  private handleGameEvent: Listener<GameEvent> = (event) => {
+    if (event.type === GameEventType.levelStarted) {
+      this.clear();
+      this.initialize();
+    }
+
+    if (event.type === GameEventType.playerMoved) {
+      this.update();
+    }
+  };
+
+  clear() {
+    this.levelLayer.removeChildren();
+    this.cells.clear();
+
+    this.playerLayer.removeChildren();
+  }
+
+  initialize() {
     this.levelLayer.activate();
 
-    this.level = level;
-
-    this.level.forEachCell((cell) => {
+    this.game.level.forEachCell((cell) => {
       this.cells.set(cell, new PaperCell(cell.type));
     });
 
-    this.boundaries = new PaperLevelBoundaries(level);
-  }
+    this.boundaries = new PaperLevelBoundaries(this.game.level);
 
-  setPlayer(player: Player) {
-    this.playerLayer?.remove();
-    this.playerLayer = new Layer();
     this.playerLayer.activate();
-
-    this.player = player;
     this.playerCell = new PaperCell(CellType.player);
+
+    this.update();
   }
 
   update() {
-    this.level.forEachCell((cell) => {
+    this.game.level.forEachCell((cell) => {
       const c = this.cells.get(cell)!;
 
       c.type = cell.type;
       c.position = cell.position;
     });
 
-    if (this.level.completed) {
+    if (this.game.level.completed) {
       this.boundaries.path.strokeColor = new Color('#6C6');
     }
 
-    this.playerCell.position = this.player.position;
+    this.playerCell.position = this.game.player.position;
   }
 }
 
