@@ -67,6 +67,19 @@ export class PaperRenderer {
 
     this.playerCell.position = this.game.player.position;
   }
+
+  async animatePlayerPath() {
+    this.playerLayer.activate();
+
+    for (const [x, y] of this.game.player.path.reverse()) {
+      const cell = this.game.level.at(x, y);
+      const paperCell = this.cells.get(cell!)!;
+
+      paperCell.rect.fillColor = new Color('#CFC');
+
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  }
 }
 
 class PaperCell {

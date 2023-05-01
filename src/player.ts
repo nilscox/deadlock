@@ -4,7 +4,7 @@ import { CellType, LevelDescription, Point } from './types';
 
 export class Player {
   private cell: Cell;
-  private path = new Array<Point>();
+  public path = new Array<Point>();
 
   constructor(private level: Level) {
     this.cell = new Cell(0, 0, CellType.player);

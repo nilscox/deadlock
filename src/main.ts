@@ -9,11 +9,12 @@ const canvas = document.getElementById('game') as HTMLCanvasElement;
 paper.setup(canvas);
 
 const game = new Game(new PaperControls());
-new PaperRenderer(game);
+const renderer = new PaperRenderer(game);
 
-game.addListener((event) => {
+game.addListener(async (event) => {
   if (event.type == GameEventType.levelCompleted) {
-    setTimeout(() => game.nextLevel(), 2000);
+    await renderer.animatePlayerPath();
+    setTimeout(() => game.nextLevel(), 1000);
   }
 });
 
