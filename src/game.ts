@@ -1,4 +1,4 @@
-import { ControlEvent, Controls, EventType } from './controls';
+import { ControlEvent, EventType } from './controls';
 import { Direction } from './direction';
 import { Emitter, Listener } from './emitter';
 import { Level } from './level';
@@ -11,11 +11,6 @@ export class Game extends Emitter<GameEvent> {
   public level = new Level(levels[this.currentLevelIndex]);
   public player = new Player(this.level);
 
-  constructor(controls: Controls) {
-    super();
-    controls.addListener(this.handleEvent);
-  }
-
   handleEvent: Listener<ControlEvent> = (event) => {
     if (this.isLevelCompleted()) {
       return;
@@ -23,6 +18,11 @@ export class Game extends Emitter<GameEvent> {
 
     if (event.type === EventType.restartLevel) {
       this.restartLevel();
+    }
+
+    if (event.type === EventType.moveBack) {
+      this.player.back();
+      this.emit({ type: GameEventType.playerMoved });
     }
 
     if (event.type === EventType.move) {
@@ -45,7 +45,10 @@ export class Game extends Emitter<GameEvent> {
   }
 
   handleMove(direction: Direction) {
-    this.player.move(direction);
+    if (!this.player.move(direction)) {
+      return;
+    }
+
     this.emit({ type: GameEventType.playerMoved });
 
     if (this.isLevelCompleted()) {

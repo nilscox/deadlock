@@ -8,6 +8,7 @@ export class Player {
 
   constructor(private level: Level) {
     this.cell = new Cell(0, 0, CellType.player);
+    this.position = level.startPosition;
   }
 
   load({ startPosition }: LevelDescription) {
@@ -17,11 +18,28 @@ export class Player {
   move(direction: Direction) {
     const nextCell = this.findNextCell(direction);
 
-    if (nextCell) {
-      this.path.push([this.x, this.y]);
-      this.level.at(this.x, this.y)!.type = CellType.path;
-      this.position = [nextCell.x, nextCell.y];
+    if (!nextCell) {
+      return false;
     }
+
+    this.path.push([this.x, this.y]);
+    this.level.at(this.x, this.y)!.type = CellType.path;
+    this.position = [nextCell.x, nextCell.y];
+
+    return true;
+  }
+
+  back() {
+    const lastPos = this.path.pop();
+
+    if (!lastPos) {
+      return false;
+    }
+
+    this.level.at(this.x, this.y)!.type = CellType.empty;
+    this.position = lastPos;
+
+    return true;
   }
 
   private findNextCell(direction: Direction) {
