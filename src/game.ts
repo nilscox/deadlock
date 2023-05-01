@@ -2,6 +2,7 @@ import { Layer } from 'paper';
 
 import { Controls, EventListener, EventType } from './controls';
 import { Direction, getDirectionVector } from './direction';
+import { Listener } from './emitter';
 import { Cell, CellType, Level, LevelDescription } from './level';
 import { levels } from './levels';
 
@@ -28,7 +29,7 @@ export class Game {
     this.canvas.height = level.height * 40;
   }
 
-  handleEvent: EventListener = (event) => {
+  handleEvent: Listener<ControlEvent> = (event) => {
     if (this.isLevelCompleted()) {
       return;
     }

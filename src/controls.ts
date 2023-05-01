@@ -1,5 +1,6 @@
 import { Tool } from 'paper';
 import { Direction, isDirection } from './direction';
+import { Emitter, Listener } from './emitter';
 
 export enum EventType {
   move = 'move',
@@ -15,23 +16,18 @@ type RestartLevelEvent = {
   type: EventType.restartLevel;
 };
 
-export type Event = MoveEvent | RestartLevelEvent;
-export type EventListener = (event: Event) => void;
+export type ControlEvent = MoveEvent | RestartLevelEvent;
 
 export interface Controls {
-  addListener(listener: EventListener): void;
+  addListener(listener: Listener<ControlEvent>): void;
 }
 
-export class PaperControls implements Controls {
+export class PaperControls extends Emitter<ControlEvent> implements Controls {
   private tool = new Tool();
-  private listeners = new Array<EventListener>();
 
   constructor() {
+    super();
     this.tool.onKeyDown = this.handleKeyDown.bind(this);
-  }
-
-  addListener(listener: EventListener): void {
-    this.listeners.push(listener);
   }
 
   private handleKeyDown(event: { key: string }) {
@@ -42,9 +38,5 @@ export class PaperControls implements Controls {
     if (isDirection(event.key)) {
       this.emit({ type: EventType.move, direction: event.key });
     }
-  }
-
-  private emit(event: Event) {
-    this.listeners.forEach((listener) => listener(event));
   }
 }
