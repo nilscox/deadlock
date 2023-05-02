@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { levels as levelsData } from './game/levels';
 
+type StoredLevel = {
+  completed?: {
+    tries: number;
+    time: number;
+  };
+};
+
 export const useLevels = () => {
   const [levels, setLevels] = useState(() => {
-    const levels: Record<string, { completed: boolean }> = JSON.parse(localStorage.getItem('levels') ?? '{}');
+    const levels: Record<string, StoredLevel> = JSON.parse(localStorage.getItem('levels') ?? '{}');
 
     for (const id of Object.keys(levelsData)) {
-      levels[id] ??= { completed: false };
+      levels[id] ??= {};
     }
 
     return levels;
@@ -16,10 +23,10 @@ export const useLevels = () => {
     localStorage.setItem('levels', JSON.stringify(levels));
   }, [levels]);
 
-  const setCompleted = useCallback((id: string) => {
+  const setCompleted = useCallback((id: string, tries: number, time: number) => {
     setLevels((levels) => ({
       ...levels,
-      [id]: { completed: true },
+      [id]: { completed: { tries, time } },
     }));
   }, []);
 

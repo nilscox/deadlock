@@ -13,7 +13,7 @@ export const Levels = ({ selectLevel }: LevelsProps) => {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, padding: 32 }}>
         {Object.entries(levels).map(([id, { completed }]) => (
-          <Level key={id} id={id} completed={completed} onClick={() => selectLevel(id)} />
+          <Level key={id} id={id} completed={completed !== undefined} onClick={() => selectLevel(id)} />
         ))}
       </div>
     </div>

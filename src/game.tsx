@@ -1,9 +1,9 @@
 import paper from 'paper';
 
-import { Game as GameClass, GameEventType } from './game/game';
-import { levels } from './game/levels';
 import { useEffect, useRef, useState } from 'react';
+import { Game as GameClass, GameEventType } from './game/game';
 import { useLevels } from './use-levels';
+import { levels as levelsData } from './game/levels';
 
 type GameProps = {
   levelId: string;
@@ -13,9 +13,12 @@ type GameProps = {
 
 export const Game = ({ levelId, showLevels, nextLevel }: GameProps) => {
   const game = useRef<GameClass>();
-  const [, setCompleted] = useLevels();
+  const [levels, setCompleted] = useLevels();
 
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>();
+
+  const tries = useRef(1);
+  const startDate = useRef(new Date());
 
   useEffect(() => {
     if (!canvas) {
@@ -24,14 +27,25 @@ export const Game = ({ levelId, showLevels, nextLevel }: GameProps) => {
 
     paper.setup(canvas);
 
-    game.current = new GameClass(levels[levelId]);
+    game.current = new GameClass(levelsData[levelId]);
 
-    game.current.addListener(console.log);
+    // game.current.addListener(console.log);
 
     game.current.addListener((event) => {
+      if (event.type === GameEventType.levelStarted) {
+        tries.current++;
+      }
+
       if (event.type === GameEventType.levelCompleted) {
-        setCompleted(levelId);
-        setTimeout(nextLevel, 1000);
+        const time = Math.floor((new Date().getTime() - startDate.current.getTime()) / 1000);
+
+        setCompleted(levelId, tries.current, time);
+
+        setTimeout(() => {
+          nextLevel();
+          tries.current = 1;
+          startDate.current = new Date();
+        }, 1000);
       }
     });
 
@@ -63,9 +77,18 @@ export const Game = ({ levelId, showLevels, nextLevel }: GameProps) => {
           padding: 16,
         }}
       >
-        <button style={{ border: 'none', background: 'none' }} onClick={() => showLevels()}>
-          {'<- levels'}
-        </button>
+        <div>
+          <button style={{ border: 'none', background: 'none' }} onClick={() => showLevels()}>
+            {'<- levels'}
+          </button>
+          {' | '}
+          <button
+            style={{ border: 'none', background: 'none' }}
+            onClick={() => navigator.clipboard.writeText(JSON.stringify(levels))}
+          >
+            copy info
+          </button>
+        </div>
       </div>
     </div>
   );
