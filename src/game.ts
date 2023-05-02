@@ -39,7 +39,6 @@ export class Game extends Emitter<GameEvent> {
 
     this.level = new Level(level);
     this.player = new Player(this.level);
-    this.player.position = level.startPosition;
 
     this.emit({ type: GameEventType.levelStarted });
   }

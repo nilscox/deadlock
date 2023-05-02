@@ -9,11 +9,11 @@ const canvas = document.getElementById('game') as HTMLCanvasElement;
 paper.setup(canvas);
 
 canvas.width = 800;
-canvas.height = 600;
+canvas.height = 800;
 
 const game = new Game();
 const controls = new PaperControls();
-const renderer = new PaperRenderer(game);
+const renderer = new PaperRenderer(canvas, game);
 
 controls.addListener(game.handleEvent);
 

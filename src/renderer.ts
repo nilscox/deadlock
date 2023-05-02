@@ -11,11 +11,10 @@ export class PaperRenderer {
   private playerCell!: PaperCell;
 
   private levelLayer = new Layer();
+  private boundariesLayer = new Layer();
   private playerLayer = new Layer();
 
-  constructor(private game: Game) {
-    this.playerLayer.activate();
-
+  constructor(private canvas: HTMLCanvasElement, private game: Game) {
     this.initialize();
     this.game.addListener(this.handleGameEvent);
   }
@@ -35,6 +34,8 @@ export class PaperRenderer {
     this.levelLayer.removeChildren();
     this.cells.clear();
 
+    this.boundariesLayer.removeChildren();
+
     this.playerLayer.removeChildren();
   }
 
@@ -45,6 +46,7 @@ export class PaperRenderer {
       this.cells.set(cell, new PaperCell(cell.type));
     });
 
+    this.boundariesLayer.activate();
     this.boundaries = new PaperLevelBoundaries(this.game.level);
 
     this.playerLayer.activate();
@@ -90,7 +92,7 @@ class PaperCell {
     [CellType.player]: new Color('#99F'),
   };
 
-  private cellSize = 40;
+  private cellSize = 120;
 
   rect = new Shape.Rectangle({
     x: 0,
@@ -114,10 +116,13 @@ class PaperCell {
 }
 
 class PaperLevelBoundaries {
+  private cellSize = 120;
+
   path = new CompoundPath([]);
 
   constructor(level: Level) {
     this.path.strokeColor = new Color('#CCC');
+    this.path.strokeWidth = 2;
 
     level.forEachCell((cell) => {
       const [x, y] = cell.position;
@@ -141,12 +146,12 @@ class PaperLevelBoundaries {
   }
 
   addSegment(x: number, y: number, direction: 'horizontal' | 'vertical') {
-    this.path.moveTo([x * 40, y * 40]);
+    this.path.moveTo([x * this.cellSize, y * this.cellSize]);
 
     if (direction === 'horizontal') {
-      this.path.lineBy([40, 0]);
+      this.path.lineBy([this.cellSize, 0]);
     } else {
-      this.path.lineBy([0, 40]);
+      this.path.lineBy([0, this.cellSize]);
     }
   }
 }

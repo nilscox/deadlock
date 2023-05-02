@@ -1,6 +1,6 @@
 import { Direction, getDirectionVector } from './direction';
 import { Cell, Level } from './level';
-import { CellType, LevelDescription, Point } from './types';
+import { CellType, Point } from './types';
 
 export class Player {
   private cell: Cell;
@@ -8,11 +8,7 @@ export class Player {
 
   constructor(private level: Level) {
     this.cell = new Cell(0, 0, CellType.player);
-    this.position = level.startPosition;
-  }
-
-  load({ startPosition }: LevelDescription) {
-    this.cell.position = startPosition;
+    this.position = level.start;
   }
 
   move(direction: Direction) {

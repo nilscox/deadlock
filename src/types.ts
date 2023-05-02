@@ -7,7 +7,8 @@ export enum CellType {
   player = 'player',
 }
 
-export type LevelDescription = {
-  startPosition: Point;
-  cells: Array<{ x: number; y: number; type: CellType }>;
-};
+export type LevelDescription = Array<{
+  x: number;
+  y: number;
+  type: CellType;
+}>;
