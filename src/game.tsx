@@ -58,38 +58,17 @@ export const Game = ({ levelId, showLevels, nextLevel }: GameProps) => {
   }, [levelId, canvas, nextLevel, setCompleted]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div
-        style={{ flex: 1, fontSize: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      >
-        Level {levelId}
-      </div>
+    <>
+      <div className="flex-1 text-lg col items-center justify-center">Level {levelId}</div>
 
       <canvas style={{ width: '100%', height: 400 }} ref={setCanvas} />
 
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-          alignItems: 'flex-start',
-          padding: 16,
-        }}
-      >
-        <div>
-          <button style={{ border: 'none', background: 'none' }} onClick={() => showLevels()}>
-            {'<- levels'}
-          </button>
-          {' | '}
-          <button
-            style={{ border: 'none', background: 'none' }}
-            onClick={() => navigator.clipboard.writeText(JSON.stringify(levels))}
-          >
-            copy info
-          </button>
-        </div>
+      <div className="flex-1 row items-end">
+        <button onClick={() => showLevels()}>{'<- levels'}</button>
+        <button className="ml-auto" onClick={() => navigator.clipboard.writeText(JSON.stringify(levels))}>
+          copy info
+        </button>
       </div>
-    </div>
+    </>
   );
 };

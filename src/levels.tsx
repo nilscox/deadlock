@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 import { useLevels } from './use-levels';
 
 type LevelsProps = {
@@ -8,15 +10,15 @@ export const Levels = ({ selectLevel }: LevelsProps) => {
   const [levels] = useLevels();
 
   return (
-    <div>
-      <div style={{ fontSize: '2em', paddingTop: 32, textAlign: 'center' }}>Levels</div>
+    <>
+      <div className="pt-8 text-lg text-center">Levels</div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, padding: 32 }}>
+      <div className="grid grid-cols-3 gap-4 p-4">
         {Object.entries(levels).map(([id, { completed }]) => (
           <Level key={id} id={id} completed={completed !== undefined} onClick={() => selectLevel(id)} />
         ))}
       </div>
-    </div>
+    </>
   );
 };
 
@@ -29,17 +31,10 @@ type LevelProps = {
 const Level = ({ id, completed, onClick }: LevelProps) => {
   return (
     <button
-      style={{
-        height: 64,
-        cursor: 'pointer',
-        border: 'none',
-        background: '#EEE',
-        borderRadius: 6,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        opacity: completed ? 0.5 : undefined,
-      }}
+      className={clsx(
+        'font-semibold rounded h-12 bg-neutral-100 row justify-center items-center',
+        completed && 'opacity-50'
+      )}
       onClick={onClick}
     >
       {id}

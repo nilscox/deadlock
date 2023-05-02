@@ -8,7 +8,7 @@ import { useLevels } from './use-levels';
 const levelIds = Object.keys(levels);
 const nextLevelId = (id: string) => levelIds[levelIds.indexOf(id) + 1];
 
-function App() {
+function Content() {
   const [levels] = useLevels();
 
   const [levelId, setLevelId] = useState<string | undefined>(
@@ -25,5 +25,13 @@ function App() {
 
   return <Game levelId={levelId} showLevels={() => setLevelId(undefined)} nextLevel={nextLevel} />;
 }
+
+const App = () => {
+  return (
+    <div className="h-full p-4 col">
+      <Content />
+    </div>
+  );
+};
 
 export default App;

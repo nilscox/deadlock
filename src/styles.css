@@ -1,19 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .col {
+    @apply flex flex-col;
+  }
+
+  .row {
+    @apply flex flex-row;
+  }
+}
+
 html,
 body,
 #root {
-  height: 100%;
+  @apply h-full;
 }
 
 body {
-  font-family: monospace;
-  margin: 0;
+  @apply m-0;
 }
 
 #root {
+  @apply mx-auto;
   max-width: 600px;
-  margin: auto;
-}
-
-button {
-  font-family: inherit;
 }
