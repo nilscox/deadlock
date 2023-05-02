@@ -13,8 +13,6 @@ export class Level {
     maxY: 0,
   };
 
-  public completed = false;
-
   constructor(description: LevelDescription) {
     let start: Point | undefined;
 

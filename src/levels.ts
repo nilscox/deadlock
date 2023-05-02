@@ -1,92 +1,92 @@
-import { CellType, LevelDescription, Point } from './types';
+import { CellType, LevelDescription } from './types';
+import generated from './levels.json' assert { type: 'json' };
 
-const mapCellType: Record<string, CellType> = {
-  S: CellType.player,
-  ' ': CellType.empty,
-  x: CellType.block,
+const tutorial: Record<string, LevelDescription> = {
+  n42pb7: [
+    { type: CellType.player, x: 0, y: 0 },
+    { type: CellType.empty, x: 1, y: 0 },
+    { type: CellType.empty, x: 2, y: 0 },
+    { type: CellType.empty, x: 3, y: 0 },
+    { type: CellType.empty, x: 4, y: 0 },
+  ],
+  g388nf: [
+    { type: CellType.empty, x: 0, y: 0 },
+    { type: CellType.block, x: 1, y: 0 },
+    { type: CellType.player, x: 2, y: 0 },
+    { type: CellType.empty, x: 0, y: 1 },
+    { type: CellType.empty, x: 1, y: 1 },
+    { type: CellType.empty, x: 2, y: 1 },
+  ],
+  vroqj9: [
+    { type: CellType.empty, x: 0, y: 0 },
+    { type: CellType.empty, x: 1, y: 0 },
+    { type: CellType.player, x: 2, y: 0 },
+    { type: CellType.empty, x: 3, y: 0 },
+    { type: CellType.empty, x: 4, y: 0 },
+  ],
+  ckdy7w: [
+    { type: CellType.empty, x: 0, y: 0 },
+    { type: CellType.empty, x: 1, y: 0 },
+    { type: CellType.empty, x: 2, y: 0 },
+    { type: CellType.empty, x: 0, y: 1 },
+    { type: CellType.empty, x: 1, y: 1 },
+    { type: CellType.player, x: 2, y: 1 },
+    { type: CellType.empty, x: 0, y: 2 },
+    { type: CellType.empty, x: 1, y: 2 },
+    { type: CellType.empty, x: 2, y: 2 },
+  ],
+  k4wto6: [
+    { type: CellType.player, x: 0, y: 0 },
+    { type: CellType.empty, x: 1, y: 0 },
+    { type: CellType.empty, x: 2, y: 0 },
+    { type: CellType.empty, x: 3, y: 0 },
+    { type: CellType.empty, x: 0, y: 1 },
+    { type: CellType.empty, x: 1, y: 1 },
+    { type: CellType.empty, x: 2, y: 1 },
+    { type: CellType.empty, x: 3, y: 1 },
+    { type: CellType.empty, x: 4, y: 1 },
+    { type: CellType.empty, x: 0, y: 2 },
+    { type: CellType.block, x: 1, y: 2 },
+    { type: CellType.empty, x: 2, y: 2 },
+    { type: CellType.empty, x: 3, y: 2 },
+    { type: CellType.empty, x: 4, y: 2 },
+  ],
+  ceq7ue: [
+    { type: CellType.player, x: 0, y: 0 },
+    { type: CellType.empty, x: 1, y: 0 },
+    { type: CellType.empty, x: 2, y: 0 },
+    { type: CellType.empty, x: 3, y: 0 },
+    { type: CellType.empty, x: 4, y: 0 },
+    { type: CellType.empty, x: 0, y: 1 },
+    { type: CellType.empty, x: 1, y: 1 },
+    { type: CellType.empty, x: 2, y: 1 },
+    { type: CellType.empty, x: 3, y: 1 },
+    { type: CellType.empty, x: 4, y: 1 },
+    { type: CellType.empty, x: 0, y: 2 },
+    { type: CellType.block, x: 1, y: 2 },
+    { type: CellType.empty, x: 2, y: 2 },
+    { type: CellType.empty, x: 3, y: 2 },
+    { type: CellType.empty, x: 4, y: 2 },
+  ],
+  qb0e1t: [
+    { type: CellType.empty, x: 1, y: 0 },
+    { type: CellType.block, x: 2, y: 0 },
+    { type: CellType.block, x: 3, y: 0 },
+    { type: CellType.empty, x: 4, y: 0 },
+    { type: CellType.empty, x: 0, y: 1 },
+    { type: CellType.empty, x: 1, y: 1 },
+    { type: CellType.player, x: 2, y: 1 },
+    { type: CellType.empty, x: 3, y: 1 },
+    { type: CellType.empty, x: 4, y: 1 },
+    { type: CellType.empty, x: 0, y: 2 },
+    { type: CellType.empty, x: 1, y: 2 },
+    { type: CellType.empty, x: 2, y: 2 },
+    { type: CellType.block, x: 3, y: 2 },
+    { type: CellType.empty, x: 4, y: 2 },
+  ],
 };
 
-// prettier-ignore
-export const levels = [
-  createLevel([
-    'S   ',
-  ]),
-
-  createLevel([
-    ' xS',
-    '   ',
-  ]),
-
-  createLevel([
-    '  S  ',
-  ]),
-
-  createLevel([
-    ' xx ',
-    ' S  ',
-    '    ',
-  ]),
-
-  createLevel([
-    'S   .',
-    '     ',
-    ' x   ',
-  ]),
-
-  createLevel([
-    'S    ',
-    '     ',
-    ' x   ',
-  ]),
-]
-
-function createLevel(map: string[]): LevelDescription {
-  let startPosition: Point | undefined;
-
-  const cells = map
-    .flatMap((line, j) => {
-      return line.split('').map((char, i) => {
-        if (char === '.') {
-          return;
-        }
-
-        const type = charToCellType(char);
-
-        if (type === CellType.player) {
-          startPosition = [i, j];
-
-          return {
-            type: CellType.empty,
-            x: i,
-            y: j,
-          };
-        }
-
-        return {
-          type,
-          x: i,
-          y: j,
-        };
-      });
-    })
-    .filter(Boolean);
-
-  if (!startPosition) {
-    throw new Error('No start position found');
-  }
-
-  return {
-    startPosition,
-    cells,
-  };
-}
-
-function charToCellType(char: string): CellType {
-  const cellType = mapCellType[char[0]];
-
-  if (!cellType) {
-    throw new Error('Unknown cell type');
-  }
-
-  return cellType;
-}
+export const levels = {
+  ...tutorial,
+  ...(generated as Record<string, LevelDescription>),
+};

@@ -1,4 +1,4 @@
-import { Color, CompoundPath, Layer, Shape } from 'paper';
+import paper, { Color, CompoundPath, Layer, Shape, Group } from 'paper';
 
 import { Listener } from './emitter';
 import { Game, GameEvent, GameEventType } from './game';
@@ -10,11 +10,17 @@ export class PaperRenderer {
   private boundaries!: PaperLevelBoundaries;
   private playerCell!: PaperCell;
 
+  private group = new Group();
   private levelLayer = new Layer();
   private boundariesLayer = new Layer();
   private playerLayer = new Layer();
 
-  constructor(private canvas: HTMLCanvasElement, private game: Game) {
+  constructor(private game: Game) {
+    this.group.addChild(this.levelLayer);
+    this.group.addChild(this.boundariesLayer);
+    this.group.addChild(this.playerLayer);
+    this.group.applyMatrix = false;
+
     this.initialize();
     this.game.addListener(this.handleGameEvent);
   }
@@ -63,11 +69,9 @@ export class PaperRenderer {
       c.position = cell.position;
     });
 
-    if (this.game.level.completed) {
-      this.boundaries.path.strokeColor = new Color('#6C6');
-    }
-
     this.playerCell.position = this.game.player.position;
+
+    this.group.bounds.center = paper.view.center;
   }
 
   async animatePlayerPath() {
@@ -92,7 +96,7 @@ class PaperCell {
     [CellType.player]: new Color('#99F'),
   };
 
-  private cellSize = 120;
+  private cellSize = 40;
 
   rect = new Shape.Rectangle({
     x: 0,
@@ -116,7 +120,7 @@ class PaperCell {
 }
 
 class PaperLevelBoundaries {
-  private cellSize = 120;
+  private cellSize = 40;
 
   path = new CompoundPath([]);
 

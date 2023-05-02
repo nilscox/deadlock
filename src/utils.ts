@@ -10,6 +10,10 @@ export function assert(value: unknown, message?: string): asserts value {
   }
 }
 
+export const randomId = () => {
+  return Math.random().toString(36).slice(-6);
+};
+
 export type Tick = () => Promise<void>;
 const timeoutSymbol = Symbol('timeout');
 

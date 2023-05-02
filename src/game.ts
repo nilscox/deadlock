@@ -5,10 +5,13 @@ import { Level } from './level';
 import { levels } from './levels';
 import { Player } from './player';
 
-export class Game extends Emitter<GameEvent> {
-  private currentLevelIndex = 0;
+const levelIds = Object.keys(levels);
+const nextLevelId = (id: string) => levelIds[levelIds.indexOf(id) + 1];
 
-  public level = new Level(levels[this.currentLevelIndex]);
+export class Game extends Emitter<GameEvent> {
+  private currentLevelId = levelIds[0];
+
+  public level = new Level(levels[this.currentLevelId]);
   public player = new Player(this.level);
 
   handleEvent: Listener<ControlEvent> = (event) => {
@@ -35,7 +38,7 @@ export class Game extends Emitter<GameEvent> {
   }
 
   restartLevel() {
-    const level = levels[this.currentLevelIndex];
+    const level = levels[this.currentLevelId];
 
     this.level = new Level(level);
     this.player = new Player(this.level);
@@ -51,17 +54,17 @@ export class Game extends Emitter<GameEvent> {
     this.emit({ type: GameEventType.playerMoved });
 
     if (this.isLevelCompleted()) {
-      this.level.completed = true;
       this.emit({ type: GameEventType.levelCompleted });
     }
   }
 
   nextLevel() {
-    if (this.currentLevelIndex === levels.length - 1) {
+    this.currentLevelId = nextLevelId(this.currentLevelId);
+
+    if (!this.currentLevelId) {
       return;
     }
 
-    this.currentLevelIndex++;
     this.restartLevel();
   }
 }
