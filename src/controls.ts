@@ -1,4 +1,5 @@
 import { Tool } from 'paper';
+import Hammer from 'hammerjs';
 import { Direction, isDirection } from './direction';
 import { Emitter, Listener } from './emitter';
 
@@ -29,10 +30,17 @@ export interface Controls {
 
 export class PaperControls extends Emitter<ControlEvent> implements Controls {
   private tool = new Tool();
+  private hammer = new Hammer.Manager(document.body);
 
   constructor() {
     super();
     this.tool.onKeyDown = this.handleKeyDown.bind(this);
+
+    this.hammer.add(new Hammer.Swipe());
+    this.hammer.on('swipe', this.handleSwipe.bind(this));
+
+    this.hammer.add(new Hammer.Tap({ taps: 2 }));
+    this.hammer.on('tap', this.handleTap.bind(this));
   }
 
   private handleKeyDown(event: { key: string }) {
@@ -46,6 +54,25 @@ export class PaperControls extends Emitter<ControlEvent> implements Controls {
 
     if (isDirection(event.key)) {
       this.emit({ type: EventType.move, direction: event.key });
+    }
+  }
+
+  private handleTap() {
+    this.emit({ type: EventType.restartLevel });
+  }
+
+  private static directionMap: Record<number, Direction> = {
+    [Hammer.DIRECTION_LEFT]: Direction.left,
+    [Hammer.DIRECTION_RIGHT]: Direction.right,
+    [Hammer.DIRECTION_UP]: Direction.up,
+    [Hammer.DIRECTION_DOWN]: Direction.down,
+  };
+
+  private handleSwipe(input: HammerInput) {
+    const direction = PaperControls.directionMap[input.direction];
+
+    if (direction) {
+      this.emit({ type: EventType.move, direction });
     }
   }
 }
