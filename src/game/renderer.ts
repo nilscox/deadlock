@@ -1,11 +1,11 @@
-import paper, { Color, CompoundPath, Layer, Shape, Group } from 'paper';
+import paper, { Color, CompoundPath, Group, Layer, Shape } from 'paper';
 
 import { Listener } from './emitter';
 import { Game, GameEvent, GameEventType } from './game';
 import { Cell, Level } from './level';
 import { CellType, Point } from './types';
 
-export class PaperRenderer {
+export class GameRenderer {
   private cells = new Map<Cell, PaperCell>();
   private boundaries!: PaperLevelBoundaries;
   private playerCell!: PaperCell;
@@ -25,6 +25,14 @@ export class PaperRenderer {
     this.game.addListener(this.handleGameEvent);
   }
 
+  private get level() {
+    return this.game.level;
+  }
+
+  private get player() {
+    return this.game.player;
+  }
+
   private handleGameEvent: Listener<GameEvent> = (event) => {
     if (event.type === GameEventType.levelStarted) {
       this.clear();
@@ -33,6 +41,10 @@ export class PaperRenderer {
 
     if (event.type === GameEventType.playerMoved) {
       this.update();
+    }
+
+    if (event.type === GameEventType.levelCompleted) {
+      this.highlightPlayerPath();
     }
   };
 
@@ -48,12 +60,12 @@ export class PaperRenderer {
   initialize() {
     this.levelLayer.activate();
 
-    this.game.level.forEachCell((cell) => {
+    this.level.forEachCell((cell) => {
       this.cells.set(cell, new PaperCell(cell.type));
     });
 
     this.boundariesLayer.activate();
-    this.boundaries = new PaperLevelBoundaries(this.game.level);
+    this.boundaries = new PaperLevelBoundaries(this.level);
 
     this.playerLayer.activate();
     this.playerCell = new PaperCell(CellType.player);
@@ -62,31 +74,26 @@ export class PaperRenderer {
   }
 
   update() {
-    this.game.level.forEachCell((cell) => {
+    this.level.forEachCell((cell) => {
       const c = this.cells.get(cell)!;
 
       c.type = cell.type;
       c.position = cell.position;
     });
 
-    this.playerCell.position = this.game.player.position;
+    this.playerCell.position = this.player.position;
 
     this.group.bounds.center = paper.view.center;
   }
 
-  async animatePlayerPath() {
-    this.playerLayer.activate();
-
-    const path = this.game.player.path;
-    let i = 1;
+  highlightPlayerPath() {
+    const path = this.player.path;
 
     for (const [x, y] of path.reverse()) {
-      const cell = this.game.level.at(x, y);
+      const cell = this.level.at(x, y);
       const paperCell = this.cells.get(cell!)!;
 
-      paperCell.rect.fillColor = new Color(0, 255, 0, i++ / (path.length + 1) / 2);
-
-      await new Promise((r) => setTimeout(r, 100));
+      paperCell.rect.fillColor = new Color(0, 255, 0, 0.2);
     }
   }
 }

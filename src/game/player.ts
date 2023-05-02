@@ -11,6 +11,11 @@ export class Player {
     this.position = level.start;
   }
 
+  reset() {
+    this.path = [];
+    this.position = this.level.start;
+  }
+
   move(direction: Direction) {
     const nextCell = this.findNextCell(direction);
 

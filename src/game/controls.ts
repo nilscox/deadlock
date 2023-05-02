@@ -34,6 +34,7 @@ export class PaperControls extends Emitter<ControlEvent> implements Controls {
 
   constructor() {
     super();
+
     this.tool.onKeyDown = this.handleKeyDown.bind(this);
 
     this.hammer.add(new Hammer.Swipe());
@@ -41,6 +42,10 @@ export class PaperControls extends Emitter<ControlEvent> implements Controls {
 
     this.hammer.add(new Hammer.Tap({ taps: 2 }));
     this.hammer.on('tap', this.handleTap.bind(this));
+  }
+
+  cleanup() {
+    this.tool.remove();
   }
 
   private handleKeyDown(event: { key: string }) {

@@ -13,10 +13,10 @@ export class Level {
     maxY: 0,
   };
 
-  constructor(description: LevelDescription) {
+  constructor(private description: LevelDescription) {
     let start: Point | undefined;
 
-    description.forEach(({ x, y, type }) => {
+    this.description.forEach(({ x, y, type }) => {
       if (x < this.bounds.minX) this.bounds.minX = x;
       if (y < this.bounds.minY) this.bounds.minY = y;
       if (x > this.bounds.maxX) this.bounds.maxX = x;
@@ -32,6 +32,12 @@ export class Level {
 
     assert(start, 'missing start position');
     this.start = start;
+  }
+
+  reset() {
+    this.description.forEach(({ x, y, type }) => {
+      this.at(x, y)!.type = type;
+    });
   }
 
   get width() {

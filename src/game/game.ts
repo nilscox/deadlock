@@ -1,18 +1,33 @@
-import { ControlEvent, EventType } from './controls';
+import { ControlEvent, EventType, PaperControls } from './controls';
 import { Direction } from './direction';
 import { Emitter, Listener } from './emitter';
 import { Level } from './level';
-import { levels } from './levels';
 import { Player } from './player';
-
-const levelIds = Object.keys(levels);
-const nextLevelId = (id: string) => levelIds[levelIds.indexOf(id) + 1];
+import { GameRenderer } from './renderer';
+import { LevelDescription } from './types';
 
 export class Game extends Emitter<GameEvent> {
-  private currentLevelId = levelIds[0];
+  public level: Level;
+  public player: Player;
 
-  public level = new Level(levels[this.currentLevelId]);
-  public player = new Player(this.level);
+  public controls: PaperControls;
+  public renderer: GameRenderer;
+
+  constructor(level: LevelDescription) {
+    super();
+
+    this.level = new Level(level);
+    this.player = new Player(this.level);
+
+    this.renderer = new GameRenderer(this);
+
+    this.controls = new PaperControls();
+    this.controls.addListener(this.handleEvent);
+  }
+
+  cleanup() {
+    this.controls.cleanup();
+  }
 
   handleEvent: Listener<ControlEvent> = (event) => {
     if (this.isLevelCompleted()) {
@@ -38,10 +53,8 @@ export class Game extends Emitter<GameEvent> {
   }
 
   restartLevel() {
-    const level = levels[this.currentLevelId];
-
-    this.level = new Level(level);
-    this.player = new Player(this.level);
+    this.level.reset();
+    this.player.reset();
 
     this.emit({ type: GameEventType.levelStarted });
   }
@@ -56,16 +69,6 @@ export class Game extends Emitter<GameEvent> {
     if (this.isLevelCompleted()) {
       this.emit({ type: GameEventType.levelCompleted });
     }
-  }
-
-  nextLevel() {
-    this.currentLevelId = nextLevelId(this.currentLevelId);
-
-    if (!this.currentLevelId) {
-      return;
-    }
-
-    this.restartLevel();
   }
 }
 
