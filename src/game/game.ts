@@ -1,3 +1,5 @@
+import paper from 'paper';
+
 import { ControlEvent, EventType, PaperControls } from './controls';
 import { Direction } from './direction';
 import { Emitter, Listener } from './emitter';
@@ -13,8 +15,10 @@ export class Game extends Emitter<GameEvent> {
   public controls: PaperControls;
   public renderer: GameRenderer;
 
-  constructor(level: LevelDescription) {
+  constructor(canvas: HTMLCanvasElement, level: LevelDescription) {
     super();
+
+    paper.setup(canvas);
 
     this.level = new Level(level);
     this.player = new Player(this.level);
@@ -27,6 +31,7 @@ export class Game extends Emitter<GameEvent> {
 
   cleanup() {
     this.controls.cleanup();
+    paper.project.clear();
   }
 
   handleEvent: Listener<ControlEvent> = (event) => {

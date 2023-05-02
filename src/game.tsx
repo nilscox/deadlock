@@ -25,9 +25,7 @@ export const Game = ({ levelId, showLevels, nextLevel }: GameProps) => {
       return;
     }
 
-    paper.setup(canvas);
-
-    game.current = new GameClass(levelsData[levelId]);
+    game.current = new GameClass(canvas, levelsData[levelId]);
 
     // game.current.addListener(console.log);
 
@@ -51,9 +49,6 @@ export const Game = ({ levelId, showLevels, nextLevel }: GameProps) => {
 
     return () => {
       game.current?.cleanup();
-      paper.project.clear();
-
-      return;
     };
   }, [levelId, canvas, nextLevel, setCompleted]);
 

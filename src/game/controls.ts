@@ -46,6 +46,10 @@ export class PaperControls extends Emitter<ControlEvent> implements Controls {
 
   cleanup() {
     this.tool.remove();
+
+    this.hammer.stop(true);
+    this.hammer.destroy();
+    document.body.style.touchAction = '';
   }
 
   private handleKeyDown(event: { key: string }) {
