@@ -1,8 +1,8 @@
-import { Direction } from './direction';
+import { Direction, getDirectionVector } from './direction';
 import { Level } from './level';
 import { Player } from './player';
 import { CellType, LevelDescription } from './types';
-import { Tick, randBool, randInt, randItem, randItems, timeout } from './utils';
+import { Tick, randBool, randInt, randItem, randItems, randomId, shuffle, timeout } from './utils';
 
 const emptyLevel = (width: number, height: number): Level => {
   const desc = Array(width * height)
@@ -28,6 +28,9 @@ type GenerateLevelOptions = {
   removeEdgesProbability: number;
   minEdgesToRemove: number;
   maxEdgesToRemove: number;
+  addEdgesProbability: number;
+  minEdgesToAdd: number;
+  maxEdgesToAdd: number;
 };
 
 export const generateLevel = (opts: GenerateLevelOptions): Level => {
@@ -43,6 +46,21 @@ export const generateLevel = (opts: GenerateLevelOptions): Level => {
   if (randBool(opts.removeEdgesProbability)) {
     for (const cell of randItems(level.edgeCells, randInt(opts.minEdgesToRemove, opts.maxEdgesToRemove))) {
       level.removeCell(cell);
+    }
+  }
+
+  if (randBool(opts.addEdgesProbability)) {
+    for (const cell of randItems(level.edgeCells, randInt(opts.minEdgesToAdd, opts.maxEdgesToAdd))) {
+      outer: for (const direction of shuffle(Object.values(Direction))) {
+        const [dx, dy] = getDirectionVector(direction);
+
+        const [x, y] = [cell.x + dx, cell.y + dy];
+
+        if (!level.at(x, y)) {
+          level.addCell(x, y, CellType.empty);
+          break outer;
+        }
+      }
     }
   }
 
@@ -92,51 +110,37 @@ const solve = async (tick: Tick, level: Level, max: number) => {
   return solutions;
 };
 
-type SolvedLevel = {
-  level: LevelDescription;
-  solutions: Path[];
-};
-
 type GenerateSolvableLevelOptions = GenerateLevelOptions & {
   maxSolutions: number;
 };
 
 export const generateSolvableLevel = async (
-  tick: Tick,
   opts: GenerateSolvableLevelOptions
-): Promise<SolvedLevel | undefined> => {
+): Promise<LevelDescription> => {
   const level = generateLevel(opts);
 
-  const solutions = await solve(tick, level, opts.maxSolutions);
+  const solutions = await timeout((tick) => solve(tick, level, opts.maxSolutions), 60000);
 
   if (!solutions) {
-    return generateSolvableLevel(tick, opts);
+    return generateSolvableLevel(opts);
   }
 
-  return {
-    level: level.serialize(),
-    solutions,
-  };
+  return level.serialize();
 };
 
 export type GenerateLevelsOptions = GenerateSolvableLevelOptions & {
   count: number;
-  solveTimeout: number;
   onProgress: (results: number) => void;
 };
 
 export const generateLevels = async (opts: GenerateLevelsOptions) => {
-  const results: Array<SolvedLevel> = [];
+  const results: Record<string, LevelDescription> = {};
 
-  while (results.length < opts.count) {
-    const result = await timeout((tick) => generateSolvableLevel(tick, opts), opts.solveTimeout);
+  while (Object.keys(results).length < opts.count) {
+    const level = await generateSolvableLevel(opts);
 
-    if (!result) {
-      continue;
-    }
-
-    results.push(result);
-    opts.onProgress(results.length);
+    results[randomId()] = level;
+    opts.onProgress(Object.keys(results).length);
   }
 
   return results;

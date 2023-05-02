@@ -27,7 +27,7 @@ export class Level {
         type = CellType.empty;
       }
 
-      this.cells.set(this.key(x, y), new Cell(x, y, type));
+      this.addCell(x, y, type);
     });
 
     assert(start, 'missing start position');
@@ -58,6 +58,10 @@ export class Level {
 
   at(x: number, y: number) {
     return this.cells.get(this.key(x, y));
+  }
+
+  addCell(x: number, y: number, type: CellType) {
+    this.cells.set(this.key(x, y), new Cell(x, y, type));
   }
 
   removeCell(cell: Cell) {

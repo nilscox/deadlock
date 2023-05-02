@@ -48,11 +48,11 @@ export const randBool = (p = 0.5) => {
 };
 
 export const randInt = (min: number, max: number) => {
-  return Math.floor(Math.random() * (max - min)) + min;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 export const randItem = <T>(array: T[]) => {
-  return array[randInt(0, array.length)];
+  return array[randInt(0, array.length - 1)];
 };
 
 export const randItems = <T>(array: T[], count: number) => {
