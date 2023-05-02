@@ -32,3 +32,9 @@ export const useLevels = () => {
 
   return [levels, setCompleted] as const;
 };
+
+const levelIds = Object.keys(levelsData);
+
+export const useNextLevelId = (levelId: string) => {
+  return levelIds[levelIds.indexOf(levelId) + 1];
+};

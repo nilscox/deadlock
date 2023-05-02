@@ -1,12 +1,9 @@
 import clsx from 'clsx';
 
 import { useLevels } from './use-levels';
+import { Link } from 'wouter';
 
-type LevelsProps = {
-  selectLevel: (id: string) => void;
-};
-
-export const Levels = ({ selectLevel }: LevelsProps) => {
+export const Levels = () => {
   const [levels] = useLevels();
 
   return (
@@ -15,7 +12,7 @@ export const Levels = ({ selectLevel }: LevelsProps) => {
 
       <div className="grid grid-cols-3 gap-4 p-4">
         {Object.entries(levels).map(([id, { completed }]) => (
-          <Level key={id} id={id} completed={completed !== undefined} onClick={() => selectLevel(id)} />
+          <Level key={id} levelId={id} completed={completed !== undefined} />
         ))}
       </div>
     </>
@@ -23,21 +20,18 @@ export const Levels = ({ selectLevel }: LevelsProps) => {
 };
 
 type LevelProps = {
-  id: string;
+  levelId: string;
   completed: boolean;
-  onClick: () => void;
 };
 
-const Level = ({ id, completed, onClick }: LevelProps) => {
-  return (
-    <button
-      className={clsx(
-        'font-semibold rounded h-12 bg-neutral-100 row justify-center items-center',
-        completed && 'opacity-50'
-      )}
-      onClick={onClick}
-    >
-      {id}
-    </button>
-  );
-};
+const Level = ({ levelId, completed }: LevelProps) => (
+  <Link
+    href={`/level/${levelId}`}
+    className={clsx(
+      'font-semibold rounded h-12 bg-neutral-100 row justify-center items-center',
+      completed && 'opacity-50'
+    )}
+  >
+    {levelId}
+  </Link>
+);

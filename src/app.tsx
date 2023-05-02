@@ -1,35 +1,28 @@
-import { useCallback, useState } from 'react';
+import { Redirect, Route } from 'wouter';
 
 import { Game } from './game';
-import { levels } from './game/levels';
 import { Levels } from './levels';
 import { useLevels } from './use-levels';
 
-const levelIds = Object.keys(levels);
-const nextLevelId = (id: string) => levelIds[levelIds.indexOf(id) + 1];
-
-function Content() {
+const RedirectToNextLevel = () => {
   const [levels] = useLevels();
+  const nextLevel = Object.entries(levels).find(([, level]) => !level.completed)?.[0];
 
-  const [levelId, setLevelId] = useState<string | undefined>(
-    Object.entries(levels).find(([, level]) => !level.completed)?.[0]
-  );
-
-  const nextLevel = useCallback(() => {
-    setLevelId((levelId) => nextLevelId(levelId as string));
-  }, []);
-
-  if (levelId === undefined) {
-    return <Levels selectLevel={setLevelId} />;
-  }
-
-  return <Game levelId={levelId} showLevels={() => setLevelId(undefined)} nextLevel={nextLevel} />;
-}
+  return <Redirect href={`/level/${nextLevel}`} />;
+};
 
 const App = () => {
   return (
     <div className="h-full p-4 col">
-      <Content />
+      <Route path="/">
+        <RedirectToNextLevel />
+      </Route>
+
+      <Route path="/levels">
+        <Levels />
+      </Route>
+
+      <Route path="/level/:levelId">{(params) => <Game levelId={params.levelId} />}</Route>
     </div>
   );
 };
