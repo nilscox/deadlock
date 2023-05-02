@@ -9,6 +9,11 @@ body {
   margin: 0;
 }
 
+#root {
+  max-width: 600px;
+  margin: auto;
+}
+
 button {
   font-family: inherit;
 }

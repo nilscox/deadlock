@@ -2,7 +2,8 @@ import paper from 'paper';
 
 import { Game as GameClass, GameEventType } from './game/game';
 import { levels } from './game/levels';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useLevels } from './use-levels';
 
 type GameProps = {
   levelId: string;
@@ -12,6 +13,35 @@ type GameProps = {
 
 export const Game = ({ levelId, showLevels, nextLevel }: GameProps) => {
   const game = useRef<GameClass>();
+  const [, setCompleted] = useLevels();
+
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>();
+
+  useEffect(() => {
+    if (!canvas) {
+      return;
+    }
+
+    paper.setup(canvas);
+
+    game.current = new GameClass(levels[levelId]);
+
+    game.current.addListener(console.log);
+
+    game.current.addListener((event) => {
+      if (event.type === GameEventType.levelCompleted) {
+        setCompleted(levelId);
+        setTimeout(nextLevel, 1000);
+      }
+    });
+
+    return () => {
+      game.current?.cleanup();
+      paper.project.clear();
+
+      return;
+    };
+  }, [levelId, canvas, nextLevel, setCompleted]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -21,28 +51,7 @@ export const Game = ({ levelId, showLevels, nextLevel }: GameProps) => {
         Level {levelId}
       </div>
 
-      <canvas
-        style={{ width: '100%', height: 400 }}
-        ref={(ref) => {
-          if (!ref) {
-            game.current?.cleanup();
-            paper.project.clear();
-            return;
-          }
-
-          paper.setup(ref);
-
-          game.current = new GameClass(levels[levelId]);
-
-          game.current.addListener(console.log);
-
-          game.current.addListener((event) => {
-            if (event.type === GameEventType.levelCompleted) {
-              setTimeout(nextLevel, 1000);
-            }
-          });
-        }}
-      />
+      <canvas style={{ width: '100%', height: 400 }} ref={setCanvas} />
 
       <div
         style={{
