@@ -1,7 +1,7 @@
 import clsx from 'clsx';
-
-import { useLevels } from './use-levels';
 import { Link } from 'wouter';
+
+import { useLevels } from '../use-levels';
 
 export const Levels = () => {
   const [levels] = useLevels();

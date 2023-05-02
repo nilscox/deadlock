@@ -35,6 +35,6 @@ export const useLevels = () => {
 
 const levelIds = Object.keys(levelsData);
 
-export const useNextLevelId = (levelId: string) => {
+export const getNextLevelId = (levelId: string) => {
   return levelIds[levelIds.indexOf(levelId) + 1];
 };

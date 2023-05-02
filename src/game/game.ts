@@ -34,6 +34,12 @@ export class Game extends Emitter<GameEvent> {
     paper.project.clear();
   }
 
+  setLevel(level: LevelDescription) {
+    this.level = new Level(level);
+    this.player = new Player(this.level);
+    this.restartLevel();
+  }
+
   handleEvent: Listener<ControlEvent> = (event) => {
     if (this.isLevelCompleted()) {
       return;
