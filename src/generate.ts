@@ -18,17 +18,32 @@ const emptyLevel = (width: number, height: number): Level => {
   return new Level(desc);
 };
 
-export const generateLevel = (): Level => {
-  const level = emptyLevel(randInt(3, 7), randInt(3, 7));
+type GenerateLevelOptions = {
+  minWidth: number;
+  maxWidth: number;
+  minHeight: number;
+  maxHeight: number;
+  minBlocks: number;
+  maxBlocks: number;
+  removeEdgesProbability: number;
+  minEdgesToRemove: number;
+  maxEdgesToRemove: number;
+};
 
-  if (randBool()) {
-    for (const cell of randItems(level.edgeCells, randInt(1, 4))) {
-      level.removeCell(cell);
-    }
+export const generateLevel = (opts: GenerateLevelOptions): Level => {
+  const width = randInt(opts.minWidth, opts.maxWidth);
+  const height = randInt(opts.minHeight, opts.maxHeight);
+
+  const level = emptyLevel(width, height);
+
+  for (const cell of randItems(level.emptyCells, randInt(opts.minBlocks, opts.maxBlocks))) {
+    cell.type = CellType.block;
   }
 
-  for (const cell of randItems(level.emptyCells, randInt(0, 5))) {
-    cell.type = CellType.block;
+  if (randBool(opts.removeEdgesProbability)) {
+    for (const cell of randItems(level.edgeCells, randInt(opts.minEdgesToRemove, opts.maxEdgesToRemove))) {
+      level.removeCell(cell);
+    }
   }
 
   level.setStart(randItem(level.emptyCells));
@@ -82,13 +97,20 @@ type SolvedLevel = {
   solutions: Path[];
 };
 
-export const generateSolvableLevel = async (tick: Tick): Promise<SolvedLevel | undefined> => {
-  const level = generateLevel();
+type GenerateSolvableLevelOptions = GenerateLevelOptions & {
+  maxSolutions: number;
+};
 
-  const solutions = await solve(tick, level, 100);
+export const generateSolvableLevel = async (
+  tick: Tick,
+  opts: GenerateSolvableLevelOptions
+): Promise<SolvedLevel | undefined> => {
+  const level = generateLevel(opts);
+
+  const solutions = await solve(tick, level, opts.maxSolutions);
 
   if (!solutions) {
-    return generateSolvableLevel(tick);
+    return generateSolvableLevel(tick, opts);
   }
 
   return {
@@ -97,18 +119,24 @@ export const generateSolvableLevel = async (tick: Tick): Promise<SolvedLevel | u
   };
 };
 
-export const generateLevels = async () => {
+export type GenerateLevelsOptions = GenerateSolvableLevelOptions & {
+  count: number;
+  solveTimeout: number;
+  onProgress: (results: number) => void;
+};
+
+export const generateLevels = async (opts: GenerateLevelsOptions) => {
   const results: Array<SolvedLevel> = [];
 
-  while (results.length < 30) {
-    const result = await timeout(generateSolvableLevel, 15000);
+  while (results.length < opts.count) {
+    const result = await timeout((tick) => generateSolvableLevel(tick, opts), opts.solveTimeout);
 
     if (!result) {
       continue;
     }
 
     results.push(result);
-    console.log(results.length);
+    opts.onProgress(results.length);
   }
 
   return results;

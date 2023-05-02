@@ -77,11 +77,14 @@ export class PaperRenderer {
   async animatePlayerPath() {
     this.playerLayer.activate();
 
-    for (const [x, y] of this.game.player.path.reverse()) {
+    const path = this.game.player.path;
+    let i = 1;
+
+    for (const [x, y] of path.reverse()) {
       const cell = this.game.level.at(x, y);
       const paperCell = this.cells.get(cell!)!;
 
-      paperCell.rect.fillColor = new Color('#CFC');
+      paperCell.rect.fillColor = new Color(0, 255, 0, i++ / (path.length + 1) / 2);
 
       await new Promise((r) => setTimeout(r, 100));
     }
