@@ -1,6 +1,7 @@
-import { CellType, LevelDescription } from './types';
-import generated from './levels.json' assert { type: 'json' };
+import { CellType } from './cell';
+import { LevelDescription } from './level';
 import generated2 from './levels-unqualified.json' assert { type: 'json' };
+import generated from './levels.json' assert { type: 'json' };
 
 const tutorial: Record<string, LevelDescription> = {
   n42pb7: [

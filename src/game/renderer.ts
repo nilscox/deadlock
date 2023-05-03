@@ -1,8 +1,8 @@
 import paper, { Color, CompoundPath, Group, Layer, Shape } from 'paper';
 
+import { Cell, CellType } from './cell';
 import { Game, GameEventType } from './game';
-import { Cell, Level } from './level';
-import { CellType } from './types';
+import { Level } from './level';
 import { Point } from './point';
 
 export class GameRenderer {

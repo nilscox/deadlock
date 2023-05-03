@@ -1,10 +1,9 @@
 import { Controls, EventType } from './controls';
 import { Direction } from './direction';
 import { Emitter } from './emitter';
-import { Level } from './level';
+import { Level, LevelDescription } from './level';
 import { Player } from './player';
 import { GameRenderer } from './renderer';
-import { LevelDescription } from './types';
 
 export enum GameEventType {
   playerMoved = 'playerMoved',

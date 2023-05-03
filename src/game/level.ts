@@ -1,7 +1,13 @@
+import { Cell, CellType } from './cell';
 import { directions, getDirectionVector } from './direction';
 import { IPoint, Point } from './point';
-import { CellType, LevelDescription } from './types';
 import { assert } from './utils';
+
+export type LevelDescription = Array<{
+  x: number;
+  y: number;
+  type: CellType;
+}>;
 
 export class Level {
   public start: Point;
@@ -104,23 +110,5 @@ export class Level {
       y: cell.y,
       type: this.start.equals(cell) ? CellType.player : cell.type,
     }));
-  }
-}
-
-export class Cell implements IPoint {
-  public position: Point;
-  public type: CellType;
-
-  constructor(x: number, y: number, type: CellType) {
-    this.position = new Point(x, y);
-    this.type = type;
-  }
-
-  get x() {
-    return this.position.x;
-  }
-
-  get y() {
-    return this.position.y;
   }
 }

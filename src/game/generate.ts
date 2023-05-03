@@ -1,7 +1,7 @@
+import { Cell, CellType } from './cell';
 import { Direction, getDirectionVector } from './direction';
-import { Cell, Level } from './level';
+import { Level, LevelDescription } from './level';
 import { solve } from './solve';
-import { CellType, LevelDescription } from './types';
 import { randBool, shuffle } from './utils';
 
 const emptyLevel = (width: number, height: number): Level => {

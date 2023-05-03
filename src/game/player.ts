@@ -1,7 +1,7 @@
+import { Cell, CellType } from './cell';
 import { Direction, getDirectionVector } from './direction';
-import { Cell, Level } from './level';
+import { Level } from './level';
 import { IPoint, Point } from './point';
-import { CellType } from './types';
 
 export class Player implements IPoint {
   private cell: Cell;
