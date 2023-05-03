@@ -6,7 +6,7 @@ import { Game as GameClass, GameEventType } from '../game/game';
 import { levels as levelsData } from '../game/levels';
 import { useNavigate } from '../hooks/use-navigate';
 import { useStopwatch } from '../hooks/use-stopwatch';
-import { getNextLevelId, useLevels } from '../use-levels';
+import { getLevelNumber, getNextLevelId, useLevels } from '../use-levels';
 
 type GameProps = {
   levelId: string;
@@ -19,7 +19,7 @@ export const Game = ({ levelId }: GameProps) => {
 
   return (
     <>
-      <div className="flex-1 text-lg col items-center justify-center">Level {levelId}</div>
+      <div className="flex-1 text-lg col items-center justify-center">Level {getLevelNumber(levelId)}</div>
 
       <canvas style={{ width: '100%', height: 400 }} ref={setCanvas} />
 

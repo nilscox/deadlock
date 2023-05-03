@@ -52,3 +52,7 @@ const levelIds = Object.keys(levelsData);
 export const getNextLevelId = (levelId: string) => {
   return levelIds[levelIds.indexOf(levelId) + 1];
 };
+
+export const getLevelNumber = (levelId: string) => {
+  return levelIds.indexOf(levelId) + 1;
+};

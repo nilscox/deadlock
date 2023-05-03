@@ -11,8 +11,8 @@ export const Levels = () => {
       <div className="pt-8 text-lg text-center">Levels</div>
 
       <div className="grid grid-cols-3 gap-4 p-4">
-        {Object.entries(levels).map(([id, level]) => (
-          <Level key={id} levelId={id} completed={Boolean(level?.completed)} />
+        {Object.entries(levels).map(([id, level], index) => (
+          <Level key={id} levelId={id} levelNumber={index + 1} completed={Boolean(level?.completed)} />
         ))}
       </div>
     </>
@@ -21,10 +21,11 @@ export const Levels = () => {
 
 type LevelProps = {
   levelId: string;
+  levelNumber: number;
   completed: boolean;
 };
 
-const Level = ({ levelId, completed }: LevelProps) => (
+const Level = ({ levelId, levelNumber, completed }: LevelProps) => (
   <Link
     href={`/level/${levelId}`}
     className={clsx(
@@ -32,6 +33,6 @@ const Level = ({ levelId, completed }: LevelProps) => (
       completed && 'opacity-50'
     )}
   >
-    {levelId}
+    {levelNumber}
   </Link>
 );
