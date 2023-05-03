@@ -1,5 +1,6 @@
 {
   "include": ["src"],
+  "exclude": ["src/**/*.spec.ts"],
   "references": [{ "path": "./tsconfig.node.json" }],
   "compilerOptions": {
     "target": "ESNext",
@@ -14,8 +15,7 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": true,
-    "types": ["vitest/globals"]
+    "strict": true
   },
   "ts-node": {
     "esm": true,

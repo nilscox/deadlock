@@ -25,7 +25,7 @@ export class Player implements IPoint {
     }
 
     this.path.push(this.position.clone());
-    this.level.at(this.x, this.y)!.type = CellType.path;
+    this.level.at(this.x, this.y).type = CellType.path;
     this.position.set(nextCell);
 
     return true;
@@ -38,7 +38,7 @@ export class Player implements IPoint {
       return false;
     }
 
-    this.level.at(this.x, this.y)!.type = CellType.empty;
+    this.level.at(this.x, this.y).type = CellType.empty;
     this.position.set(lastPos);
 
     return true;
@@ -51,7 +51,7 @@ export class Player implements IPoint {
     let cell: Cell | undefined;
 
     do {
-      cell = this.level.at((x += dx), (y += dy));
+      cell = this.level.atUnsafe((x += dx), (y += dy));
 
       if (cell?.type === CellType.block) {
         return;

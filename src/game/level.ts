@@ -43,7 +43,7 @@ export class Level {
 
   reset() {
     this.description.forEach(({ x, y, type }) => {
-      this.at(x, y)!.type = type;
+      this.at(x, y).type = type;
     });
   }
 
@@ -63,8 +63,20 @@ export class Level {
     return [x, y].join(',');
   }
 
-  at(x: number, y: number) {
+  atUnsafe(x: number, y: number) {
     return this.cells.get(this.key(x, y));
+  }
+
+  at(x: number, y: number) {
+    const cell = this.atUnsafe(x, y);
+
+    assert(cell);
+
+    return cell;
+  }
+
+  has(x: number, y: number) {
+    return this.atUnsafe(x, y) !== undefined;
   }
 
   addCell(x: number, y: number, type: CellType) {
@@ -100,7 +112,7 @@ export class Level {
   getNeighbors(x: number, y: number) {
     return directions.map((dir) => {
       const [dx, dy] = getDirectionVector(dir);
-      return [dir, this.at(x + dx, y + dy)] as const;
+      return [dir, this.atUnsafe(x + dx, y + dy)] as const;
     });
   }
 

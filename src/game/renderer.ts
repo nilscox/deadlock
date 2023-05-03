@@ -4,6 +4,7 @@ import { Cell, CellType } from './cell';
 import { Game, GameEventType } from './game';
 import { Level } from './level';
 import { Point } from './point';
+import { assert } from './utils';
 
 export class GameRenderer {
   private cells = new Map<Cell, PaperCell>();
@@ -76,7 +77,9 @@ export class GameRenderer {
 
   update() {
     this.level.forEachCell((cell) => {
-      const c = this.cells.get(cell)!;
+      const c = this.cells.get(cell);
+
+      assert(c);
 
       c.type = cell.type;
       c.position = cell.position;
@@ -92,7 +95,10 @@ export class GameRenderer {
 
     for (const { x, y } of path.reverse()) {
       const cell = this.level.at(x, y);
-      const paperCell = this.cells.get(cell!)!;
+      assert(cell);
+
+      const paperCell = this.cells.get(cell);
+      assert(paperCell);
 
       paperCell.rect.fillColor = new Color(0, 255, 0, 0.2);
     }
@@ -142,19 +148,19 @@ class PaperLevelBoundaries {
     level.forEachCell((cell) => {
       const { x, y } = cell.position;
 
-      if (!level.at(x, y - 1)) {
+      if (!level.has(x, y - 1)) {
         this.addSegment(x, y, 'horizontal');
       }
 
-      if (!level.at(x, y + 1)) {
+      if (!level.has(x, y + 1)) {
         this.addSegment(x, y + 1, 'horizontal');
       }
 
-      if (!level.at(x - 1, y)) {
+      if (!level.has(x - 1, y)) {
         this.addSegment(x, y, 'vertical');
       }
 
-      if (!level.at(x + 1, y)) {
+      if (!level.has(x + 1, y)) {
         this.addSegment(x + 1, y, 'vertical');
       }
     });
