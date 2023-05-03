@@ -66,10 +66,10 @@ export const generateAllLevels = (width: number, height: number, blocks: number)
   return levels;
 };
 
-const isLevelRelevant = (level: LevelDescription) => {
-  const solutions = solve(new Level(level), 10);
+export const isLevelRelevant = (level: LevelDescription) => {
+  const solutions = solve(level, 100);
 
-  if (solutions.length === 0) {
+  if (!solutions || solutions.length === 0) {
     return false;
   }
 

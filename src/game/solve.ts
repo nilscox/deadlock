@@ -1,12 +1,13 @@
 import { Direction, directions } from './direction';
-import { Level } from './level';
+import { Level, LevelDescription } from './level';
 import { Player } from './player';
 
 type Path = Direction[];
 
-export const solve = (level: Level, max = Infinity) => {
+export const solve = (desc: LevelDescription, max = Infinity) => {
   const path: Path = [];
   const solutions = new Array<Path>();
+  const level = new Level(desc);
   const player = new Player(level);
 
   const run = () => {
@@ -19,19 +20,26 @@ export const solve = (level: Level, max = Infinity) => {
 
       if (level.emptyCells.length === 1) {
         solutions.push([...path]);
+
         if (solutions.length > max) {
-          return [];
+          return false;
         }
       } else {
-        run();
+        if (!run()) {
+          return false;
+        }
       }
 
       path.pop();
       player.back();
     }
+
+    return true;
   };
 
-  run();
+  if (!run()) {
+    return false;
+  }
 
   return solutions;
 };
