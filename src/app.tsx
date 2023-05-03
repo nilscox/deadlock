@@ -1,4 +1,4 @@
-import { Redirect, Route } from 'wouter';
+import { Redirect, Route, Router } from 'wouter';
 
 import { Game } from './views/game';
 import { Levels } from './views/levels';
@@ -14,15 +14,17 @@ const RedirectToNextLevel = () => {
 const App = () => {
   return (
     <div className="h-full p-4 col">
-      <Route path="/">
-        <RedirectToNextLevel />
-      </Route>
+      <Router base={import.meta.env.VITE_APP_BASE_URL}>
+        <Route path="/">
+          <RedirectToNextLevel />
+        </Route>
 
-      <Route path="/levels">
-        <Levels />
-      </Route>
+        <Route path="/levels">
+          <Levels />
+        </Route>
 
-      <Route path="/level/:levelId">{(params) => <Game levelId={params.levelId} />}</Route>
+        <Route path="/level/:levelId">{(params) => <Game levelId={params.levelId} />}</Route>
+      </Router>
     </div>
   );
 };
