@@ -1,5 +1,6 @@
 import { directions, getDirectionVector } from './direction';
-import { CellType, LevelDescription, Point } from './types';
+import { IPoint, Point } from './point';
+import { CellType, LevelDescription } from './types';
 import { assert } from './utils';
 
 export class Level {
@@ -14,7 +15,7 @@ export class Level {
   };
 
   constructor(private description: LevelDescription) {
-    let start: Point | undefined;
+    let start: IPoint | undefined;
 
     this.description.forEach(({ x, y, type }) => {
       if (x < this.bounds.minX) this.bounds.minX = x;
@@ -23,7 +24,7 @@ export class Level {
       if (y > this.bounds.maxY) this.bounds.maxY = y;
 
       if (type === CellType.player) {
-        start = [x, y];
+        start = { x, y };
         type = CellType.empty;
       }
 
@@ -31,7 +32,7 @@ export class Level {
     });
 
     assert(start, 'missing start position');
-    this.start = start;
+    this.start = new Point(start);
   }
 
   reset() {
@@ -101,25 +102,25 @@ export class Level {
     return this.cellsArray.map((cell) => ({
       x: cell.x,
       y: cell.y,
-      type: cell.x === this.start[0] && cell.y === this.start[1] ? CellType.player : cell.type,
+      type: this.start.equals(cell) ? CellType.player : cell.type,
     }));
   }
 }
 
-export class Cell {
+export class Cell implements IPoint {
   public position: Point;
   public type: CellType;
 
   constructor(x: number, y: number, type: CellType) {
-    this.position = [x, y];
+    this.position = new Point(x, y);
     this.type = type;
   }
 
   get x() {
-    return this.position[0];
+    return this.position.x;
   }
 
   get y() {
-    return this.position[1];
+    return this.position.y;
   }
 }

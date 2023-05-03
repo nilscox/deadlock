@@ -1,19 +1,20 @@
 import { Direction, getDirectionVector } from './direction';
 import { Cell, Level } from './level';
-import { CellType, Point } from './types';
+import { IPoint, Point } from './point';
+import { CellType } from './types';
 
-export class Player {
+export class Player implements IPoint {
   private cell: Cell;
-  public path = new Array<Point>();
+  public path = new Array<IPoint>();
 
   constructor(private level: Level) {
     this.cell = new Cell(0, 0, CellType.player);
-    this.position = level.start;
+    this.reset();
   }
 
   reset() {
     this.path = [];
-    this.position = this.level.start;
+    this.position = this.level.start.clone();
   }
 
   move(direction: Direction) {
@@ -23,9 +24,9 @@ export class Player {
       return false;
     }
 
-    this.path.push([this.x, this.y]);
+    this.path.push(this.position.clone());
     this.level.at(this.x, this.y)!.type = CellType.path;
-    this.position = [nextCell.x, nextCell.y];
+    this.position.set(nextCell);
 
     return true;
   }
@@ -38,7 +39,7 @@ export class Player {
     }
 
     this.level.at(this.x, this.y)!.type = CellType.empty;
-    this.position = lastPos;
+    this.position.set(lastPos);
 
     return true;
   }
@@ -61,15 +62,15 @@ export class Player {
   }
 
   get x() {
-    return this.cell.position[0];
+    return this.position.x;
   }
 
   get y() {
-    return this.cell.position[1];
+    return this.position.y;
   }
 
   get position(): Point {
-    return [this.x, this.y];
+    return this.cell.position;
   }
 
   set position(position: Point) {

@@ -2,7 +2,8 @@ import paper, { Color, CompoundPath, Group, Layer, Shape } from 'paper';
 
 import { Game, GameEventType } from './game';
 import { Cell, Level } from './level';
-import { CellType, Point } from './types';
+import { CellType } from './types';
+import { Point } from './point';
 
 export class GameRenderer {
   private cells = new Map<Cell, PaperCell>();
@@ -89,7 +90,7 @@ export class GameRenderer {
   highlightPlayerPath() {
     const path = this.player.path;
 
-    for (const [x, y] of path.reverse()) {
+    for (const { x, y } of path.reverse()) {
       const cell = this.level.at(x, y);
       const paperCell = this.cells.get(cell!)!;
 
@@ -123,7 +124,7 @@ class PaperCell {
     this.rect.fillColor = PaperCell.colorsMap[type];
   }
 
-  set position([x, y]: Point) {
+  set position({ x, y }: Point) {
     this.rect.bounds.left = x * this.cellSize;
     this.rect.bounds.top = y * this.cellSize;
   }
@@ -139,7 +140,7 @@ class PaperLevelBoundaries {
     this.path.strokeWidth = 2;
 
     level.forEachCell((cell) => {
-      const [x, y] = cell.position;
+      const { x, y } = cell.position;
 
       if (!level.at(x, y - 1)) {
         this.addSegment(x, y, 'horizontal');
