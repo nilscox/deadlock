@@ -11,6 +11,15 @@ export function isDirection(value: string): value is Direction {
   return Object.values<string>(Direction).includes(value);
 }
 
+export function getOppositeDirection(dir: Direction): Direction {
+  return {
+    [Direction.left]: Direction.right,
+    [Direction.right]: Direction.left,
+    [Direction.up]: Direction.down,
+    [Direction.down]: Direction.up,
+  }[dir];
+}
+
 const directionsMap: Record<Direction, [number, number]> = {
   [Direction.left]: [-1, 0],
   [Direction.right]: [1, 0],

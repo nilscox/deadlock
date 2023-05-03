@@ -1,8 +1,6 @@
-import { Direction, getDirectionVector } from './direction';
-import { Level } from './level';
-import { Player } from './player';
+import { Cell, Level } from './level';
 import { CellType, LevelDescription } from './types';
-import { Tick, randBool, randInt, randItem, randItems, randomId, shuffle, timeout } from './utils';
+import { randomId } from './utils';
 
 const emptyLevel = (width: number, height: number): Level => {
   const desc = Array(width * height)
@@ -18,129 +16,67 @@ const emptyLevel = (width: number, height: number): Level => {
   return new Level(desc);
 };
 
-type GenerateLevelOptions = {
-  minWidth: number;
-  maxWidth: number;
-  minHeight: number;
-  maxHeight: number;
-  minBlocks: number;
-  maxBlocks: number;
-  removeEdgesProbability: number;
-  minEdgesToRemove: number;
-  maxEdgesToRemove: number;
-  addEdgesProbability: number;
-  minEdgesToAdd: number;
-  maxEdgesToAdd: number;
+const last = <T>(array: T[]) => {
+  return array[array.length - 1];
 };
 
-export const generateLevel = (opts: GenerateLevelOptions): Level => {
-  const width = randInt(opts.minWidth, opts.maxWidth);
-  const height = randInt(opts.minHeight, opts.maxHeight);
+const nextLevel = (cells: Cell[]) => {
+  const lastBlockIdx = cells.findLastIndex((cell) => cell.type === CellType.block);
 
+  if (lastBlockIdx === -1) {
+    return -1;
+  }
+
+  if (cells[lastBlockIdx] === last(cells)) {
+    const idx = nextLevel(cells.slice(0, -1));
+
+    if (idx === -1 || !cells[idx + 2]) {
+      return -1;
+    }
+
+    cells[lastBlockIdx].type = CellType.empty;
+    cells[idx + 2].type = CellType.block;
+  } else {
+    cells[lastBlockIdx].type = CellType.empty;
+    cells[lastBlockIdx + 1].type = CellType.block;
+  }
+
+  return lastBlockIdx;
+};
+
+export const generateAllLevels = (width: number, height: number, blocks: number): LevelDescription[] => {
   const level = emptyLevel(width, height);
+  const levels: LevelDescription[] = [];
 
-  for (const cell of randItems(level.emptyCells, randInt(opts.minBlocks, opts.maxBlocks))) {
-    cell.type = CellType.block;
+  const cells = level.emptyCells;
+
+  for (let i = 0; i < blocks; ++i) {
+    cells[i].type = CellType.block;
   }
 
-  if (randBool(opts.removeEdgesProbability)) {
-    for (const cell of randItems(level.edgeCells, randInt(opts.minEdgesToRemove, opts.maxEdgesToRemove))) {
-      level.removeCell(cell);
+  do {
+    for (const cell of level.emptyCells) {
+      level.setStart(cell);
+      levels.push(level.serialize());
     }
-  }
+  } while (nextLevel(level.cellsArray) !== -1);
 
-  if (randBool(opts.addEdgesProbability)) {
-    for (const cell of randItems(level.edgeCells, randInt(opts.minEdgesToAdd, opts.maxEdgesToAdd))) {
-      outer: for (const direction of shuffle(Object.values(Direction))) {
-        const [dx, dy] = getDirectionVector(direction);
-
-        const [x, y] = [cell.x + dx, cell.y + dy];
-
-        if (!level.at(x, y)) {
-          level.addCell(x, y, CellType.empty);
-          break outer;
-        }
-      }
-    }
-  }
-
-  level.setStart(randItem(level.emptyCells));
-
-  return level;
+  return levels;
 };
 
-type Path = Direction[];
-
-const solve = async (tick: Tick, level: Level, max: number) => {
-  const path: Path = [];
-  const solutions = new Array<Path>();
-  const player = new Player(level);
-
-  const run = async () => {
-    for (const dir of Object.values(Direction)) {
-      await tick();
-
-      if (!player.move(dir)) {
-        continue;
-      }
-
-      path.push(dir);
-
-      if (level.emptyCells.length === 1) {
-        solutions.push([...path]);
-
-        if (solutions.length >= max) {
-          return;
-        }
-      } else {
-        await run();
-      }
-
-      path.pop();
-      player.back();
-    }
-  };
-
-  await run();
-
-  if (solutions.length === 0 || solutions.length >= max) {
-    return;
-  }
-
-  return solutions;
-};
-
-type GenerateSolvableLevelOptions = GenerateLevelOptions & {
-  maxSolutions: number;
-};
-
-export const generateSolvableLevel = async (
-  opts: GenerateSolvableLevelOptions
-): Promise<LevelDescription> => {
-  const level = generateLevel(opts);
-
-  const solutions = await timeout((tick) => solve(tick, level, opts.maxSolutions), 60000);
-
-  if (!solutions) {
-    return generateSolvableLevel(opts);
-  }
-
-  return level.serialize();
-};
-
-export type GenerateLevelsOptions = GenerateSolvableLevelOptions & {
+export type GenerateLevelsOptions = {
   count: number;
-  onProgress: (results: number) => void;
+  onProgress: (result: LevelDescription) => void;
 };
 
 export const generateLevels = async (opts: GenerateLevelsOptions) => {
   const results: Record<string, LevelDescription> = {};
 
   while (Object.keys(results).length < opts.count) {
-    const level = await generateSolvableLevel(opts);
+    const level = await generateLevel();
 
     results[randomId()] = level;
-    opts.onProgress(Object.keys(results).length);
+    opts.onProgress(level);
   }
 
   return results;
