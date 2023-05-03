@@ -5,6 +5,8 @@ export enum Direction {
   down = 'down',
 }
 
+export const directions = Object.values(Direction);
+
 export function isDirection(value: string): value is Direction {
   return Object.values<string>(Direction).includes(value);
 }

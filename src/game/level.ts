@@ -1,4 +1,4 @@
-import { Direction, getDirectionVector } from './direction';
+import { directions, getDirectionVector } from './direction';
 import { CellType, LevelDescription, Point } from './types';
 import { assert } from './utils';
 
@@ -90,13 +90,11 @@ export class Level {
     return x === minX || y === minY || x === maxX || y === maxY;
   }
 
-  getNeighbors(cell: Cell) {
-    return Object.values(Direction)
-      .map((dir) => {
-        const [dx, dy] = getDirectionVector(dir);
-        return this.at(cell.x + dx, cell.y + dy);
-      })
-      .filter(Boolean) as Cell[];
+  getNeighbors(x: number, y: number) {
+    return directions.map((dir) => {
+      const [dx, dy] = getDirectionVector(dir);
+      return [dir, this.at(x + dx, y + dy)] as const;
+    });
   }
 
   serialize(): LevelDescription {

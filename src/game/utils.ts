@@ -10,6 +10,20 @@ export function assert(value: unknown, message?: string): asserts value {
   }
 }
 
+export const toObject = <T, V>(
+  array: T[],
+  getKey: (item: T) => string,
+  getValue: (item: T) => V
+): Record<string, V> => {
+  return array.reduce(
+    (obj, item) => ({
+      ...obj,
+      [getKey(item)]: getValue(item),
+    }),
+    {}
+  );
+};
+
 export const randomId = () => {
   return Math.random().toString(36).slice(-6);
 };
