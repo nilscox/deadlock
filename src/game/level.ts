@@ -10,8 +10,10 @@ export type LevelDescription = Array<{
 }>;
 
 export class Level {
-  public start: Point;
+  public start = new Point();
   private cells = new Map<string, Cell>();
+
+  private description?: LevelDescription;
 
   private readonly bounds = {
     minX: 0,
@@ -20,8 +22,17 @@ export class Level {
     maxY: 0,
   };
 
-  constructor(private description: LevelDescription) {
+  constructor(description?: LevelDescription) {
+    if (description) {
+      this.set(description);
+    }
+  }
+
+  set(description: LevelDescription) {
     let start: IPoint | undefined;
+
+    this.cells.clear();
+    this.description = description;
 
     this.description.forEach(({ x, y, type }) => {
       if (x < this.bounds.minX) this.bounds.minX = x;
@@ -42,6 +53,8 @@ export class Level {
   }
 
   reset() {
+    assert(this.description);
+
     this.description.forEach(({ x, y, type }) => {
       this.at(x, y).type = type;
     });

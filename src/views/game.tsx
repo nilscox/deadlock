@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'wouter';
+import paper from 'paper';
 
 import { Game as GameClass, GameEventType } from '../game/game';
 import { levels as levelsData } from '../game/levels';
@@ -65,12 +66,13 @@ const useGame = (canvas: HTMLCanvasElement | null, levelId: string) => {
       return;
     }
 
-    const game = new GameClass(canvas, levelsData[levelId]);
+    paper.setup(canvas);
+
+    const game = new GameClass();
 
     setGame(game);
 
     return () => game.cleanup();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvas]);
 
   useEffect(() => {

@@ -61,8 +61,12 @@ export const randBool = (p = 0.5) => {
   return Math.random() < p;
 };
 
+export const randFloat = (min: number, max: number) => {
+  return Math.random() * (max - min + 1) + min;
+};
+
 export const randInt = (min: number, max: number) => {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(randFloat(min, max));
 };
 
 export const randItem = <T>(array: T[]) => {

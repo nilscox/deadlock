@@ -9,6 +9,7 @@ export enum GameEventType {
   playerMoved = 'playerMoved',
   levelStarted = 'levelRestarted',
   levelCompleted = 'levelCompleted',
+  levelChanged = 'levelChanged',
 }
 
 export class Game extends Emitter<GameEventType> {
@@ -18,13 +19,13 @@ export class Game extends Emitter<GameEventType> {
   private renderer: GameRenderer;
   private controls = new Controls();
 
-  constructor(canvas: HTMLCanvasElement, level: LevelDescription) {
+  constructor() {
     super();
 
-    this.level = new Level(level);
+    this.level = new Level();
     this.player = new Player(this.level);
 
-    this.renderer = new GameRenderer(canvas, this);
+    this.renderer = new GameRenderer(this);
 
     this.addListener(GameEventType.levelStarted, () => {
       this.controls.removeListeners();
@@ -44,8 +45,8 @@ export class Game extends Emitter<GameEventType> {
   }
 
   setLevel(level: LevelDescription) {
-    this.level = new Level(level);
-    this.player = new Player(this.level);
+    this.level.set(level);
+    this.emit(GameEventType.levelChanged);
     this.restartLevel();
   }
 

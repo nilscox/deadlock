@@ -4,17 +4,16 @@ import { Level } from './level';
 import { IPoint, Point } from './point';
 
 export class Player implements IPoint {
-  private cell: Cell;
+  private cell = new Cell(0, 0, CellType.player);
   public path = new Array<IPoint>();
 
   constructor(private level: Level) {
-    this.cell = new Cell(0, 0, CellType.player);
     this.reset();
   }
 
   reset() {
     this.path = [];
-    this.position = this.level.start.clone();
+    this.position.set(this.level.start);
   }
 
   move(direction: Direction) {
