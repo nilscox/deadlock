@@ -5,8 +5,8 @@ import { Levels } from './views/levels';
 import { useLevels } from './use-levels';
 
 const RedirectToNextLevel = () => {
-  const [levels] = useLevels();
-  const nextLevel = Object.entries(levels).find(([, level]) => !level.completed)?.[0];
+  const { levels } = useLevels();
+  const nextLevel = Object.entries(levels).find(([, level]) => !level?.completed)?.[0];
 
   return <Redirect href={`/level/${nextLevel}`} />;
 };

@@ -4,15 +4,15 @@ import { Link } from 'wouter';
 import { useLevels } from '../use-levels';
 
 export const Levels = () => {
-  const [levels] = useLevels();
+  const { levels } = useLevels();
 
   return (
     <>
       <div className="pt-8 text-lg text-center">Levels</div>
 
       <div className="grid grid-cols-3 gap-4 p-4">
-        {Object.entries(levels).map(([id, { completed }]) => (
-          <Level key={id} levelId={id} completed={completed !== undefined} />
+        {Object.entries(levels).map(([id, level]) => (
+          <Level key={id} levelId={id} completed={Boolean(level?.completed)} />
         ))}
       </div>
     </>

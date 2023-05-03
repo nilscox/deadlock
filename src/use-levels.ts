@@ -1,22 +1,25 @@
 import { useCallback, useEffect, useState } from 'react';
 import { levels as levelsData } from './game/levels';
+import { toObject } from './game/utils';
 
 type StoredLevel = {
-  completed?: {
-    tries: number;
-    time: number;
-  };
+  completed?: boolean;
+  skipped?: boolean;
+  tries?: number;
+  time?: number;
 };
 
 export const useLevels = () => {
   const [levels, setLevels] = useState(() => {
-    const levels: Record<string, StoredLevel> = JSON.parse(localStorage.getItem('levels') ?? '{}');
+    const stored: Record<string, StoredLevel | undefined> = JSON.parse(
+      localStorage.getItem('levels') ?? '{}'
+    );
 
-    for (const id of Object.keys(levelsData)) {
-      levels[id] ??= {};
-    }
-
-    return levels;
+    return toObject(
+      Object.keys(levelsData),
+      (key) => key,
+      (key) => stored[key]
+    );
   });
 
   useEffect(() => {
@@ -26,11 +29,22 @@ export const useLevels = () => {
   const setCompleted = useCallback((id: string, tries: number, time: number) => {
     setLevels((levels) => ({
       ...levels,
-      [id]: { completed: { tries, time } },
+      [id]: { completed: true, tries, time },
     }));
   }, []);
 
-  return [levels, setCompleted] as const;
+  const setSkipped = useCallback((id: string, tries: number, time: number) => {
+    setLevels((levels) => ({
+      ...levels,
+      [id]: { skipped: true, tries, time },
+    }));
+  }, []);
+
+  return {
+    levels,
+    setCompleted,
+    setSkipped,
+  };
 };
 
 const levelIds = Object.keys(levelsData);

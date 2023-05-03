@@ -13,7 +13,8 @@ type GameProps = {
 
 export const Game = ({ levelId }: GameProps) => {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  useGame(canvas, levelId);
+
+  const { onSkip } = useGame(canvas, levelId);
 
   return (
     <>
@@ -21,13 +22,18 @@ export const Game = ({ levelId }: GameProps) => {
 
       <canvas style={{ width: '100%', height: 400 }} ref={setCanvas} />
 
-      <div className="flex-1 row items-end">
+      <div className="flex-1 row items-end justify-between">
         <Link href="/levels">{'<- levels'}</Link>
+
         <button
           className="ml-auto"
           onClick={() => navigator.clipboard.writeText(localStorage.getItem('levels') ?? '<no data>')}
         >
           copy info
+        </button>
+
+        <button className="ml-auto" onClick={onSkip}>
+          {'-> skip'}
         </button>
       </div>
     </>
@@ -35,29 +41,24 @@ export const Game = ({ levelId }: GameProps) => {
 };
 
 const useGame = (canvas: HTMLCanvasElement | null, levelId: string) => {
-  const [, setCompleted] = useLevels();
+  const { setCompleted, setSkipped } = useLevels();
   const [game, setGame] = useState<GameClass>();
 
   const navigate = useNavigate();
+  const nextLevel = useNextLevel(levelId);
 
   const tries = useRef(1);
   const stopwatch = useStopwatch();
+
+  if (!levelsData[levelId]) {
+    navigate('/levels');
+  }
 
   useEffect(() => {
     tries.current = 1;
     stopwatch.restart();
     game?.setLevel(levelsData[levelId]);
   }, [levelId, stopwatch, game]);
-
-  const nextLevel = useCallback(() => {
-    const nextLevelId = getNextLevelId(levelId);
-
-    if (nextLevelId) {
-      navigate(`/level/${nextLevelId}`);
-    } else {
-      navigate('/levels');
-    }
-  }, [levelId, navigate]);
 
   useEffect(() => {
     if (!canvas) {
@@ -88,4 +89,25 @@ const useGame = (canvas: HTMLCanvasElement | null, levelId: string) => {
       }
     });
   }, [game, levelId, setCompleted, nextLevel, stopwatch]);
+
+  const onSkip = useCallback(() => {
+    setSkipped(levelId, tries.current, stopwatch.elapsed());
+    nextLevel();
+  }, [setSkipped, levelId, stopwatch, nextLevel]);
+
+  return { onSkip };
+};
+
+const useNextLevel = (levelId: string) => {
+  const navigate = useNavigate();
+
+  return useCallback(() => {
+    const nextLevelId = getNextLevelId(levelId);
+
+    if (nextLevelId) {
+      navigate(`/level/${nextLevelId}`);
+    } else {
+      navigate('/levels');
+    }
+  }, [levelId, navigate]);
 };
