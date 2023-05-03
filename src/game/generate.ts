@@ -1,6 +1,8 @@
+import { Direction, getDirectionVector } from './direction';
 import { Cell, Level } from './level';
+import { solve } from './solve';
 import { CellType, LevelDescription } from './types';
-import { randomId } from './utils';
+import { randBool, shuffle } from './utils';
 
 const emptyLevel = (width: number, height: number): Level => {
   const desc = Array(width * height)
@@ -64,20 +66,65 @@ export const generateAllLevels = (width: number, height: number, blocks: number)
   return levels;
 };
 
-export type GenerateLevelsOptions = {
-  count: number;
-  onProgress: (result: LevelDescription) => void;
-};
+const isLevelRelevant = (level: LevelDescription) => {
+  const solutions = solve(new Level(level), 10);
 
-export const generateLevels = async (opts: GenerateLevelsOptions) => {
-  const results: Record<string, LevelDescription> = {};
-
-  while (Object.keys(results).length < opts.count) {
-    const level = await generateLevel();
-
-    results[randomId()] = level;
-    opts.onProgress(level);
+  if (solutions.length === 0) {
+    return false;
   }
 
-  return results;
+  for (const solution of solutions) {
+    if (countJumps(solution) < 1) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const countJumps = (solution: Direction[]) => {
+  const cells = new Set<string>();
+  const jumps = new Set<string>();
+
+  let x = 0;
+  let y = 0;
+
+  const key = (x: number, y: number) => `${x},${y}`;
+
+  cells.add(key(x, y));
+
+  for (const [index, dir] of Object.entries(solution)) {
+    const [dx, dy] = getDirectionVector(dir);
+
+    while (cells.has(key((x += dx), (y += dy)))) {
+      jumps.add(index);
+    }
+
+    cells.add(key(x, y));
+  }
+
+  return jumps.size;
+};
+
+export const generateLevels = (width: number, height: number, blocks: number) => {
+  const all = shuffle(generateAllLevels(width, height, blocks));
+
+  const solvable = all.filter((level, i) => {
+    console.log(`${i} / ${all.length} (${Math.floor((100 * i) / all.length)}%)`);
+    return isLevelRelevant(level);
+  });
+
+  for (let i = 0; i < solvable.length; ++i) {
+    const level = new Level(solvable[i]);
+
+    for (const cell of level.edgeCells) {
+      if (cell.type === CellType.block && randBool(0.7)) {
+        level.removeCell(cell);
+      }
+    }
+
+    solvable[i] = level.serialize();
+  }
+
+  return solvable;
 };
