@@ -1,6 +1,5 @@
 import { CellType } from './cell';
 import { LevelDescription } from './level';
-import generated2 from './levels-unqualified.json' assert { type: 'json' };
 import generated from './levels.json' assert { type: 'json' };
 
 const tutorial: Record<string, LevelDescription> = {
@@ -91,5 +90,4 @@ const tutorial: Record<string, LevelDescription> = {
 export const levels = {
   ...tutorial,
   ...(generated as Record<string, LevelDescription>),
-  ...(generated2 as Record<string, LevelDescription>),
 };
