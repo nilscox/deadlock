@@ -1,7 +1,6 @@
 import paper, { Color, CompoundPath, Group, Layer, Shape } from 'paper';
 
-import { Listener } from './emitter';
-import { Game, GameEvent, GameEventType } from './game';
+import { Game, GameEventType } from './game';
 import { Cell, Level } from './level';
 import { CellType, Point } from './types';
 
@@ -10,19 +9,31 @@ export class GameRenderer {
   private boundaries!: PaperLevelBoundaries;
   private playerCell!: PaperCell;
 
-  private group = new Group();
-  private levelLayer = new Layer();
-  private boundariesLayer = new Layer();
-  private playerLayer = new Layer();
+  private group: paper.Group;
+  private levelLayer: paper.Layer;
+  private boundariesLayer: paper.Layer;
+  private playerLayer: paper.Layer;
 
-  constructor(private game: Game) {
+  constructor(canvas: HTMLCanvasElement, private game: Game) {
+    paper.setup(canvas);
+
+    this.group = new Group();
+    this.levelLayer = new Layer();
+    this.boundariesLayer = new Layer();
+    this.playerLayer = new Layer();
+
     this.group.addChild(this.levelLayer);
     this.group.addChild(this.boundariesLayer);
     this.group.addChild(this.playerLayer);
     this.group.applyMatrix = false;
 
-    this.initialize();
-    this.game.addListener(this.handleGameEvent);
+    this.game.addListener(GameEventType.levelStarted, () => {
+      this.clear();
+      this.initialize();
+    });
+
+    this.game.addListener(GameEventType.playerMoved, () => this.update());
+    this.game.addListener(GameEventType.levelCompleted, () => this.highlightPlayerPath());
   }
 
   private get level() {
@@ -33,21 +44,6 @@ export class GameRenderer {
     return this.game.player;
   }
 
-  private handleGameEvent: Listener<GameEvent> = (event) => {
-    if (event.type === GameEventType.levelStarted) {
-      this.clear();
-      this.initialize();
-    }
-
-    if (event.type === GameEventType.playerMoved) {
-      this.update();
-    }
-
-    if (event.type === GameEventType.levelCompleted) {
-      this.highlightPlayerPath();
-    }
-  };
-
   clear() {
     this.levelLayer.removeChildren();
     this.cells.clear();
@@ -55,6 +51,10 @@ export class GameRenderer {
     this.boundariesLayer.removeChildren();
 
     this.playerLayer.removeChildren();
+  }
+
+  cleanup() {
+    paper.project.clear();
   }
 
   initialize() {

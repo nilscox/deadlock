@@ -1,37 +1,47 @@
-import paper from 'paper';
-
-import { ControlEvent, EventType, PaperControls } from './controls';
+import { Controls, EventType } from './controls';
 import { Direction } from './direction';
-import { Emitter, Listener } from './emitter';
+import { Emitter } from './emitter';
 import { Level } from './level';
 import { Player } from './player';
 import { GameRenderer } from './renderer';
 import { LevelDescription } from './types';
 
-export class Game extends Emitter<GameEvent> {
+export enum GameEventType {
+  playerMoved = 'playerMoved',
+  levelStarted = 'levelRestarted',
+  levelCompleted = 'levelCompleted',
+}
+
+export class Game extends Emitter<GameEventType> {
   public level: Level;
   public player: Player;
 
-  public controls: PaperControls;
-  public renderer: GameRenderer;
+  private renderer: GameRenderer;
+  private controls = new Controls();
 
   constructor(canvas: HTMLCanvasElement, level: LevelDescription) {
     super();
 
-    paper.setup(canvas);
-
     this.level = new Level(level);
     this.player = new Player(this.level);
 
-    this.renderer = new GameRenderer(this);
+    this.renderer = new GameRenderer(canvas, this);
 
-    this.controls = new PaperControls();
-    this.controls.addListener(this.handleEvent);
+    this.addListener(GameEventType.levelStarted, () => {
+      this.controls.removeListeners();
+      this.controls.addListener(EventType.restartLevel, () => this.restartLevel());
+      this.controls.addListener(EventType.moveBack, () => this.moveBack());
+      this.controls.addListener(EventType.move, (event) => this.handleMove(event.direction));
+    });
+
+    this.addListener(GameEventType.levelCompleted, () => {
+      this.controls.removeListeners();
+    });
   }
 
   cleanup() {
+    this.renderer.cleanup();
     this.controls.cleanup();
-    paper.project.clear();
   }
 
   setLevel(level: LevelDescription) {
@@ -40,24 +50,11 @@ export class Game extends Emitter<GameEvent> {
     this.restartLevel();
   }
 
-  handleEvent: Listener<ControlEvent> = (event) => {
-    if (this.isLevelCompleted()) {
-      return;
+  moveBack() {
+    if (this.player.back()) {
+      this.emit(GameEventType.playerMoved);
     }
-
-    if (event.type === EventType.restartLevel) {
-      this.restartLevel();
-    }
-
-    if (event.type === EventType.moveBack) {
-      this.player.back();
-      this.emit({ type: GameEventType.playerMoved });
-    }
-
-    if (event.type === EventType.move) {
-      this.handleMove(event.direction);
-    }
-  };
+  }
 
   isLevelCompleted() {
     return this.level.emptyCells.length === 1;
@@ -67,7 +64,7 @@ export class Game extends Emitter<GameEvent> {
     this.level.reset();
     this.player.reset();
 
-    this.emit({ type: GameEventType.levelStarted });
+    this.emit(GameEventType.levelStarted);
   }
 
   handleMove(direction: Direction) {
@@ -75,30 +72,10 @@ export class Game extends Emitter<GameEvent> {
       return;
     }
 
-    this.emit({ type: GameEventType.playerMoved });
+    this.emit(GameEventType.playerMoved);
 
     if (this.isLevelCompleted()) {
-      this.emit({ type: GameEventType.levelCompleted });
+      this.emit(GameEventType.levelCompleted);
     }
   }
 }
-
-export enum GameEventType {
-  playerMoved = 'playerMoved',
-  levelStarted = 'levelRestarted',
-  levelCompleted = 'levelCompleted',
-}
-
-type PlayerMovedEvent = {
-  type: GameEventType.playerMoved;
-};
-
-type LevelRestartedEvent = {
-  type: GameEventType.levelStarted;
-};
-
-type LevelCompleted = {
-  type: GameEventType.levelCompleted;
-};
-
-export type GameEvent = PlayerMovedEvent | LevelRestartedEvent | LevelCompleted;

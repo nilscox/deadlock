@@ -78,16 +78,20 @@ const useGame = (canvas: HTMLCanvasElement | null, levelId: string) => {
       return;
     }
 
-    return game.addListener((event) => {
-      if (event.type === GameEventType.levelStarted) {
-        tries.current++;
-      }
+    const emitter = game.cloneEmitter();
 
-      if (event.type === GameEventType.levelCompleted) {
-        setCompleted(levelId, tries.current, stopwatch.elapsed());
-        setTimeout(nextLevel, 1000);
-      }
+    emitter.addListener(GameEventType.levelStarted, () => {
+      tries.current++;
     });
+
+    emitter.addListener(GameEventType.levelCompleted, () => {
+      setCompleted(levelId, tries.current, stopwatch.elapsed());
+      setTimeout(nextLevel, 1000);
+    });
+
+    return () => {
+      emitter.removeListeners();
+    };
   }, [game, levelId, setCompleted, nextLevel, stopwatch]);
 
   const onSkip = useCallback(() => {
