@@ -56,6 +56,10 @@ export class Level {
     assert(this.description);
 
     this.description.forEach(({ x, y, type }) => {
+      if (type === CellType.player) {
+        type = CellType.empty;
+      }
+
       this.at(x, y).type = type;
     });
   }
