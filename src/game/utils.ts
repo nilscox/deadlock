@@ -1,3 +1,5 @@
+export const inspectCustomSymbol = Symbol.for('nodejs.util.inspect.custom');
+
 export class AssertionError extends Error {
   constructor(message = 'Assertion error') {
     super(message);

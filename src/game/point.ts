@@ -1,4 +1,5 @@
 import { Emitter } from './emitter';
+import { inspectCustomSymbol } from './utils';
 
 export enum PointEvent {
   changed = 'changed',
@@ -71,5 +72,9 @@ export class Point extends Emitter<PointEvent, PointEventsMap> implements IPoint
 
   set y(y: number) {
     this.set(this._x, y);
+  }
+
+  [inspectCustomSymbol]() {
+    return `Point(${this.x}, ${this.y})`;
   }
 }
