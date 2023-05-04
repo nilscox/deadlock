@@ -1,5 +1,5 @@
 import { Cell, CellType } from './cell';
-import { evaluateLevelDifficulty } from './evaluate-difficulty';
+import { computeLevelsDifficulties, evaluateLevelDifficulty } from './evaluate-difficulty';
 import { Level, LevelDescription } from './level';
 import { randomTransformLevel } from './level-transforms';
 import { shuffle } from './utils';
@@ -64,23 +64,7 @@ export const generateAllLevels = (width: number, height: number, blocks: number)
 
 export const generateLevels = (width: number, height: number, blocks: number) => {
   let levels = shuffle(generateAllLevels(width, height, blocks));
-
-  const difficulties = new Map(
-    levels.map((level, i) => {
-      console.log(`${i} / ${levels.length} (${Math.floor((100 * i) / levels.length)}%)`);
-      return [level, evaluateLevelDifficulty(level)];
-    })
-  );
-
-  const difficulty = (level: LevelDescription) => {
-    const [numberOfSolutionsScore, simplestSolutionScore] = difficulties.get(level) ?? [0, 0];
-
-    if (numberOfSolutionsScore === -1) {
-      return -1;
-    }
-
-    return numberOfSolutionsScore + simplestSolutionScore;
-  };
+  const difficulty = computeLevelsDifficulties(levels);
 
   levels = levels.filter((level) => difficulty(level) >= 0);
   levels.sort((a, b) => difficulty(a) - difficulty(b));

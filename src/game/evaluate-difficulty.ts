@@ -2,6 +2,25 @@ import { Direction, getDirectionVector } from './direction';
 import { LevelDescription } from './level';
 import { solve } from './solve';
 
+export const computeLevelsDifficulties = (levels: LevelDescription[]) => {
+  const difficulties = new Map(
+    levels.map((level, i) => {
+      console.log(`${i} / ${levels.length} (${Math.floor((100 * i) / levels.length)}%)`);
+      return [level, evaluateLevelDifficulty(level)];
+    })
+  );
+
+  return (level: LevelDescription) => {
+    const [numberOfSolutionsScore, simplestSolutionScore] = difficulties.get(level) ?? [0, 0];
+
+    if (numberOfSolutionsScore === -1) {
+      return -1;
+    }
+
+    return numberOfSolutionsScore + simplestSolutionScore;
+  };
+};
+
 export const evaluateLevelDifficulty = (level: LevelDescription) => {
   const solutions = solve(level);
 
