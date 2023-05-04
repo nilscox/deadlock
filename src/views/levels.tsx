@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 
 import { useLevels } from '../use-levels';
 
-export const Levels = () => {
+export const LevelsView = () => {
   const { levels } = useLevels();
 
   return (
@@ -29,10 +29,11 @@ const Level = ({ levelId, levelNumber, completed }: LevelProps) => (
   <Link
     href={`/level/${levelId}`}
     className={clsx(
-      'font-semibold rounded h-12 bg-neutral-100 row justify-center items-center',
+      'text-sm font-semibold rounded py-2 bg-muted col justify-center items-center',
       completed && 'opacity-50'
     )}
   >
     {levelNumber}
+    <div className="text-muted">{levelId}</div>
   </Link>
 );

@@ -1,7 +1,7 @@
 import { Redirect, Route, Router } from 'wouter';
 
-import { Game } from './views/game';
-import { Levels } from './views/levels';
+import { GameView } from './views/game';
+import { LevelsView } from './views/levels';
 import { useLevels } from './use-levels';
 
 const RedirectToNextLevel = () => {
@@ -20,10 +20,10 @@ const App = () => {
         </Route>
 
         <Route path="/levels">
-          <Levels />
+          <LevelsView />
         </Route>
 
-        <Route path="/level/:levelId">{(params) => <Game levelId={params.levelId} />}</Route>
+        <Route path="/level/:levelId">{(params) => <GameView levelId={params.levelId} />}</Route>
       </Router>
     </div>
   );
