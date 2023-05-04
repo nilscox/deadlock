@@ -1,0 +1,84 @@
+{
+  "n42pb7": [
+    { "type": "player", "x": 0, "y": 0 },
+    { "type": "empty", "x": 1, "y": 0 },
+    { "type": "empty", "x": 2, "y": 0 },
+    { "type": "empty", "x": 3, "y": 0 },
+    { "type": "empty", "x": 4, "y": 0 }
+  ],
+  "g388nf": [
+    { "type": "empty", "x": 0, "y": 0 },
+    { "type": "block", "x": 1, "y": 0 },
+    { "type": "player", "x": 2, "y": 0 },
+    { "type": "empty", "x": 0, "y": 1 },
+    { "type": "empty", "x": 1, "y": 1 },
+    { "type": "empty", "x": 2, "y": 1 }
+  ],
+  "vroqj9": [
+    { "type": "empty", "x": 0, "y": 0 },
+    { "type": "empty", "x": 1, "y": 0 },
+    { "type": "player", "x": 2, "y": 0 },
+    { "type": "empty", "x": 3, "y": 0 },
+    { "type": "empty", "x": 4, "y": 0 }
+  ],
+  "ckdy7w": [
+    { "type": "empty", "x": 0, "y": 0 },
+    { "type": "empty", "x": 1, "y": 0 },
+    { "type": "empty", "x": 2, "y": 0 },
+    { "type": "empty", "x": 0, "y": 1 },
+    { "type": "empty", "x": 1, "y": 1 },
+    { "type": "player", "x": 2, "y": 1 },
+    { "type": "empty", "x": 0, "y": 2 },
+    { "type": "empty", "x": 1, "y": 2 },
+    { "type": "empty", "x": 2, "y": 2 }
+  ],
+  "k4wto6": [
+    { "type": "player", "x": 0, "y": 0 },
+    { "type": "empty", "x": 1, "y": 0 },
+    { "type": "empty", "x": 2, "y": 0 },
+    { "type": "empty", "x": 3, "y": 0 },
+    { "type": "empty", "x": 0, "y": 1 },
+    { "type": "empty", "x": 1, "y": 1 },
+    { "type": "empty", "x": 2, "y": 1 },
+    { "type": "empty", "x": 3, "y": 1 },
+    { "type": "empty", "x": 4, "y": 1 },
+    { "type": "empty", "x": 0, "y": 2 },
+    { "type": "block", "x": 1, "y": 2 },
+    { "type": "empty", "x": 2, "y": 2 },
+    { "type": "empty", "x": 3, "y": 2 },
+    { "type": "empty", "x": 4, "y": 2 }
+  ],
+  "ceq7ue": [
+    { "type": "player", "x": 0, "y": 0 },
+    { "type": "empty", "x": 1, "y": 0 },
+    { "type": "empty", "x": 2, "y": 0 },
+    { "type": "empty", "x": 3, "y": 0 },
+    { "type": "empty", "x": 4, "y": 0 },
+    { "type": "empty", "x": 0, "y": 1 },
+    { "type": "empty", "x": 1, "y": 1 },
+    { "type": "empty", "x": 2, "y": 1 },
+    { "type": "empty", "x": 3, "y": 1 },
+    { "type": "empty", "x": 4, "y": 1 },
+    { "type": "empty", "x": 0, "y": 2 },
+    { "type": "block", "x": 1, "y": 2 },
+    { "type": "empty", "x": 2, "y": 2 },
+    { "type": "empty", "x": 3, "y": 2 },
+    { "type": "empty", "x": 4, "y": 2 }
+  ],
+  "qb0e1t": [
+    { "type": "empty", "x": 1, "y": 0 },
+    { "type": "block", "x": 2, "y": 0 },
+    { "type": "block", "x": 3, "y": 0 },
+    { "type": "empty", "x": 4, "y": 0 },
+    { "type": "empty", "x": 0, "y": 1 },
+    { "type": "empty", "x": 1, "y": 1 },
+    { "type": "player", "x": 2, "y": 1 },
+    { "type": "empty", "x": 3, "y": 1 },
+    { "type": "empty", "x": 4, "y": 1 },
+    { "type": "empty", "x": 0, "y": 2 },
+    { "type": "empty", "x": 1, "y": 2 },
+    { "type": "empty", "x": 2, "y": 2 },
+    { "type": "block", "x": 3, "y": 2 },
+    { "type": "empty", "x": 4, "y": 2 }
+  ]
+}
