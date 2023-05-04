@@ -39,7 +39,7 @@ export class Level {
     const ys = this.cellsArray.map((cell) => cell.y);
 
     return {
-      min: { x: Math.min(...xs), y: Math.max(...ys) },
+      min: { x: Math.min(...xs), y: Math.min(...ys) },
       max: { x: Math.max(...xs), y: Math.max(...ys) },
     };
   }

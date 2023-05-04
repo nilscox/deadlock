@@ -7,6 +7,8 @@ export enum Direction {
 
 export const directions = Object.values(Direction);
 
+export type Path = Direction[];
+
 export function isDirection(value: string): value is Direction {
   return Object.values<string>(Direction).includes(value);
 }

@@ -1,8 +1,7 @@
 import { Cell, CellType } from './cell';
-import { Direction, getDirectionVector } from './direction';
+import { evaluateLevelDifficulty } from './evaluate-difficulty';
 import { Level, LevelDescription } from './level';
 import { randomTransformLevel } from './level-transforms';
-import { solve } from './solve';
 import { shuffle } from './utils';
 
 const emptyLevel = (width: number, height: number): Level => {
@@ -63,49 +62,6 @@ export const generateAllLevels = (width: number, height: number, blocks: number)
   return levels;
 };
 
-export const evaluateLevelDifficulty = (level: LevelDescription) => {
-  const solutions = solve(level);
-
-  if (!solutions || solutions.length === 0) {
-    return -1;
-  }
-
-  const numberOfSolutionsScore = Math.max(0, 10 - Math.floor(Math.log2(solutions.length)));
-  const simplestSolutionScore = solutions.map(evaluateSolutionSimplicity).sort((a, b) => a - b)[0];
-
-  return numberOfSolutionsScore + 3 * simplestSolutionScore;
-};
-
-const evaluateSolutionSimplicity = (solution: Direction[]) => {
-  const cells = new Set<string>();
-  let total = 0;
-
-  let x = 0;
-  let y = 0;
-
-  const key = (x: number, y: number) => `${x},${y}`;
-
-  cells.add(key(x, y));
-
-  for (const dir of solution) {
-    const [dx, dy] = getDirectionVector(dir);
-
-    let jumped = 0;
-
-    while (cells.has(key((x += dx), (y += dy)))) {
-      jumped++;
-    }
-
-    if (jumped) {
-      total += jumped;
-    }
-
-    cells.add(key(x, y));
-  }
-
-  return total;
-};
-
 export const generateLevels = (width: number, height: number, blocks: number) => {
   let levels = shuffle(generateAllLevels(width, height, blocks));
 
@@ -117,7 +73,13 @@ export const generateLevels = (width: number, height: number, blocks: number) =>
   );
 
   const difficulty = (level: LevelDescription) => {
-    return difficulties.get(level) ?? 0;
+    const [numberOfSolutionsScore, simplestSolutionScore] = difficulties.get(level) ?? [0, 0];
+
+    if (numberOfSolutionsScore === -1) {
+      return -1;
+    }
+
+    return numberOfSolutionsScore + simplestSolutionScore;
   };
 
   levels = levels.filter((level) => difficulty(level) >= 0);

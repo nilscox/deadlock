@@ -1,8 +1,6 @@
-import { Direction, directions } from './direction';
+import { Path, directions } from './direction';
 import { Level, LevelDescription } from './level';
 import { Player } from './player';
-
-type Path = Direction[];
 
 export const solve = (desc: LevelDescription, max = Infinity) => {
   const path: Path = [];

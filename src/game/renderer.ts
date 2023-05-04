@@ -1,4 +1,4 @@
-import paper, { Color, CompoundPath, Group, Layer, Shape } from 'paper';
+import { Color, CompoundPath, Group, Layer, Shape } from 'paper';
 
 import { Cell, CellEvent, CellType } from './cell';
 import { Game, GameEventType } from './game';
@@ -15,7 +15,7 @@ export class GameRenderer {
   private levelRenderer: LevelRenderer;
   private playerRenderer: PlayerRenderer;
 
-  constructor(private game: Game) {
+  constructor(view: paper.View, private game: Game) {
     this.group.applyMatrix = false;
 
     this.levelRenderer = new LevelRenderer(game.level);
@@ -30,14 +30,14 @@ export class GameRenderer {
       this.levelRenderer.clear();
       this.levelRenderer.init();
       this.playerRenderer.updatePosition();
-      this.group.bounds.center = paper.view.center;
+      this.group.bounds.center = view.center;
     });
 
     this.game.addListener(GameEventType.levelCompleted, () => {
       this.levelRenderer.onLevelCompleted();
     });
 
-    paper.view.onFrame = () => {
+    view.onFrame = () => {
       this.onFrame();
     };
 
@@ -46,10 +46,6 @@ export class GameRenderer {
     //     this.onFrame();
     //   }
     // };
-  }
-
-  cleanup() {
-    paper.project.clear();
   }
 
   onFrame() {

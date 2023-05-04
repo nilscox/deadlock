@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link } from 'wouter';
 
-import { getLevelNumber } from '../use-levels';
-import { useGame } from '../use-game';
+import { getLevelNumber, useLevels } from '../use-levels';
+import { useGame, useGoToNextLevel } from '../use-game';
+import { MobileView } from '../mobile-view';
 
 type GameViewProps = {
   levelId: string;
@@ -10,10 +11,25 @@ type GameViewProps = {
 
 export const GameView = ({ levelId }: GameViewProps) => {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  const { onSkip } = useGame(canvas, levelId);
+
+  const { setCompleted, setSkipped } = useLevels();
+
+  const nextLevel = useGoToNextLevel(levelId);
+
+  const onCompleted = () => {
+    setCompleted(levelId, tries(), elapsed());
+    setTimeout(nextLevel, 1000);
+  };
+
+  const { tries, elapsed } = useGame(canvas, levelId, { onCompleted });
+
+  const onSkip = useCallback(() => {
+    setSkipped(levelId, tries(), elapsed());
+    nextLevel();
+  }, [setSkipped, levelId, nextLevel, tries, elapsed]);
 
   return (
-    <>
+    <MobileView>
       <div className="flex-1 text-xl col items-center justify-center">
         <div>Level {getLevelNumber(levelId)}</div>
         <div className="text-muted text">{levelId}</div>
@@ -30,6 +46,6 @@ export const GameView = ({ levelId }: GameViewProps) => {
           skip <div className="text-muted">➜</div>
         </button>
       </div>
-    </>
+    </MobileView>
   );
 };

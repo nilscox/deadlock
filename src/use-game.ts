@@ -1,25 +1,34 @@
-import paper from 'paper';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Game as GameClass, GameEventType } from './game/game';
 import { levels } from './game/levels';
 import { useNavigate } from './hooks/use-navigate';
 import { useStopwatch } from './hooks/use-stopwatch';
-import { getNextLevelId, useLevels } from './use-levels';
+import { getNextLevelId } from './use-levels';
 
-export const useGame = (canvas: HTMLCanvasElement | null, levelId: string) => {
-  const { setCompleted, setSkipped } = useLevels();
+type UseGameOptions = {
+  scale?: number;
+  onCompleted?: (tries: number, time: number) => void;
+};
+
+export const useGame = (
+  canvas: HTMLCanvasElement | null,
+  levelId: string,
+  { scale, onCompleted }: UseGameOptions = {}
+) => {
   const [game, setGame] = useState<GameClass>();
 
   const navigate = useNavigate();
-  const nextLevel = useNextLevel(levelId);
+  const nextLevel = useGoToNextLevel(levelId);
 
   const tries = useRef(1);
   const stopwatch = useStopwatch();
 
-  if (!levels[levelId]) {
-    navigate('/levels');
-  }
+  useEffect(() => {
+    if (!levels[levelId]) {
+      navigate('/levels');
+    }
+  }, [levelId, navigate]);
 
   useEffect(() => {
     tries.current = 1;
@@ -32,14 +41,18 @@ export const useGame = (canvas: HTMLCanvasElement | null, levelId: string) => {
       return;
     }
 
-    paper.setup(canvas);
-
-    const game = new GameClass();
+    const game = new GameClass(canvas);
 
     setGame(game);
 
     return () => game.cleanup();
   }, [canvas]);
+
+  useEffect(() => {
+    if (game && scale !== undefined) {
+      game.scale(scale);
+    }
+  }, [game, scale]);
 
   useEffect(() => {
     if (!game) {
@@ -53,24 +66,21 @@ export const useGame = (canvas: HTMLCanvasElement | null, levelId: string) => {
     });
 
     emitter.addListener(GameEventType.levelCompleted, () => {
-      setCompleted(levelId, tries.current, stopwatch.elapsed());
-      setTimeout(nextLevel, 1000);
+      onCompleted?.(tries.current, stopwatch.elapsed());
     });
 
     return () => {
       emitter.removeListeners();
     };
-  }, [game, levelId, setCompleted, nextLevel, stopwatch]);
+  }, [game, levelId, onCompleted, nextLevel, stopwatch]);
 
-  const onSkip = useCallback(() => {
-    setSkipped(levelId, tries.current, stopwatch.elapsed());
-    nextLevel();
-  }, [setSkipped, levelId, stopwatch, nextLevel]);
-
-  return { onSkip };
+  return {
+    tries: useCallback(() => tries.current, []),
+    elapsed: stopwatch.elapsed,
+  };
 };
 
-const useNextLevel = (levelId: string) => {
+export const useGoToNextLevel = (levelId: string) => {
   const navigate = useNavigate();
 
   return useCallback(() => {

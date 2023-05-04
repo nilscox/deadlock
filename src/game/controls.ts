@@ -1,5 +1,6 @@
+import paper from 'paper';
 import Hammer from 'hammerjs';
-import { Tool } from 'paper';
+
 import { Direction, isDirection } from './direction';
 import { Emitter } from './emitter';
 
@@ -14,7 +15,7 @@ type ControlEvents = {
 };
 
 export class Controls extends Emitter<EventType, ControlEvents> {
-  private tool = new Tool();
+  private tool = new paper.Tool();
   private hammer = new Hammer.Manager(document.body);
 
   constructor() {
@@ -37,8 +38,9 @@ export class Controls extends Emitter<EventType, ControlEvents> {
     document.body.style.touchAction = '';
   }
 
-  private handleKeyDown(event: { key: string }) {
+  private handleKeyDown(event: { key: string; event: KeyboardEvent }) {
     if (event.key === 'space') {
+      event.event.preventDefault();
       this.emit(EventType.restartLevel);
     }
 
@@ -47,6 +49,7 @@ export class Controls extends Emitter<EventType, ControlEvents> {
     }
 
     if (isDirection(event.key)) {
+      event.event.preventDefault();
       this.emit(EventType.move, { direction: event.key });
     }
   }

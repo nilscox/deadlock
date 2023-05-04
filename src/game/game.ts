@@ -1,3 +1,5 @@
+import paper from 'paper';
+
 import { Controls, EventType } from './controls';
 import { Direction } from './direction';
 import { Emitter } from './emitter';
@@ -6,6 +8,7 @@ import { Player } from './player';
 import { GameRenderer } from './renderer';
 
 export enum GameEventType {
+  activated = 'activated',
   playerMoved = 'playerMoved',
   levelStarted = 'levelRestarted',
   levelCompleted = 'levelCompleted',
@@ -16,16 +19,23 @@ export class Game extends Emitter<GameEventType> {
   public level: Level;
   public player: Player;
 
-  private renderer: GameRenderer;
-  private controls = new Controls();
+  private scope: paper.PaperScope;
 
-  constructor() {
+  private renderer: GameRenderer;
+  private controls: Controls;
+
+  constructor(canvas: HTMLCanvasElement) {
     super();
+
+    this.scope = new paper.PaperScope();
+    this.scope.activate();
+    this.scope.setup(canvas);
 
     this.level = new Level();
     this.player = new Player(this.level);
 
-    this.renderer = new GameRenderer(this);
+    this.renderer = new GameRenderer(this.scope.view, this);
+    this.controls = new Controls();
 
     this.addListener(GameEventType.levelStarted, () => {
       this.controls.removeListeners();
@@ -37,14 +47,20 @@ export class Game extends Emitter<GameEventType> {
     this.addListener(GameEventType.levelCompleted, () => {
       this.controls.removeListeners();
     });
+
+    canvas.addEventListener('mouseover', () => this.scope.activate());
+  }
+
+  scale(value: number) {
+    this.scope.view.scale(value);
   }
 
   cleanup() {
-    this.renderer.cleanup();
     this.controls.cleanup();
   }
 
   setLevel(level: LevelDescription) {
+    this.scope.activate();
     this.level.load(level);
     this.restartLevel();
     this.emit(GameEventType.levelChanged);
