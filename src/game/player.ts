@@ -1,19 +1,47 @@
 import { Cell, CellType } from './cell';
 import { Direction, getDirectionVector } from './direction';
+import { Emitter } from './emitter';
 import { Level } from './level';
 import { IPoint, Point } from './point';
+import { assert } from './utils';
 
-export class Player implements IPoint {
+export enum PlayerEvent {
+  moved = 'moved',
+}
+
+type PlayerEventsMap = {
+  [PlayerEvent.moved]: IPoint;
+};
+
+export class Player extends Emitter<PlayerEvent, PlayerEventsMap> implements IPoint {
   private cell = new Cell({ x: 0, y: 0 }, CellType.player);
   public path = new Array<IPoint>();
 
   constructor(private level: Level) {
-    this.reset();
+    super();
+  }
+
+  get x() {
+    return this.position.x;
+  }
+
+  get y() {
+    return this.position.y;
+  }
+
+  get position(): Point {
+    return this.cell.position;
+  }
+
+  set position(position: Point) {
+    this.cell.position = position;
   }
 
   reset() {
     this.path = [];
-    this.position.set(this.level.start);
+
+    assert(this.level.playerPosition);
+    this.position.set(this.level.playerPosition);
   }
 
   move(direction: Direction) {
@@ -24,8 +52,9 @@ export class Player implements IPoint {
     }
 
     this.path.push(this.position.clone());
-    this.level.at(this.x, this.y).type = CellType.path;
     this.position.set(nextCell);
+
+    this.emit(PlayerEvent.moved, this.position);
 
     return true;
   }
@@ -37,8 +66,9 @@ export class Player implements IPoint {
       return false;
     }
 
-    this.level.at(this.x, this.y).type = CellType.empty;
     this.position.set(lastPos);
+
+    this.emit(PlayerEvent.moved, this.position);
 
     return true;
   }
@@ -58,21 +88,5 @@ export class Player implements IPoint {
     } while (cell && cell.type !== CellType.empty);
 
     return cell;
-  }
-
-  get x() {
-    return this.position.x;
-  }
-
-  get y() {
-    return this.position.y;
-  }
-
-  get position(): Point {
-    return this.cell.position;
-  }
-
-  set position(position: Point) {
-    this.cell.position = position;
   }
 }

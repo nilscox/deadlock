@@ -1,8 +1,8 @@
 import { Color, CompoundPath, Group, Layer, Shape } from 'paper';
 
 import { Cell, CellEvent, CellType } from './cell';
-import { Game, GameEventType } from './game';
-import { Level } from './level';
+import { Game } from './game';
+import { Level, LevelEventType } from './level';
 import { Player } from './player';
 import { IPoint, PointEvent } from './point';
 import { assert } from './utils';
@@ -26,15 +26,10 @@ export class GameRenderer {
 
     this.playerRenderer.layer.bringToFront();
 
-    this.game.addListener(GameEventType.levelChanged, () => {
+    this.game.level.addListener(LevelEventType.loaded, () => {
       this.levelRenderer.clear();
       this.levelRenderer.init();
-      this.playerRenderer.updatePosition();
       this.group.bounds.center = view.center;
-    });
-
-    this.game.addListener(GameEventType.levelCompleted, () => {
-      this.levelRenderer.onLevelCompleted();
     });
 
     view.onFrame = () => {
@@ -58,7 +53,7 @@ const colors: Record<CellType, paper.Color> = {
   [CellType.empty]: new Color('#FFF'),
   [CellType.path]: new Color('#EEE'),
   [CellType.block]: new Color('#CCC'),
-  [CellType.player]: new Color('#F00'),
+  [CellType.player]: new Color('#FFF'),
 };
 
 export class LevelRenderer {
@@ -70,6 +65,10 @@ export class LevelRenderer {
   constructor(private level: Level) {
     this.layer.name = 'level';
     this.boundaries = new LevelBoundaries(level);
+
+    level.addListener(LevelEventType.completed, () => {
+      this.onLevelCompleted();
+    });
   }
 
   clear() {
@@ -104,7 +103,7 @@ export class LevelRenderer {
   }
 
   onLevelCompleted() {
-    const path = this.level.cellsArray.filter((cell) => cell.type === CellType.path);
+    const path = this.level.cells(CellType.path);
 
     for (const cell of path) {
       const rect = this.cells.get(cell);

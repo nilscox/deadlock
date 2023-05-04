@@ -1,28 +1,21 @@
 import { Cell, CellDescription, CellType } from './cell';
 import { Level, LevelDescription } from './level';
-import { IPoint, Point } from './point';
 import { assert } from './utils';
 
 export const loadLevel = (level: Level, desc: LevelDescription): void => {
-  let start: IPoint | undefined;
-
   desc.forEach(([x, y, t]) => {
-    let type = mapCellDescriptionToType(t);
+    const type = mapCellDescriptionToType(t);
 
     if (type === CellType.player) {
-      if (start !== undefined) {
+      if (level.playerPosition !== undefined) {
         throw new Error('multiple start positions');
       }
-
-      start = { x, y };
-      type = CellType.empty;
     }
 
     level.addCell(x, y, type);
   });
 
-  assert(start, 'missing start position');
-  level.start = new Point(start);
+  assert(level.playerPosition, 'missing start position');
 };
 
 const mapCellDescriptionToType = (type: CellDescription[2]) => {
@@ -32,12 +25,21 @@ const mapCellDescriptionToType = (type: CellDescription[2]) => {
   throw new Error(`Invalid cell type ${type}`);
 };
 
+const mapTypeToCellDescription: Partial<Record<CellType, CellDescription[2]>> = {
+  [CellType.player]: 1,
+  [CellType.block]: 0,
+};
+
 export const serializeLevel = (level: Level): LevelDescription => {
-  return level.cellsArray.map((cell: Cell): CellDescription => {
-    if (cell.type === undefined) {
+  return level.cells().map((cell: Cell): CellDescription => {
+    if (cell.type === CellType.empty) {
       return [cell.x, cell.y];
     }
 
-    return [cell.x, cell.y, level.start.equals(cell) ? 1 : 0];
+    if (cell.type === CellType.path) {
+      throw new Error('cannot serialize level containing path');
+    }
+
+    return [cell.x, cell.y, mapTypeToCellDescription[cell.type]];
   });
 };

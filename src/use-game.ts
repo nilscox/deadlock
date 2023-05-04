@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Game as GameClass, GameEventType } from './game/game';
+import { Game as GameClass } from './game/game';
+import { LevelEventType } from './game/level';
 import { levels } from './game/levels';
 import { useNavigate } from './hooks/use-navigate';
 import { useStopwatch } from './hooks/use-stopwatch';
@@ -59,13 +60,13 @@ export const useGame = (
       return;
     }
 
-    const emitter = game.cloneEmitter();
+    const emitter = game.level.cloneEmitter();
 
-    emitter.addListener(GameEventType.levelStarted, () => {
+    emitter.addListener(LevelEventType.restarted, () => {
       tries.current++;
     });
 
-    emitter.addListener(GameEventType.levelCompleted, () => {
+    emitter.addListener(LevelEventType.completed, () => {
       onCompleted?.(tries.current, stopwatch.elapsed());
     });
 

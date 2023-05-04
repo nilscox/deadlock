@@ -1,32 +1,20 @@
 import paper from 'paper';
 
 import { Controls, EventType } from './controls';
-import { Direction } from './direction';
-import { Emitter } from './emitter';
-import { Level, LevelDescription } from './level';
-import { Player } from './player';
+import { Level, LevelDescription, LevelEventType } from './level';
+import { Player, PlayerEvent } from './player';
 import { GameRenderer } from './renderer';
 
-export enum GameEventType {
-  activated = 'activated',
-  playerMoved = 'playerMoved',
-  levelStarted = 'levelRestarted',
-  levelCompleted = 'levelCompleted',
-  levelChanged = 'levelChanged',
-}
+export class Game {
+  private scope: paper.PaperScope;
 
-export class Game extends Emitter<GameEventType> {
   public level: Level;
   public player: Player;
-
-  private scope: paper.PaperScope;
 
   private renderer: GameRenderer;
   private controls: Controls;
 
   constructor(canvas: HTMLCanvasElement) {
-    super();
-
     this.scope = new paper.PaperScope();
     this.scope.activate();
     this.scope.setup(canvas);
@@ -34,17 +22,21 @@ export class Game extends Emitter<GameEventType> {
     this.level = new Level();
     this.player = new Player(this.level);
 
+    this.player.addListener(PlayerEvent.moved, ({ x, y }) => {
+      this.level.setPlayerPosition(x, y);
+    });
+
     this.renderer = new GameRenderer(this.scope.view, this);
     this.controls = new Controls();
 
-    this.addListener(GameEventType.levelStarted, () => {
+    this.level.addListener(LevelEventType.loaded, () => {
       this.controls.removeListeners();
       this.controls.addListener(EventType.restartLevel, () => this.restartLevel());
-      this.controls.addListener(EventType.moveBack, () => this.moveBack());
-      this.controls.addListener(EventType.move, (event) => this.handleMove(event.direction));
+      this.controls.addListener(EventType.moveBack, () => this.player.back());
+      this.controls.addListener(EventType.move, (event) => this.player.move(event.direction));
     });
 
-    this.addListener(GameEventType.levelCompleted, () => {
+    this.level.addListener(LevelEventType.completed, () => {
       this.controls.removeListeners();
     });
 
@@ -63,35 +55,10 @@ export class Game extends Emitter<GameEventType> {
     this.scope.activate();
     this.level.load(level);
     this.restartLevel();
-    this.emit(GameEventType.levelChanged);
-  }
-
-  moveBack() {
-    if (this.player.back()) {
-      this.emit(GameEventType.playerMoved);
-    }
-  }
-
-  isLevelCompleted() {
-    return this.level.emptyCells.length === 1;
   }
 
   restartLevel() {
     this.level.reset();
     this.player.reset();
-
-    this.emit(GameEventType.levelStarted);
-  }
-
-  handleMove(direction: Direction) {
-    if (!this.player.move(direction)) {
-      return;
-    }
-
-    this.emit(GameEventType.playerMoved);
-
-    if (this.isLevelCompleted()) {
-      this.emit(GameEventType.levelCompleted);
-    }
   }
 }

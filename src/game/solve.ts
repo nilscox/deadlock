@@ -3,10 +3,11 @@ import { Level, LevelDescription } from './level';
 import { Player } from './player';
 
 export const solve = (desc: LevelDescription, max = Infinity) => {
-  const path: Path = [];
-  const solutions = new Array<Path>();
   const level = new Level(desc);
   const player = new Player(level);
+
+  const path: Path = [];
+  const solutions = new Array<Path>();
 
   const run = () => {
     for (const dir of directions) {
@@ -14,9 +15,10 @@ export const solve = (desc: LevelDescription, max = Infinity) => {
         continue;
       }
 
+      level.setPlayerPosition(player.x, player.y);
       path.push(dir);
 
-      if (level.emptyCells.length === 1) {
+      if (level.isCompleted()) {
         solutions.push([...path]);
 
         if (solutions.length > max) {

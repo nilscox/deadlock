@@ -19,19 +19,19 @@ export const randomTransformLevel = (level: Level) => {
 };
 
 const mirrorH = (level: Level) => {
-  for (const cell of level.cellsArray) {
+  for (const cell of level.cells()) {
     cell.position.x *= -1;
   }
 };
 
 const mirrorV = (level: Level) => {
-  for (const cell of level.cellsArray) {
+  for (const cell of level.cells()) {
     cell.position.y *= -1;
   }
 };
 
 const rotate = (level: Level, angle: number) => {
-  for (const cell of level.cellsArray) {
+  for (const cell of level.cells()) {
     rotatePoint(cell.position, angle);
   }
 };
