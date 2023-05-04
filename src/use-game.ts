@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Game as GameClass } from './game/game';
+import { Game, Game as GameClass } from './game/game';
 import { LevelEventType } from './game/level';
 import { levels } from './game/levels';
 import { useNavigate } from './hooks/use-navigate';
@@ -9,13 +9,14 @@ import { getNextLevelId } from './use-levels';
 
 type UseGameOptions = {
   scale?: number;
+  onLoaded?: (game: Game) => void;
   onCompleted?: (tries: number, time: number) => void;
 };
 
 export const useGame = (
   canvas: HTMLCanvasElement | null,
   levelId: string,
-  { scale, onCompleted }: UseGameOptions = {}
+  { scale, onLoaded, onCompleted }: UseGameOptions = {}
 ) => {
   const [game, setGame] = useState<GameClass>();
 
@@ -45,9 +46,10 @@ export const useGame = (
     const game = new GameClass(canvas);
 
     setGame(game);
+    onLoaded?.(game);
 
     return () => game.cleanup();
-  }, [canvas]);
+  }, [canvas, onLoaded]);
 
   useEffect(() => {
     if (game && scale !== undefined) {

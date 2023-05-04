@@ -69,6 +69,11 @@ export class LevelRenderer {
     level.addListener(LevelEventType.completed, () => {
       this.onLevelCompleted();
     });
+
+    level.addListener(LevelEventType.restarted, () => {
+      this.boundaries.clear();
+      this.boundaries.init();
+    });
   }
 
   clear() {

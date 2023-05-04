@@ -1,12 +1,13 @@
-import { CSSProperties, useMemo, useState } from 'react';
+import { CSSProperties, useCallback, useMemo, useState } from 'react';
 import { FixedSizeList as List } from 'react-window';
-
 import { Link } from 'wouter';
-import { levels } from '../game/levels';
-import { useGame } from '../use-game';
+
 import { Direction, Path } from '../game/direction';
-import { solve } from '../game/solve';
 import { evaluateLevelDifficulty, evaluateSolutionSimplicity } from '../game/evaluate-difficulty';
+import { Game } from '../game/game';
+import { levels } from '../game/levels';
+import { solve } from '../game/solve';
+import { useGame } from '../use-game';
 
 const levelIds = Object.keys(levels);
 
@@ -86,7 +87,13 @@ type LeveLPreviewProps = {
 
 const LevelPreview = ({ levelId }: LeveLPreviewProps) => {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  useGame(canvas, levelId, { scale: 0.4 });
+
+  useGame(canvas, levelId, {
+    scale: 0.4,
+    onLoaded: useCallback((game: Game) => {
+      game.allowRestartWhenCompleted = true;
+    }, []),
+  });
 
   return <canvas ref={setCanvas} style={{ height: 120 }} />;
 };

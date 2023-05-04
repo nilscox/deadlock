@@ -14,6 +14,8 @@ export class Game {
   private renderer: GameRenderer;
   private controls: Controls;
 
+  public allowRestartWhenCompleted = false;
+
   constructor(canvas: HTMLCanvasElement) {
     this.scope = new paper.PaperScope();
     this.scope.activate();
@@ -37,7 +39,9 @@ export class Game {
     });
 
     this.level.addListener(LevelEventType.completed, () => {
-      this.controls.removeListeners();
+      if (!this.allowRestartWhenCompleted) {
+        this.controls.removeListeners();
+      }
     });
 
     canvas.addEventListener('mouseover', () => this.scope.activate());
