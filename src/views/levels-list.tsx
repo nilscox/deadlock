@@ -12,14 +12,31 @@ const levelIds = Object.keys(levels);
 
 export const LevelsListView = () => {
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
+  const [search, setSearch] = useState('');
+
+  const filteredIds = useMemo(() => {
+    if (search === '') {
+      return levelIds;
+    }
+
+    return levelIds.filter((levelId) => levelId.match(search));
+  }, [search]);
 
   return (
     <div ref={setWrapperRef} className="col gap-4 h-full col">
+      <input
+        type="search"
+        placeholder="Search..."
+        className="px-2 py-1 m-4 outline-none border rounded"
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
       <List
         height={wrapperRef?.clientHeight ?? 0}
-        itemCount={Object.keys(levels).length}
+        itemCount={filteredIds.length}
         itemSize={180}
         width="100%"
+        itemData={{ filteredIds }}
       >
         {Row}
       </List>
@@ -30,11 +47,12 @@ export const LevelsListView = () => {
 type RowProps = {
   index: number;
   style: CSSProperties;
+  data: { filteredIds: string[] };
 };
 
-const Row = ({ index, style }: RowProps) => (
+const Row = ({ index, style, data }: RowProps) => (
   <div style={style}>
-    <Level levelId={levelIds[index]} levelNumber={index + 1} />
+    <Level levelId={data.filteredIds[index]} levelNumber={index + 1} />
   </div>
 );
 
