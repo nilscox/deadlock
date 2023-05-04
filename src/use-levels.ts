@@ -10,6 +10,8 @@ type StoredLevel = {
 };
 
 export const useLevels = () => {
+  const saveReport = useSaveReport();
+
   const [levels, setLevels] = useState(() => {
     const stored: Record<string, StoredLevel | undefined> = JSON.parse(
       localStorage.getItem('levels') ?? '{}'
@@ -26,25 +28,51 @@ export const useLevels = () => {
     localStorage.setItem('levels', JSON.stringify(levels));
   }, [levels]);
 
-  const setCompleted = useCallback((id: string, tries: number, time: number) => {
-    setLevels((levels) => ({
-      ...levels,
-      [id]: { completed: true, tries, time },
-    }));
-  }, []);
+  const setCompleted = useCallback(
+    (levelId: string, tries: number, time: number) => {
+      saveReport(levelId, true, tries, time);
 
-  const setSkipped = useCallback((id: string, tries: number, time: number) => {
-    setLevels((levels) => ({
-      ...levels,
-      [id]: { skipped: true, tries, time },
-    }));
-  }, []);
+      setLevels((levels) => ({
+        ...levels,
+        [levelId]: { completed: true, tries, time },
+      }));
+    },
+    [saveReport]
+  );
+
+  const setSkipped = useCallback(
+    (levelId: string, tries: number, time: number) => {
+      saveReport(levelId, false, tries, time);
+
+      setLevels((levels) => ({
+        ...levels,
+        [levelId]: { skipped: true, tries, time },
+      }));
+    },
+    [saveReport]
+  );
 
   return {
     levels,
     setCompleted,
     setSkipped,
   };
+};
+
+const serverUrl = import.meta.env.VITE_APP_SERVER_URL;
+
+const useSaveReport = () => {
+  return useCallback((levelId: string, completed: boolean, tries: number, time: number) => {
+    if (!serverUrl) {
+      return;
+    }
+
+    void fetch(serverUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ levelId, completed, time, tries }),
+    });
+  }, []);
 };
 
 const levelIds = Object.keys(levelsData);
