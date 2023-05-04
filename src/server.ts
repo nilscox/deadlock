@@ -12,7 +12,7 @@ async function startServer() {
 
   const server = createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS' && req.url === '/') {
       res.end();
@@ -42,7 +42,7 @@ async function saveDb() {
 
 async function saveReport(req: IncomingMessage, res: ServerResponse) {
   const date = new Date().toISOString();
-  const ip = req.socket.remoteAddress;
+  const ip = req.headers['x-forwarded-for'] ?? req.socket.remoteAddress;
 
   let data = '';
 
