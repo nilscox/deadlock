@@ -10,6 +10,11 @@
   .row {
     @apply flex flex-row;
   }
+
+  .flip-horizontal {
+    @apply transform;
+    --tw-scale-x: -1;
+  }
 }
 
 html,
@@ -20,9 +25,4 @@ body,
 
 body {
   @apply m-0;
-}
-
-#root {
-  @apply mx-auto;
-  max-width: 600px;
 }

@@ -22,19 +22,12 @@ export const GameView = ({ levelId }: GameViewProps) => {
       <canvas style={{ width: '100%', height: 400 }} ref={setCanvas} />
 
       <div className="flex-1 row items-end justify-between">
-        <Link href="/levels" onClick={onSkip}>
-          {'<- levels'}
+        <Link href="/levels" onClick={onSkip} className="row gap-2 items-center">
+          <div className="text-muted flip-horizontal">➜</div> levels
         </Link>
 
-        <button
-          className="ml-auto"
-          onClick={() => navigator.clipboard.writeText(localStorage.getItem('levels') ?? '<no data>')}
-        >
-          copy info
-        </button>
-
-        <button className="ml-auto" onClick={onSkip}>
-          {'-> skip'}
+        <button onClick={onSkip} className="row gap-2 items-center ml-auto">
+          skip <div className="text-muted">➜</div>
         </button>
       </div>
     </>
