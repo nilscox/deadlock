@@ -22,7 +22,9 @@ export const GameView = ({ levelId }: GameViewProps) => {
       <canvas style={{ width: '100%', height: 400 }} ref={setCanvas} />
 
       <div className="flex-1 row items-end justify-between">
-        <Link href="/levels">{'<- levels'}</Link>
+        <Link href="/levels" onClick={onSkip}>
+          {'<- levels'}
+        </Link>
 
         <button
           className="ml-auto"

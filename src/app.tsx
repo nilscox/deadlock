@@ -1,7 +1,7 @@
 import { Redirect, Route, Router } from 'wouter';
 
-import { GameView } from './views/game';
-import { LevelsView } from './views/levels';
+import { GameView } from './views/game-view';
+import { LevelsView } from './views/levels-view';
 import { useLevels } from './use-levels';
 
 const RedirectToNextLevel = () => {
