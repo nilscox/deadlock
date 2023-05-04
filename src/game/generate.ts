@@ -1,4 +1,4 @@
-import { CellType } from './cell';
+import { Cell, CellType } from './cell';
 import { Direction, getDirectionVector } from './direction';
 import { Level, LevelDescription } from './level';
 import { randomTransformLevel } from './level-transforms';
@@ -6,44 +6,40 @@ import { solve } from './solve';
 import { shuffle } from './utils';
 
 const emptyLevel = (width: number, height: number): Level => {
-  const desc = Array(width * height)
-    .fill(null)
-    .map((_, i) => ({
-      x: Math.floor(i / height),
-      y: i % height,
-      type: CellType.empty,
-    }));
+  const level = new Level();
 
-  desc[0].type = CellType.player;
+  for (let i = 0; i < width * height; ++i) {
+    level.addCell(Math.floor(i / height), i % height, CellType.empty);
+  }
 
-  return new Level(desc);
+  return level;
 };
 
 const last = <T>(array: T[]) => {
   return array[array.length - 1];
 };
 
-const nextLevel = (level: LevelDescription): number => {
-  const lastBlockIdx = level.findLastIndex((cell) => cell.type === CellType.block);
+const nextLevel = (cells: Cell[]): number => {
+  const lastBlockIdx = cells.findLastIndex((cell) => cell.type === CellType.block);
 
   if (lastBlockIdx === -1) {
     return -1;
   }
 
-  if (level[lastBlockIdx] === last(level)) {
-    const idx = nextLevel(level.slice(0, -1));
+  if (cells[lastBlockIdx] === last(cells)) {
+    const idx = nextLevel(cells.slice(0, -1));
 
     if (idx === -1) {
       return -1;
     }
 
-    if (level[idx + 1]) {
-      level[lastBlockIdx].type = CellType.empty;
-      level[idx + 1].type = CellType.block;
+    if (cells[idx + 1]) {
+      cells[lastBlockIdx].type = CellType.empty;
+      cells[idx + 1].type = CellType.block;
     }
   } else {
-    level[lastBlockIdx].type = CellType.empty;
-    level[lastBlockIdx + 1].type = CellType.block;
+    cells[lastBlockIdx].type = CellType.empty;
+    cells[lastBlockIdx + 1].type = CellType.block;
   }
 
   return lastBlockIdx + 1;
@@ -91,7 +87,7 @@ const evaluateSolutionSimplicity = (solution: Direction[]) => {
 
   cells.add(key(x, y));
 
-  for (const [index, dir] of Object.entries(solution)) {
+  for (const dir of solution) {
     const [dx, dy] = getDirectionVector(dir);
 
     let jumped = 0;
@@ -136,8 +132,8 @@ export const generateLevels = (width: number, height: number, blocks: number) =>
       }
     }
 
+    randomTransformLevel(level);
     levels[i] = level.serialize();
-    randomTransformLevel(levels[i]);
   }
 
   return levels;

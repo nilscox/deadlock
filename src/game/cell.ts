@@ -1,6 +1,8 @@
 import { Emitter } from './emitter';
 import { IPoint, Point } from './point';
 
+export type CellDescription = [x: number, y: number, type?: 0 | 1];
+
 export enum CellType {
   empty = 'empty',
   path = 'path',
@@ -20,11 +22,11 @@ export class Cell extends Emitter<CellEvent, CellEventsMap> implements IPoint {
   public position: Point;
   public _type: CellType;
 
-  constructor(x: number, y: number, type: CellType) {
+  constructor(private initialPosition: IPoint, private initialType: CellType) {
     super();
 
-    this.position = new Point(x, y);
-    this._type = type;
+    this.position = new Point(initialPosition);
+    this._type = initialType;
   }
 
   get x() {
@@ -42,5 +44,10 @@ export class Cell extends Emitter<CellEvent, CellEventsMap> implements IPoint {
   set type(type: CellType) {
     this._type = type;
     this.emit(CellEvent.typeChanged, { type });
+  }
+
+  reset() {
+    this.position.set(this.initialPosition);
+    this.type = this.initialType;
   }
 }

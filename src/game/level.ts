@@ -1,75 +1,47 @@
-import { Cell, CellType } from './cell';
+import { Cell, CellDescription, CellType } from './cell';
 import { directions, getDirectionVector } from './direction';
 import { IPoint, Point } from './point';
+import { loadLevel, serializeLevel } from './serialize-level';
 import { assert } from './utils';
 
-export type LevelDescription = Array<{
-  x: number;
-  y: number;
-  type: CellType;
-}>;
+export type LevelDescription = Array<CellDescription>;
 
 export class Level {
   public start = new Point();
   private cells = new Map<string, Cell>();
 
-  private description?: LevelDescription;
-
-  private readonly bounds = {
-    minX: 0,
-    maxX: 0,
-    minY: 0,
-    maxY: 0,
-  };
-
   constructor(description?: LevelDescription) {
     if (description) {
-      this.set(description);
+      this.load(description);
     }
   }
 
-  set(description: LevelDescription) {
-    let start: IPoint | undefined;
-
+  clear() {
     this.cells.clear();
-    this.description = description;
+    this.start.set(0, 0);
+  }
 
-    this.description.forEach(({ x, y, type }) => {
-      if (x < this.bounds.minX) this.bounds.minX = x;
-      if (y < this.bounds.minY) this.bounds.minY = y;
-      if (x > this.bounds.maxX) this.bounds.maxX = x;
-      if (y > this.bounds.maxY) this.bounds.maxY = y;
+  load(description: LevelDescription) {
+    this.clear();
+    loadLevel(this, description);
+  }
 
-      if (type === CellType.player) {
-        start = { x, y };
-        type = CellType.empty;
-      }
-
-      this.addCell(x, y, type);
-    });
-
-    assert(start, 'missing start position');
-    this.start = new Point(start);
+  serialize(): LevelDescription {
+    return serializeLevel(this);
   }
 
   reset() {
-    assert(this.description);
-
-    this.description.forEach(({ x, y, type }) => {
-      if (type === CellType.player) {
-        type = CellType.empty;
-      }
-
-      this.at(x, y).type = type;
-    });
+    this.cellsArray.forEach((cell) => cell.reset());
   }
 
-  get width() {
-    return this.bounds.maxX - this.bounds.minX;
-  }
+  get bounds(): { min: IPoint; max: IPoint } {
+    const xs = this.cellsArray.map((cell) => cell.x);
+    const ys = this.cellsArray.map((cell) => cell.y);
 
-  get height() {
-    return this.bounds.maxY - this.bounds.minY;
+    return {
+      min: { x: Math.min(...xs), y: Math.max(...ys) },
+      max: { x: Math.max(...xs), y: Math.max(...ys) },
+    };
   }
 
   get cellsArray() {
@@ -97,7 +69,7 @@ export class Level {
   }
 
   addCell(x: number, y: number, type: CellType) {
-    this.cells.set(this.key(x, y), new Cell(x, y, type));
+    this.cells.set(this.key(x, y), new Cell({ x, y }, type));
   }
 
   removeCell(cell: Cell) {
@@ -122,8 +94,12 @@ export class Level {
   }
 
   isEdgeCell({ x, y }: Cell) {
-    const { minX, minY, maxX, maxY } = this.bounds;
-    return x === minX || y === minY || x === maxX || y === maxY;
+    return [
+      this.atUnsafe(x - 1, 0),
+      this.atUnsafe(x + 1, 0),
+      this.atUnsafe(x, y - 1),
+      this.atUnsafe(x, y + 1),
+    ].some((cell) => cell === undefined);
   }
 
   getNeighbors(x: number, y: number) {
@@ -131,13 +107,5 @@ export class Level {
       const [dx, dy] = getDirectionVector(dir);
       return [dir, this.atUnsafe(x + dx, y + dy)] as const;
     });
-  }
-
-  serialize(): LevelDescription {
-    return this.cellsArray.map((cell) => ({
-      x: cell.x,
-      y: cell.y,
-      type: this.start.equals(cell) ? CellType.player : cell.type,
-    }));
   }
 }

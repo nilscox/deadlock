@@ -45,7 +45,7 @@ export class Game extends Emitter<GameEventType> {
   }
 
   setLevel(level: LevelDescription) {
-    this.level.set(level);
+    this.level.load(level);
     this.restartLevel();
     this.emit(GameEventType.levelChanged);
   }
