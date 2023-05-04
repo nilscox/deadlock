@@ -118,7 +118,9 @@ type SolutionsProps = {
 
 const Solutions = ({ levelId }: SolutionsProps) => {
   const solutions = useMemo(() => {
-    const solutions = (solve(new LevelClass(levels[levelId])) || []).map(
+    const level = new LevelClass(levels[levelId]);
+
+    const solutions = (solve(level) || []).map(
       (solution) => [solution, evaluateSolutionSimplicity(solution)] as const
     );
 

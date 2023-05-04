@@ -25,17 +25,25 @@ export class Level extends Emitter<LevelEventType> {
     }
   }
 
-  setPlayer(player: Player) {
-    player.addListener(PlayerEvent.moved, ({ x, y }) => {
+  private playerListeners?: ReturnType<Player['cloneEmitter']>;
+
+  bindPlayerEvents(player: Player) {
+    this.playerListeners = player.cloneEmitter();
+
+    this.playerListeners.addListener(PlayerEvent.moved, ({ x, y }) => {
       this.movePlayer(x, y);
     });
 
-    player.addListener(PlayerEvent.movedBack, ({ x, y }) => {
+    this.playerListeners.addListener(PlayerEvent.movedBack, ({ x, y }) => {
       const { x: px, y: py } = this.playerPosition as Point;
 
       this.at(x, y).type = CellType.player;
       this.at(px, py).type = CellType.empty;
     });
+  }
+
+  releasePlayerEvents() {
+    this.playerListeners?.removeListeners();
   }
 
   private key(x: number, y: number) {

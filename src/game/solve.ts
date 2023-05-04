@@ -5,7 +5,7 @@ import { Player } from './player';
 export const solve = (level: Level, max = Infinity) => {
   const player = new Player(level);
 
-  level.setPlayer(player);
+  level.bindPlayerEvents(player);
 
   const path: Path = [];
   const solutions = new Array<Path>();
@@ -37,9 +37,13 @@ export const solve = (level: Level, max = Infinity) => {
     return true;
   };
 
-  if (!run()) {
-    return false;
-  }
+  try {
+    if (!run()) {
+      return false;
+    }
 
-  return solutions;
+    return solutions;
+  } finally {
+    level.releasePlayerEvents();
+  }
 };

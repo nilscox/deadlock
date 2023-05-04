@@ -24,7 +24,7 @@ export class Game {
     this.level = new Level();
     this.player = new Player(this.level);
 
-    this.level.setPlayer(this.player);
+    this.level.bindPlayerEvents(this.player);
 
     this.renderer = new GameRenderer(this.scope.view, this);
     this.controls = new Controls();
