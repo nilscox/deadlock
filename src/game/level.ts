@@ -1,6 +1,7 @@
 import { Cell, CellDescription, CellType } from './cell';
 import { directions, getDirectionVector } from './direction';
 import { Emitter } from './emitter';
+import { Player, PlayerEvent } from './player';
 import { IPoint, Point } from './point';
 import { loadLevel, serializeLevel } from './serialize-level';
 import { assert } from './utils';
@@ -22,6 +23,19 @@ export class Level extends Emitter<LevelEventType> {
     if (description) {
       this.load(description);
     }
+  }
+
+  setPlayer(player: Player) {
+    player.addListener(PlayerEvent.moved, ({ x, y }) => {
+      this.movePlayer(x, y);
+    });
+
+    player.addListener(PlayerEvent.movedBack, ({ x, y }) => {
+      const { x: px, y: py } = this.playerPosition as Point;
+
+      this.at(x, y).type = CellType.player;
+      this.at(px, py).type = CellType.empty;
+    });
   }
 
   private key(x: number, y: number) {
@@ -70,15 +84,13 @@ export class Level extends Emitter<LevelEventType> {
     return this.cells(CellType.player)[0]?.position;
   }
 
-  setPlayerPosition(x: number, y: number) {
-    const cell = this.at(x, y);
-
+  movePlayer(x: number, y: number) {
     if (this.playerPosition) {
       const { x, y } = this.playerPosition;
       this.at(x, y).type = CellType.path;
     }
 
-    cell.type = CellType.player;
+    this.at(x, y).type = CellType.player;
 
     if (this.isCompleted()) {
       this.emit(LevelEventType.completed);
@@ -87,16 +99,6 @@ export class Level extends Emitter<LevelEventType> {
 
   isCompleted() {
     return this.cells(CellType.empty).length === 0;
-  }
-
-  get bounds(): { min: IPoint; max: IPoint } {
-    const xs = this.cells().map((cell) => cell.x);
-    const ys = this.cells().map((cell) => cell.y);
-
-    return {
-      min: { x: Math.min(...xs), y: Math.min(...ys) },
-      max: { x: Math.max(...xs), y: Math.max(...ys) },
-    };
   }
 
   get edgeCells() {
@@ -127,6 +129,10 @@ export class Level extends Emitter<LevelEventType> {
 
   serialize(): LevelDescription {
     return serializeLevel(this);
+  }
+
+  clone() {
+    return new Level(this.serialize());
   }
 
   reset() {

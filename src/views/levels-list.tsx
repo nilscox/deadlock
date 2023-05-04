@@ -5,8 +5,10 @@ import { Link } from 'wouter';
 import { Direction, Path } from '../game/direction';
 import { evaluateLevelDifficulty, evaluateSolutionSimplicity } from '../game/evaluate-difficulty';
 import { Game } from '../game/game';
+import { Level as LevelClass } from '../game/level';
 import { levels } from '../game/levels';
 import { solve } from '../game/solve';
+import { copy } from '../game/utils';
 import { useGame } from '../use-game';
 
 const levelIds = Object.keys(levels);
@@ -65,9 +67,21 @@ type LevelProps = {
 const Level = ({ levelId, levelNumber }: LevelProps) => (
   <div className="row divide-x p-4">
     <div className="px-4">
-      <Link href={`/level/${levelId}`} className="row gap-4">
-        #{levelNumber} <div className="text-muted">{levelId}</div>
-      </Link>
+      <div className="row gap-2 items-center">
+        <Link href={`/level/${levelId}`}>#{levelNumber}</Link>
+
+        <button onClick={() => copy(levelId)} className="text-muted">
+          {levelId}
+        </button>
+
+        <button
+          onClick={() => copy(JSON.stringify(levels[levelId]))}
+          className="ml-auto text-muted text-sm font-semibold"
+        >
+          Copy JSON
+        </button>
+      </div>
+
       <LevelPreview levelId={levelId} />
     </div>
 
@@ -104,7 +118,7 @@ type SolutionsProps = {
 
 const Solutions = ({ levelId }: SolutionsProps) => {
   const solutions = useMemo(() => {
-    const solutions = (solve(levels[levelId]) || []).map(
+    const solutions = (solve(new LevelClass(levels[levelId])) || []).map(
       (solution) => [solution, evaluateSolutionSimplicity(solution)] as const
     );
 
@@ -158,7 +172,7 @@ type ScoreProps = {
 
 const Score = ({ levelId }: ScoreProps) => {
   const [numberOfSolutionsScore, simplestSolutionScore] = useMemo(
-    () => evaluateLevelDifficulty(levels[levelId]),
+    () => evaluateLevelDifficulty(new LevelClass(levels[levelId])),
     [levelId]
   );
 

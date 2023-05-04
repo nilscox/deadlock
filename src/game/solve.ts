@@ -1,10 +1,11 @@
 import { Path, directions } from './direction';
-import { Level, LevelDescription } from './level';
+import { Level } from './level';
 import { Player } from './player';
 
-export const solve = (desc: LevelDescription, max = Infinity) => {
-  const level = new Level(desc);
+export const solve = (level: Level, max = Infinity) => {
   const player = new Player(level);
+
+  level.setPlayer(player);
 
   const path: Path = [];
   const solutions = new Array<Path>();
@@ -15,7 +16,6 @@ export const solve = (desc: LevelDescription, max = Infinity) => {
         continue;
       }
 
-      level.setPlayerPosition(player.x, player.y);
       path.push(dir);
 
       if (level.isCompleted()) {

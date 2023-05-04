@@ -7,10 +7,12 @@ import { assert } from './utils';
 
 export enum PlayerEvent {
   moved = 'moved',
+  movedBack = 'movedBack',
 }
 
 type PlayerEventsMap = {
   [PlayerEvent.moved]: IPoint;
+  [PlayerEvent.movedBack]: IPoint;
 };
 
 export class Player extends Emitter<PlayerEvent, PlayerEventsMap> implements IPoint {
@@ -19,6 +21,10 @@ export class Player extends Emitter<PlayerEvent, PlayerEventsMap> implements IPo
 
   constructor(private level: Level) {
     super();
+
+    if (level.playerPosition) {
+      this.position.set(level.playerPosition);
+    }
   }
 
   get x() {
@@ -68,7 +74,7 @@ export class Player extends Emitter<PlayerEvent, PlayerEventsMap> implements IPo
 
     this.position.set(lastPos);
 
-    this.emit(PlayerEvent.moved, this.position);
+    this.emit(PlayerEvent.movedBack, this.position);
 
     return true;
   }

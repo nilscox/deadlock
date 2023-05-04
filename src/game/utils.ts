@@ -1,3 +1,5 @@
+import { IPoint } from './point';
+
 export const inspectCustomSymbol = Symbol.for('nodejs.util.inspect.custom');
 
 export class AssertionError extends Error {
@@ -28,6 +30,10 @@ export const toObject = <T, V>(
 
 export const randomId = () => {
   return Math.random().toString(36).slice(-6);
+};
+
+export const copy = (text: string) => {
+  window.navigator.clipboard.writeText(text);
 };
 
 export type Tick = () => Promise<void>;
@@ -81,4 +87,14 @@ export const randItems = <T>(array: T[], count: number) => {
 
 export const shuffle = <T>(array: T[]) => {
   return array.sort(() => (randBool() ? -1 : 1));
+};
+
+export const boundaries = (points: IPoint[]): { min: IPoint; max: IPoint } => {
+  const xs = points.map(({ x }) => x);
+  const ys = points.map(({ y }) => y);
+
+  return {
+    min: { x: Math.min(...xs), y: Math.min(...ys) },
+    max: { x: Math.max(...xs), y: Math.max(...ys) },
+  };
 };

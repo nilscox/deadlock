@@ -2,7 +2,7 @@ import paper from 'paper';
 
 import { Controls, EventType } from './controls';
 import { Level, LevelDescription, LevelEventType } from './level';
-import { Player, PlayerEvent } from './player';
+import { Player } from './player';
 import { GameRenderer } from './renderer';
 
 export class Game {
@@ -24,9 +24,7 @@ export class Game {
     this.level = new Level();
     this.player = new Player(this.level);
 
-    this.player.addListener(PlayerEvent.moved, ({ x, y }) => {
-      this.level.setPlayerPosition(x, y);
-    });
+    this.level.setPlayer(this.player);
 
     this.renderer = new GameRenderer(this.scope.view, this);
     this.controls = new Controls();

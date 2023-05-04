@@ -1,9 +1,8 @@
 import { Cell, CellType } from './cell';
 import { computeLevelsDifficulties } from './evaluate-difficulty';
-import { Level, LevelDescription } from './level';
+import { Level } from './level';
 import { randomTransformLevel } from './level-transforms';
-import { Point } from './point';
-import { shuffle } from './utils';
+import { boundaries, shuffle } from './utils';
 
 const emptyLevel = (width: number, height: number): Level => {
   const level = new Level();
@@ -47,50 +46,52 @@ const nextLevel = (cells: Cell[]): number => {
   return lastBlockIdx + 1;
 };
 
-export const generateAllLevels = (width: number, height: number, blocks: number): LevelDescription[] => {
+export const generateAllLevels = (width: number, height: number, blocks: number): Level[] => {
   const level = emptyLevel(width, height);
-  const levels: LevelDescription[] = [];
+  const levels: Level[] = [];
 
   for (let i = 0; i < blocks; ++i) {
     level.cells()[i].type = CellType.block;
   }
 
   do {
-    for (const cell of level.cells()) {
-      if (cell.type === CellType.block) {
-        continue;
-      }
-
-      const { x, y } = level.playerPosition as Point;
-      level.setPlayerPosition(cell.x, cell.y);
-      level.at(x, y).type = CellType.empty;
-
-      levels.push(level.serialize());
+    for (const cell of level.cells(CellType.empty)) {
+      level.at(cell.x, cell.y).type = CellType.player;
+      levels.push(level.clone());
+      level.at(cell.x, cell.y).type = CellType.empty;
     }
   } while (nextLevel(level.cells()) !== -1);
 
   return levels;
 };
 
-export const generateLevels = (width: number, height: number, blocks: number) => {
-  let levels = shuffle(generateAllLevels(width, height, blocks));
-  const difficulty = computeLevelsDifficulties(levels);
+export const generateLevels = (width: number, height: number, blocks: number, slice?: number) => {
+  const levels = new Set(shuffle(generateAllLevels(width, height, blocks)).slice(0, slice));
 
-  levels = levels.filter((level) => difficulty(level) >= 0);
-  levels.sort((a, b) => difficulty(a) - difficulty(b));
-
-  for (let i = 0; i < levels.length; ++i) {
-    const level = new Level(levels[i]);
-
+  for (const level of levels) {
     for (const cell of level.edgeCells) {
       if (cell.type === CellType.block) {
         level.removeCell(cell);
       }
     }
 
+    const { min, max } = boundaries(level.cells());
+
+    if (max.x - min.x + 1 !== width || max.y - min.y + 1 !== height) {
+      levels.delete(level);
+      continue;
+    }
+
     randomTransformLevel(level);
-    levels[i] = level.serialize();
   }
 
-  return levels;
+  const difficulty = computeLevelsDifficulties(Array.from(levels));
+
+  for (const level of levels) {
+    if (difficulty(level) < 0) {
+      levels.delete(level);
+    }
+  }
+
+  return Array.from(levels).sort((a, b) => difficulty(a) - difficulty(b));
 };

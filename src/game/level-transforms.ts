@@ -1,6 +1,6 @@
 import { Level } from './level';
 import { Point } from './point';
-import { randBool, randItem } from './utils';
+import { boundaries, randBool, randItem } from './utils';
 
 const angles = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
 
@@ -45,7 +45,7 @@ const rotatePoint = (point: Point, angle: number) => {
 
 const normalize = (level: Level) => {
   const cells = level.serialize();
-  const { min } = level.bounds;
+  const { min } = boundaries(level.cells());
 
   for (const cell of cells) {
     cell[0] -= min.x;
