@@ -1,66 +1,4 @@
 {
-  "560524": [
-    {
-      "x": 0,
-      "y": 1,
-      "type": "empty"
-    },
-    {
-      "x": 0,
-      "y": 2,
-      "type": "empty"
-    },
-    {
-      "x": 1,
-      "y": 0,
-      "type": "empty"
-    },
-    {
-      "x": 1,
-      "y": 1,
-      "type": "empty"
-    },
-    {
-      "x": 1,
-      "y": 2,
-      "type": "empty"
-    },
-    {
-      "x": 1,
-      "y": 3,
-      "type": "player"
-    },
-    {
-      "x": 2,
-      "y": 0,
-      "type": "empty"
-    },
-    {
-      "x": 2,
-      "y": 1,
-      "type": "empty"
-    },
-    {
-      "x": 2,
-      "y": 2,
-      "type": "empty"
-    },
-    {
-      "x": 2,
-      "y": 3,
-      "type": "empty"
-    },
-    {
-      "x": 3,
-      "y": 1,
-      "type": "empty"
-    },
-    {
-      "x": 3,
-      "y": 3,
-      "type": "empty"
-    }
-  ],
   "5hclbm": [
     {
       "x": 0,
@@ -3214,6 +3152,68 @@
     {
       "x": 3,
       "y": 2,
+      "type": "empty"
+    }
+  ],
+  "560f24": [
+    {
+      "x": 0,
+      "y": 1,
+      "type": "empty"
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "type": "empty"
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "type": "empty"
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "type": "empty"
+    },
+    {
+      "x": 1,
+      "y": 2,
+      "type": "empty"
+    },
+    {
+      "x": 1,
+      "y": 3,
+      "type": "player"
+    },
+    {
+      "x": 2,
+      "y": 0,
+      "type": "empty"
+    },
+    {
+      "x": 2,
+      "y": 1,
+      "type": "empty"
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "type": "empty"
+    },
+    {
+      "x": 2,
+      "y": 3,
+      "type": "empty"
+    },
+    {
+      "x": 3,
+      "y": 1,
+      "type": "empty"
+    },
+    {
+      "x": 3,
+      "y": 3,
       "type": "empty"
     }
   ],
