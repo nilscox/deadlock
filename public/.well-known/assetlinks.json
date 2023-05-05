@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "dev.nilscox.deadlock",
+        "sha256_cert_fingerprints": ["43:68:6D:44:37:88:2F:C2:F2:EE:E2:F3:53:C6:5D:32:FB:5A:64:3C:79:29:B7:86:1A:8F:51:07:FF:60:51:F6"]
+      }
+    }]
