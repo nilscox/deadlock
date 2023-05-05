@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Link } from 'wouter';
+import Helmet from 'react-helmet';
 
 import { getLevelNumber, useLevels } from '../use-levels';
 import { useGame, useGoToNextLevel } from '../use-game';
@@ -30,6 +31,10 @@ export const GameView = ({ levelId }: GameViewProps) => {
 
   return (
     <MobileView>
+      <Helmet>
+        <title>{`Deadlock - Level ${getLevelNumber(levelId)}`}</title>
+      </Helmet>
+
       <div className="flex-1 text-xl col items-center justify-center">
         <div>Level {getLevelNumber(levelId)}</div>
         <div className="text-muted text">{levelId}</div>

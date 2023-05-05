@@ -1,4 +1,5 @@
 import { Redirect, Route, Router, Switch } from 'wouter';
+import Helmet from 'react-helmet';
 
 import { useLevels } from './use-levels';
 import { GameView } from './views/game-view';
@@ -14,6 +15,10 @@ const RedirectToNextLevel = () => {
 
 export const App = () => (
   <>
+    <Helmet>
+      <title>Deadlock</title>
+    </Helmet>
+
     <Router base={import.meta.env.VITE_APP_BASE_URL}>
       <Route path="/">
         <RedirectToNextLevel />
