@@ -17,7 +17,7 @@ export const computeLevelsDifficulties = (levels: Level[]) => {
       return -1;
     }
 
-    return numberOfSolutionsScore + simplestSolutionScore;
+    return numberOfSolutionsScore + simplestSolutionScore * 2;
   };
 };
 
@@ -28,7 +28,7 @@ export const evaluateLevelDifficulty = (level: Level) => {
     return [-1];
   }
 
-  const numberOfSolutionsScore = Math.max(0, 10 - Math.floor(Math.log2(solutions.length)));
+  const numberOfSolutionsScore = Math.max(0, 7 - Math.floor(Math.log2(solutions.length)));
   const simplestSolutionScore = solutions.map(evaluateSolutionSimplicity).sort((a, b) => a - b)[0];
 
   return [numberOfSolutionsScore, simplestSolutionScore];

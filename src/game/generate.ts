@@ -69,9 +69,11 @@ export const generateLevels = (width: number, height: number, blocks: number, sl
   const levels = new Set(shuffle(generateAllLevels(width, height, blocks)).slice(0, slice));
 
   for (const level of levels) {
-    for (const cell of level.edgeCells) {
-      if (cell.type === CellType.block) {
-        level.removeCell(cell);
+    while (level.edgeCells.find((cell) => cell.type === CellType.block)) {
+      for (const cell of level.edgeCells) {
+        if (cell.type === CellType.block) {
+          level.removeCell(cell);
+        }
       }
     }
 

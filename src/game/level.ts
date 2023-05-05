@@ -115,8 +115,8 @@ export class Level extends Emitter<LevelEventType> {
 
   isEdgeCell({ x, y }: Cell) {
     return [
-      this.atUnsafe(x - 1, 0),
-      this.atUnsafe(x + 1, 0),
+      this.atUnsafe(x - 1, y),
+      this.atUnsafe(x + 1, y),
       this.atUnsafe(x, y - 1),
       this.atUnsafe(x, y + 1),
     ].some((cell) => cell === undefined);
