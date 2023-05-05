@@ -1,4 +1,4 @@
-import { CSSProperties, useCallback, useMemo, useState } from 'react';
+import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react';
 import { FixedSizeList as List } from 'react-window';
 import { Link } from 'wouter';
 
@@ -8,12 +8,22 @@ import { Game } from '../game/game';
 import { Level as LevelClass } from '../game/level';
 import { levels } from '../game/levels';
 import { solve } from '../game/solve';
-import { copy } from '../game/utils';
+import { LevelStats, LevelsStats, copy } from '../game/utils';
 import { useGame } from '../use-game';
+import { getLevelNumber } from '../use-levels';
 
+const serverUrl = import.meta.env.VITE_APP_SERVER_URL;
 const levelIds = Object.keys(levels);
 
-export const LevelsListView = () => {
+export const AdminView = () => {
+  const [stats, setStats] = useState<LevelsStats>();
+
+  useEffect(() => {
+    void fetch(serverUrl)
+      .then((res) => res.json())
+      .then(setStats);
+  }, []);
+
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   const [search, setSearch] = useState('');
 
@@ -39,7 +49,7 @@ export const LevelsListView = () => {
         itemCount={filteredIds.length}
         itemSize={180}
         width="100%"
-        itemData={{ filteredIds }}
+        itemData={{ filteredIds, stats }}
       >
         {Row}
       </List>
@@ -50,25 +60,25 @@ export const LevelsListView = () => {
 type RowProps = {
   index: number;
   style: CSSProperties;
-  data: { filteredIds: string[] };
+  data: { filteredIds: string[]; stats?: LevelsStats };
 };
 
 const Row = ({ index, style, data }: RowProps) => (
   <div style={style}>
-    <Level levelId={data.filteredIds[index]} levelNumber={index + 1} />
+    <Level levelId={data.filteredIds[index]} stats={data.stats} />
   </div>
 );
 
 type LevelProps = {
   levelId: string;
-  levelNumber: number;
+  stats?: LevelsStats;
 };
 
-const Level = ({ levelId, levelNumber }: LevelProps) => (
+const Level = ({ levelId, stats }: LevelProps) => (
   <div className="row divide-x p-4">
     <div className="px-4">
       <div className="row gap-2 items-center">
-        <Link href={`/level/${levelId}`}>#{levelNumber}</Link>
+        <Link href={`/level/${levelId}`}>#{getLevelNumber(levelId)}</Link>
 
         <button onClick={() => copy(levelId)} className="text-muted">
           {levelId}
@@ -91,6 +101,10 @@ const Level = ({ levelId, levelNumber }: LevelProps) => (
 
     <div className="px-4">
       <Score levelId={levelId} />
+    </div>
+
+    <div className="px-4">
+      <Stats stats={stats?.[levelId]} />
     </div>
   </div>
 );
@@ -140,8 +154,8 @@ const Solutions = ({ levelId }: SolutionsProps) => {
   }
 
   return (
-    <div className="col gap-2">
-      {solutions.slice(0, 4).map(([solution, simplicity], index) => (
+    <div className="col gap-1 h-full">
+      {solutions.slice(0, 3).map(([solution, simplicity], index) => (
         <div key={index} className="row gap-2 items-center">
           {solution.map((direction, index) => (
             <span key={index}>{directions[direction]}</span>
@@ -150,7 +164,9 @@ const Solutions = ({ levelId }: SolutionsProps) => {
         </div>
       ))}
 
-      <div className="text-muted text-sm">
+      {solutions.length > 3 && <div className="text-sm">...</div>}
+
+      <div className="text-muted text-sm mt-auto">
         total: {solutions.length} <button onClick={copySolutions}>(copy)</button>
       </div>
     </div>
@@ -190,11 +206,66 @@ const Score = ({ levelId }: ScoreProps) => {
 
   return (
     <>
-      <div className="font-semibold" style={{ color: `rgb(${r}, ${g}, ${b})` }}>
+      <div className="font-semibold pb-2" style={{ color: `rgb(${r}, ${g}, ${b})` }}>
         Difficulty: {difficulty}
       </div>
       <div className="text-muted text-sm">Number of solutions score: {numberOfSolutionsScore}</div>
       <div className="text-muted text-sm">Simplest solutions score: {simplestSolutionScore}</div>
+    </>
+  );
+};
+
+type StatsProps = {
+  stats?: LevelStats;
+};
+
+const Stats = ({ stats }: StatsProps) => {
+  if (!stats) {
+    return <div className="text-muted">No stats.</div>;
+  }
+
+  return (
+    <ul className="text-sm">
+      <li>
+        Played: <Times value={stats.played} />
+      </li>
+
+      <li>
+        Completed: <Times value={stats.completed} />
+      </li>
+
+      <li>
+        Skipped: <Times value={stats.skipped} />
+      </li>
+
+      <li>
+        Tries: <strong>{stats.tries.mean}</strong> (min: {stats.tries.min}, max: {stats.tries.max})
+      </li>
+
+      <li>
+        Play time: <strong>{secs(stats.playTime.mean)}</strong> (min: {secs(stats.playTime.min)}, max:{' '}
+        {secs(stats.playTime.max)})
+      </li>
+    </ul>
+  );
+};
+
+const secs = (time: number) => {
+  return Math.floor(time / 1000) + 's';
+};
+
+type TimesProps = {
+  value: number;
+};
+
+const Times = ({ value }: TimesProps) => {
+  if (value === 0) {
+    return <>-</>;
+  }
+
+  return (
+    <>
+      <strong>{value}</strong> time{value !== 1 && 's'}
     </>
   );
 };

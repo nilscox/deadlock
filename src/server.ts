@@ -1,9 +1,20 @@
 import { IncomingMessage, ServerResponse, createServer } from 'node:http';
 import fs from 'node:fs/promises';
 import assert from 'node:assert';
+import { LevelStats, toObject } from './game/utils';
 
 const { HOST: host = '0.0.0.0', PORT: port = '3000', DB_PATH: dbPath = './db.json' } = process.env;
-const db: unknown[] = [];
+
+type DbRow = {
+  ip: string;
+  date: string;
+  levelId: string;
+  completed: boolean;
+  time: number;
+  tries: number;
+};
+
+const db: DbRow[] = [];
 
 startServer().catch(console.error);
 
@@ -16,6 +27,14 @@ async function startServer() {
 
     if (req.method === 'OPTIONS' && req.url === '/') {
       res.end();
+    }
+
+    if (req.method === 'GET' && req.url === '/') {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.write(Buffer.from(JSON.stringify(formatDb())));
+      res.end();
+      return;
     }
 
     if (req.method === 'POST' && req.url === '/') {
@@ -39,6 +58,55 @@ async function loadDb() {
 async function saveDb() {
   await fs.writeFile(dbPath, JSON.stringify(db, null, 2));
 }
+
+function formatDb() {
+  return toObject(
+    db.map((row) => row.levelId),
+    (id) => id,
+    (id) => getLevelData(id)
+  );
+}
+
+function getLevelData(levelId: string): LevelStats {
+  const rows = db.filter((row) => row.levelId === levelId);
+
+  return {
+    played: rows.length,
+    completed: rows.filter((row) => row.completed).length,
+    skipped: rows.filter((row) => !row.completed).length,
+    tries: {
+      mean: mean(rows.map((row) => row.tries)),
+      min: max(rows.map((row) => row.tries)),
+      max: min(rows.map((row) => row.tries)),
+    },
+    playTime: {
+      mean: mean(rows.map((row) => row.time)),
+      min: max(rows.map((row) => row.time)),
+      max: min(rows.map((row) => row.time)),
+    },
+  };
+}
+
+const round = (value: number, precision: number) => {
+  const p10 = Math.pow(10, precision);
+  return Math.round(p10 * value) / p10;
+};
+
+const mean = (values: number[]) => {
+  return round(sum(values) / values.length, 2);
+};
+
+const sum = (values: number[]) => {
+  return values.reduce((a, b) => a + b, 0);
+};
+
+const min = (values: number[]) => {
+  return Math.min(...values);
+};
+
+const max = (values: number[]) => {
+  return Math.max(...values);
+};
 
 async function saveReport(req: IncomingMessage, res: ServerResponse) {
   const date = new Date().toISOString();

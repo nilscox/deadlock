@@ -17,7 +17,7 @@ export default {
       xl: ['2rem', '3rem'],
     },
     fontFamily: {
-      mono: 'monospace',
+      mono: ['JetBrains Mono', 'Source Code Pro', 'Liberation Mono', 'monospace'],
     },
   },
   plugins: [],

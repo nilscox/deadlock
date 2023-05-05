@@ -3,7 +3,7 @@ import Helmet from 'react-helmet';
 
 import { useLevels } from './use-levels';
 import { GameView } from './views/game-view';
-import { LevelsListView } from './views/levels-list';
+import { AdminView } from './views/admin-view';
 import { LevelsView } from './views/levels-view';
 import { NotFoundView } from './views/not-found-view';
 
@@ -26,8 +26,8 @@ export const App = () => (
           <RedirectToNextLevel />
         </Route>
 
-        <Route path="/levels-list">
-          <LevelsListView />
+        <Route path="/admin">
+          <AdminView />
         </Route>
 
         <Route path="/levels">
