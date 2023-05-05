@@ -35,9 +35,9 @@ export const GameView = ({ levelId }: GameViewProps) => {
         <title>{`Deadlock - Level ${getLevelNumber(levelId)}`}</title>
       </Helmet>
 
-      <div className="flex-1 text-xl col items-center justify-center">
-        <div>Level {getLevelNumber(levelId)}</div>
-        <div className="text-muted text">{levelId}</div>
+      <div className="flex-1 col items-center justify-center">
+        <div className="text-xl">Level {getLevelNumber(levelId)}</div>
+        <div className="text-muted">{levelId}</div>
       </div>
 
       <canvas style={{ width: '100%', height: 400 }} ref={setCanvas} />

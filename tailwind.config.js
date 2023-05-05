@@ -11,13 +11,13 @@ export default {
       muted: colors.slate[100],
     },
     fontSize: {
-      DEFAULT: '16px',
-      sm: '0.875rem',
-      lg: '1.5rem',
-      xl: '2rem',
+      base: ['1rem', '1.5rem'],
+      sm: ['0.875rem', '1.25rem'],
+      lg: ['1.5rem', '2rem'],
+      xl: ['2rem', '3rem'],
     },
     fontFamily: {
-      DEFAULT: 'monospace',
+      mono: 'monospace',
     },
   },
   plugins: [],

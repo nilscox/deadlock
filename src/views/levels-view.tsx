@@ -30,7 +30,7 @@ const Level = ({ levelId, levelNumber, completed }: LevelProps) => (
   <Link
     href={`/level/${levelId}`}
     className={clsx(
-      'text-sm font-semibold rounded py-2 bg-muted col justify-center items-center',
+      'text-sm font-semibold rounded py-4 bg-muted col justify-center items-center',
       completed && 'opacity-50'
     )}
   >
