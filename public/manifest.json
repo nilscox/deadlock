@@ -1,0 +1,16 @@
+{
+  "name": "Deadlock",
+  "short_name": "Deadlock",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#CCC",
+  "description": "A simple puzzle game.",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
