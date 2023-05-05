@@ -5,6 +5,7 @@ import { useLevels } from './use-levels';
 import { GameView } from './views/game-view';
 import { LevelsListView } from './views/levels-list';
 import { LevelsView } from './views/levels-view';
+import { NotFoundView } from './views/not-found-view';
 
 const RedirectToNextLevel = () => {
   const { levels } = useLevels();
@@ -20,30 +21,25 @@ export const App = () => (
     </Helmet>
 
     <Router base={import.meta.env.VITE_APP_BASE_URL}>
-      <Route path="/">
-        <RedirectToNextLevel />
-      </Route>
+      <Switch>
+        <Route path="/">
+          <RedirectToNextLevel />
+        </Route>
 
-      <DesktopRoutes />
-      <MobileRoutes />
+        <Route path="/levels-list">
+          <LevelsListView />
+        </Route>
+
+        <Route path="/levels">
+          <LevelsView />
+        </Route>
+
+        <Route path="/level/:levelId">{(params) => <GameView levelId={params.levelId} />}</Route>
+
+        <Route>
+          <NotFoundView />
+        </Route>
+      </Switch>
     </Router>
   </>
-);
-
-const DesktopRoutes = () => (
-  <Switch>
-    <Route path="/levels-list">
-      <LevelsListView />
-    </Route>
-  </Switch>
-);
-
-const MobileRoutes = () => (
-  <Switch>
-    <Route path="/levels">
-      <LevelsView />
-    </Route>
-
-    <Route path="/level/:levelId">{(params) => <GameView levelId={params.levelId} />}</Route>
-  </Switch>
 );
