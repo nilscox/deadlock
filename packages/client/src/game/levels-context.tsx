@@ -34,7 +34,7 @@ export const LevelsProvider = ({ children }: LevelsProviderProps) => {
   );
 
   if (levels === undefined) {
-    return <>Loading...</>;
+    return null;
   }
 
   const value: LevelsContext = {

@@ -1,4 +1,15 @@
-import { LevelDefinition, randomId, toObject } from '@deadlock/game';
+import {
+  LevelDefinition,
+  LevelsStats,
+  MapSet,
+  identity,
+  max,
+  mean,
+  min,
+  randomId,
+  round,
+  toObject,
+} from '@deadlock/game';
 import { EntityManager, RequestContext } from '@mikro-orm/core';
 import express, { RequestHandler } from 'express';
 import * as yup from 'yup';
@@ -15,6 +26,7 @@ export function api(em: EntityManager) {
 
   router.get('/levels', getLevels(em));
   router.post('/session', storeLevelSession(em));
+  router.get('/stats', getStatistics(em));
 
   return router;
 }
@@ -61,3 +73,37 @@ const storeLevelSession = (em: EntityManager): RequestHandler => {
     res.end();
   };
 };
+
+const getStatistics = (em: EntityManager): RequestHandler => {
+  return async (req, res) => {
+    const map = new MapSet<string, SqlLevelSession>();
+
+    for (const session of await em.find(SqlLevelSession, {})) {
+      map.add(session.level.id, session);
+    }
+
+    const stats: LevelsStats = {};
+
+    for (const [levelId, session] of map) {
+      stats[levelId] = formatLevelStats(Array.from(session));
+    }
+
+    res.json(stats);
+  };
+};
+
+const formatLevelStats = (sessions: SqlLevelSession[]) => ({
+  played: sessions.length,
+  completed: sessions.filter(({ completed }) => completed).length,
+  skipped: sessions.filter(({ completed }) => !completed).length,
+  tries: {
+    mean: round(mean(sessions.map(({ tries }) => tries)), 3),
+    min: min(sessions.map(({ tries }) => tries)),
+    max: max(sessions.map(({ tries }) => tries)),
+  },
+  playTime: {
+    mean: round(mean(sessions.map(({ time }) => time)), 0),
+    min: min(sessions.map(({ time }) => time)),
+    max: max(sessions.map(({ time }) => time)),
+  },
+});

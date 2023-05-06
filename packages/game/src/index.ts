@@ -1,4 +1,6 @@
 export * from './utils/math';
+export { type LevelsStats, type LevelStats } from './stats';
+export { MapSet } from './utils/map-set';
 export { assert } from './utils/assert';
 export { Direction, type Path, isDirection } from './utils/direction';
 export { Point } from './utils/point';

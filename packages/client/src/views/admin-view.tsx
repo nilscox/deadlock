@@ -2,6 +2,8 @@ import {
   Direction,
   Game,
   Level,
+  LevelStats,
+  LevelsStats,
   evaluateLevelDifficulty,
   evaluateSolutionDifficulty,
   round,
@@ -16,24 +18,6 @@ import { useConfig } from '../hooks/use-config';
 import { useGame } from '../use-game';
 import { copy } from '../utils';
 
-export type LevelsStats = Record<string, LevelStats>;
-
-export type LevelStats = {
-  played: number;
-  completed: number;
-  skipped: number;
-  tries: {
-    mean: number;
-    min: number;
-    max: number;
-  };
-  playTime: {
-    mean: number;
-    min: number;
-    max: number;
-  };
-};
-
 export const AdminView = () => {
   const { serverUrl } = useConfig();
 
@@ -41,7 +25,7 @@ export const AdminView = () => {
   const [stats, setStats] = useState<LevelsStats>();
 
   useEffect(() => {
-    void fetch(serverUrl)
+    void fetch(`${serverUrl}/stats`)
       .then((res) => res.json())
       .then(setStats);
   }, [serverUrl]);
