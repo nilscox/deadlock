@@ -17,7 +17,8 @@
     "@mikro-orm/sql-highlighter": "^1.0.1",
     "@mikro-orm/sqlite": "^5.7.4",
     "cors": "^2.8.5",
-    "express": "5.0.0-beta.1"
+    "express": "5.0.0-beta.1",
+    "yup": "^1.1.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",

@@ -1,7 +1,7 @@
 import {
   Direction,
-  Level,
   Game,
+  Level,
   evaluateLevelDifficulty,
   evaluateSolutionDifficulty,
   round,
@@ -11,10 +11,10 @@ import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { FixedSizeList as List } from 'react-window';
 import { Link } from 'wouter';
 
+import { useLevel, useLevelNumber, useLevelsIds } from '../game/levels-context';
+import { useConfig } from '../hooks/use-config';
 import { useGame } from '../use-game';
 import { copy } from '../utils';
-import { useLevel, useLevelNumber, useLevelsIds, useNextLevelId } from '../game/levels-context';
-import { useConfig } from '../hooks/use-config';
 
 export type LevelsStats = Record<string, LevelStats>;
 

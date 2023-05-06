@@ -70,7 +70,12 @@ export const useLevels = () => {
 };
 
 export const useLevel = (levelId: string) => {
-  return useLevels()[levelId];
+  const levels = useLevels();
+  const level = levels[levelId];
+
+  assert(level, `level ${levelId} not found`);
+
+  return level;
 };
 
 export const useStoreLevelResult = () => {
@@ -107,7 +112,7 @@ export const useSaveReport = () => {
 
   return useCallback(
     (levelId: string, completed: boolean, tries: number, time: number) => {
-      void fetch(serverUrl, {
+      void fetch(`${serverUrl}/session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ levelId, completed, time, tries }),

@@ -1,8 +1,10 @@
+import { LevelDefinition, randomId, toObject } from '@deadlock/game';
 import { EntityManager, RequestContext } from '@mikro-orm/core';
-import express from 'express';
-import { RequestHandler } from 'express';
+import express, { RequestHandler } from 'express';
+import * as yup from 'yup';
+
 import { SqlLevel } from './entities/level';
-import { LevelDefinition, toObject } from '@deadlock/game';
+import { SqlLevelSession } from './entities/level-session';
 
 export function api(em: EntityManager) {
   const router = express.Router();
@@ -12,6 +14,7 @@ export function api(em: EntityManager) {
   });
 
   router.get('/levels', getLevels(em));
+  router.post('/session', storeLevelSession(em));
 
   return router;
 }
@@ -29,3 +32,32 @@ const formatLevel = (level: SqlLevel): LevelDefinition => ({
   blocks: level.blocks.map(([x, y]) => ({ x, y })),
   start: { x: level.start[0], y: level.start[1] },
 });
+
+const sessionBodySchema = yup.object({
+  levelId: yup.string().required(),
+  completed: yup.boolean().required(),
+  tries: yup.number().required(),
+  time: yup.number().required(),
+});
+
+const storeLevelSession = (em: EntityManager): RequestHandler => {
+  return async (req, res) => {
+    const ip = String(req.headers['x-forwarded-for'] ?? req.socket.remoteAddress);
+    const body = await sessionBodySchema.validate(req.body);
+
+    const session = new SqlLevelSession();
+
+    session.id = randomId();
+    session.date = new Date();
+    session.ip = ip;
+    session.level = em.getReference(SqlLevel, body.levelId);
+    session.completed = body.completed;
+    session.tries = body.tries;
+    session.time = body.time;
+
+    await em.persistAndFlush(session);
+
+    res.status(204);
+    res.end();
+  };
+};
