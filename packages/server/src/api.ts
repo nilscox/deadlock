@@ -41,8 +41,8 @@ const getLevels = (em: EntityManager): RequestHandler => {
 const formatLevel = (level: SqlLevel): LevelDefinition => ({
   width: level.width,
   height: level.height,
-  blocks: level.blocks.map(([x, y]) => ({ x, y })),
-  start: { x: level.start[0], y: level.start[1] },
+  blocks: level.blocks,
+  start: level.start,
 });
 
 const sessionBodySchema = yup.object({

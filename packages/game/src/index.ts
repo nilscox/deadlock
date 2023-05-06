@@ -3,7 +3,7 @@ export { type LevelsStats, type LevelStats } from './stats';
 export { MapSet } from './utils/map-set';
 export { assert } from './utils/assert';
 export { Direction, type Path, isDirection } from './utils/direction';
-export { Point } from './utils/point';
+export { Point, type IPoint } from './utils/point';
 export { toObject } from './utils/to-object';
 export { Game, Controls, ControlEvent } from './game';
 export { Level, LevelEvent, type LevelDefinition, CellType } from './level';

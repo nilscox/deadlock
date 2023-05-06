@@ -1,9 +1,8 @@
+import { LevelDefinition, type IPoint } from '@deadlock/game';
 import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
-type Point = [x: number, y: number];
-
 @Entity({ tableName: 'level' })
-export class SqlLevel {
+export class SqlLevel implements LevelDefinition {
   @PrimaryKey()
   id!: string;
 
@@ -14,8 +13,8 @@ export class SqlLevel {
   height!: number;
 
   @Property({ type: 'json' })
-  blocks!: Array<Point>;
+  blocks!: Array<IPoint>;
 
   @Property({ type: 'json' })
-  start!: Point;
+  start!: IPoint;
 }
