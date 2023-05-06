@@ -1,5 +1,5 @@
 import { Emitter } from './emitter';
-import { inspectCustomSymbol } from './utils';
+import { inspectCustomSymbol } from './inspect';
 
 export enum PointEvent {
   changed = 'changed',

@@ -1,18 +1,16 @@
-import { Path, directions } from './direction';
 import { Level } from './level';
 import { Player } from './player';
+import { Path, directions } from './utils/direction';
 
 export const solve = (level: Level, max = Infinity) => {
-  const player = new Player(level);
-
-  level.bindPlayerEvents(player);
+  const player = new Player(level.start);
 
   const path: Path = [];
   const solutions = new Array<Path>();
 
   const run = () => {
     for (const dir of directions) {
-      if (!player.move(dir)) {
+      if (!level.movePlayer(player, dir)) {
         continue;
       }
 
@@ -31,19 +29,15 @@ export const solve = (level: Level, max = Infinity) => {
       }
 
       path.pop();
-      player.back();
+      player.moveBack();
     }
 
     return true;
   };
 
-  try {
-    if (!run()) {
-      return false;
-    }
-
-    return solutions;
-  } finally {
-    level.releasePlayerEvents();
+  if (!run()) {
+    return false;
   }
+
+  return solutions;
 };

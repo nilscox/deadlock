@@ -1,10 +1,10 @@
-import { LevelDescription } from './level';
-import tuto from './levels/levels-tuto.json' assert { type: 'json' };
-import levels_ from './levels/levels.json' assert { type: 'json' };
-// import generated from '../../generated.json' assert { type: 'json' };
+import { LevelDefinition } from '@deadlock/game';
 
-export const levels = {
-  ...tuto,
-  ...levels_,
-  // ...generated,
-} as unknown as Record<string, LevelDescription>;
+export const levels: Record<string, LevelDefinition> = {
+  lvl1: {
+    width: 4,
+    height: 1,
+    blocks: [],
+    start: { x: 0, y: 0 },
+  },
+};

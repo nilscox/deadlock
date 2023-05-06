@@ -1,16 +1,38 @@
+import {
+  Direction,
+  Level,
+  Game,
+  evaluateLevelDifficulty,
+  evaluateSolutionDifficulty,
+  round,
+  solve,
+} from '@deadlock/game';
 import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react';
 import { FixedSizeList as List } from 'react-window';
 import { Link } from 'wouter';
 
-import { Direction, Path } from '../game/direction';
-import { evaluateLevelDifficulty, evaluateSolutionSimplicity } from '../game/evaluate-difficulty';
-import { Game } from '../game/game';
-import { Level as LevelClass } from '../game/level';
 import { levels } from '../game/levels';
-import { solve } from '../game/solve';
-import { LevelStats, LevelsStats, copy } from '../game/utils';
 import { useGame } from '../use-game';
 import { getLevelNumber } from '../use-levels';
+import { copy } from '../utils';
+
+export type LevelsStats = Record<string, LevelStats>;
+
+export type LevelStats = {
+  played: number;
+  completed: number;
+  skipped: number;
+  tries: {
+    mean: number;
+    min: number;
+    max: number;
+  };
+  playTime: {
+    mean: number;
+    min: number;
+    max: number;
+  };
+};
 
 const serverUrl = import.meta.env.VITE_APP_SERVER_URL;
 const levelIds = Object.keys(levels);
@@ -65,16 +87,16 @@ type RowProps = {
 
 const Row = ({ index, style, data }: RowProps) => (
   <div style={style}>
-    <Level levelId={data.filteredIds[index]} stats={data.stats} />
+    <LevelRow levelId={data.filteredIds[index]} stats={data.stats} />
   </div>
 );
 
-type LevelProps = {
+type LevelRowProps = {
   levelId: string;
   stats?: LevelsStats;
 };
 
-const Level = ({ levelId, stats }: LevelProps) => (
+const LevelRow = ({ levelId, stats }: LevelRowProps) => (
   <div className="row divide-x p-4">
     <div className="px-4">
       <div className="row gap-2 items-center">
@@ -132,21 +154,27 @@ type SolutionsProps = {
 
 const Solutions = ({ levelId }: SolutionsProps) => {
   const solutions = useMemo(() => {
-    const level = new LevelClass(levels[levelId]);
+    const level = new Level(levels[levelId]);
 
-    const solutions = (solve(level) || []).map(
-      (solution) => [solution, evaluateSolutionSimplicity(solution)] as const
-    );
+    const solutions = (solve(level) || []).map((solution) => ({
+      solution,
+      difficulty: evaluateSolutionDifficulty(level, solution),
+    }));
 
     if (solutions) {
-      solutions.sort(([, a], [, b]) => a - b);
+      solutions.sort(({ difficulty: a }, { difficulty: b }) => a - b);
     }
 
     return solutions;
   }, [levelId]);
 
   const copySolutions = () => {
-    navigator.clipboard.writeText(stringifySolutions(solutions.map(([solution]) => solution)));
+    navigator.clipboard.writeText(
+      solutions
+        .map(({ solution }) => solution)
+        .map((solution) => solution.join(' '))
+        .join('\n')
+    );
   };
 
   if (solutions.length === 0) {
@@ -155,12 +183,12 @@ const Solutions = ({ levelId }: SolutionsProps) => {
 
   return (
     <div className="col gap-1 h-full">
-      {solutions.slice(0, 3).map(([solution, simplicity], index) => (
+      {solutions.slice(0, 3).map(({ solution, difficulty }, index) => (
         <div key={index} className="row gap-2 items-center">
           {solution.map((direction, index) => (
             <span key={index}>{directions[direction]}</span>
           ))}
-          <span className="text-muted text-sm">({simplicity})</span>
+          <span className="text-muted text-sm">({difficulty})</span>
         </div>
       ))}
 
@@ -171,10 +199,6 @@ const Solutions = ({ levelId }: SolutionsProps) => {
       </div>
     </div>
   );
-};
-
-const stringifySolutions = (solutions: Path[]): string => {
-  return solutions.map((solution) => solution.join(' ')).join('\n');
 };
 
 const directions: Record<Direction, JSX.Element> = {
@@ -189,16 +213,10 @@ type ScoreProps = {
 };
 
 const Score = ({ levelId }: ScoreProps) => {
-  const [numberOfSolutionsScore, simplestSolutionScore] = useMemo(
-    () => evaluateLevelDifficulty(new LevelClass(levels[levelId])),
+  const { difficulty, numberOfSolutions, numberOfSolutionsScore, easiestSolution } = useMemo(
+    () => evaluateLevelDifficulty(levels[levelId]),
     [levelId]
   );
-
-  if (numberOfSolutionsScore === -1) {
-    return null;
-  }
-
-  const difficulty = numberOfSolutionsScore + simplestSolutionScore;
 
   const r = 255 * Math.min(1, difficulty / 20);
   const g = 255 - r;
@@ -207,10 +225,14 @@ const Score = ({ levelId }: ScoreProps) => {
   return (
     <>
       <div className="font-semibold pb-2" style={{ color: `rgb(${r}, ${g}, ${b})` }}>
-        Difficulty: {difficulty}
+        Difficulty: {round(difficulty, 3)}
       </div>
-      <div className="text-muted text-sm">Number of solutions score: {numberOfSolutionsScore}</div>
-      <div className="text-muted text-sm">Simplest solutions score: {simplestSolutionScore}</div>
+
+      <div className="text-muted text-sm">
+        Number of solutions: {numberOfSolutions} ({round(numberOfSolutionsScore ?? 0, 2)})
+      </div>
+
+      <div className="text-muted text-sm">Easiest solution: {easiestSolution}</div>
     </>
   );
 };

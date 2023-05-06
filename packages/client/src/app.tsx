@@ -34,7 +34,9 @@ export const App = () => (
           <LevelsView />
         </Route>
 
-        <Route path="/level/:levelId">{(params) => <GameView levelId={params.levelId} />}</Route>
+        <Route<{ levelId: string }> path="/level/:levelId">
+          {(params) => <GameView levelId={params.levelId} />}
+        </Route>
 
         <Route>
           <NotFoundView />

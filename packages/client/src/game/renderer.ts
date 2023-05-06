@@ -1,21 +1,23 @@
-import { Color, CompoundPath, Group, Layer, Shape } from 'paper';
-
-import { Cell, CellEvent, CellType } from './cell';
-import { Game } from './game';
-import { Level, LevelEventType } from './level';
-import { Player } from './player';
-import { IPoint, PointEvent } from './point';
-import { assert } from './utils';
+import { Point, CellType, Game, Level, LevelEvent, Player, PlayerEvent, assert } from '@deadlock/game';
+import { PaperScope, Color, CompoundPath, Group, Layer, Shape } from 'paper';
 
 const cellSize = 40;
 
 export class GameRenderer {
-  private group = new Group();
+  private scope: paper.PaperScope;
+  private view: paper.View;
+  private group: paper.Group;
 
   private levelRenderer: LevelRenderer;
   private playerRenderer: PlayerRenderer;
 
-  constructor(view: paper.View, private game: Game) {
+  constructor(canvas: HTMLCanvasElement, private game: Game) {
+    this.scope = new PaperScope();
+    this.scope.setup(canvas);
+
+    this.view = this.scope.view;
+
+    this.group = new Group();
     this.group.applyMatrix = false;
 
     this.levelRenderer = new LevelRenderer(game.level);
@@ -26,21 +28,25 @@ export class GameRenderer {
 
     this.playerRenderer.layer.bringToFront();
 
-    this.game.level.addListener(LevelEventType.loaded, () => {
-      this.levelRenderer.clear();
-      this.levelRenderer.init();
-      this.group.bounds.center = view.center;
+    this.game.level.addListener(LevelEvent.loaded, () => {
+      this.update();
     });
 
-    view.onFrame = () => {
+    this.view.onFrame = () => {
       this.onFrame();
     };
 
-    // paper.tool.onKeyDown = (event) => {
-    //   if (event.key === 'f') {
-    //     this.onFrame();
-    //   }
-    // };
+    this.update();
+  }
+
+  scale(scale: number) {
+    this.view.scale(scale);
+  }
+
+  update() {
+    this.levelRenderer.clear();
+    this.levelRenderer.init();
+    this.group.bounds.center = this.view.center;
   }
 
   onFrame() {
@@ -60,19 +66,33 @@ export class LevelRenderer {
   public layer = new Layer();
   public boundaries: LevelBoundaries;
 
-  private cells = new Map<Cell, paper.Shape>();
+  private cells = new Map<string, paper.Shape>();
 
   constructor(private level: Level) {
     this.layer.name = 'level';
     this.boundaries = new LevelBoundaries(level);
 
-    level.addListener(LevelEventType.completed, () => {
+    level.addListener(LevelEvent.completed, () => {
       this.onLevelCompleted();
     });
 
-    level.addListener(LevelEventType.restarted, () => {
+    level.addListener(LevelEvent.restarted, () => {
+      for (const { x, y, type } of level.cells()) {
+        const rect = this.cells.get(`${x},${y}`);
+
+        assert(rect);
+        rect.fillColor = colors[type];
+      }
+
       this.boundaries.clear();
       this.boundaries.init();
+    });
+
+    this.level.addListener(LevelEvent.cellChanged, ({ x, y, type }) => {
+      const rect = this.cells.get(`${x},${y}`);
+
+      assert(rect);
+      rect.fillColor = colors[type];
     });
   }
 
@@ -86,21 +106,17 @@ export class LevelRenderer {
   init() {
     this.layer.activate();
 
-    this.level.forEachCell((cell) => {
+    this.level.cells().forEach(({ x, y, type }) => {
       const rect = new Shape.Rectangle({
-        x: cell.x * cellSize,
-        y: cell.y * cellSize,
+        x: x * cellSize,
+        y: y * cellSize,
         width: cellSize,
         height: cellSize,
       });
 
-      rect.fillColor = colors[cell.type];
+      rect.fillColor = colors[type];
 
-      this.cells.set(cell, rect);
-
-      cell.addListener(CellEvent.typeChanged, ({ type }) => {
-        rect.fillColor = colors[type];
-      });
+      this.cells.set(`${x},${y}`, rect);
     });
 
     this.boundaries.init();
@@ -110,10 +126,10 @@ export class LevelRenderer {
   onLevelCompleted() {
     const path = this.level.cells(CellType.path);
 
-    for (const cell of path) {
-      const rect = this.cells.get(cell);
-      assert(rect);
+    for (const { x, y } of path) {
+      const rect = this.cells.get(`${x},${y}`);
 
+      assert(rect);
       rect.fillColor = new Color('#CFC');
     }
 
@@ -129,9 +145,9 @@ export class PlayerRenderer {
   public layer = new Layer();
 
   private cell: paper.Shape;
-  private target?: IPoint;
+  private target?: Point;
 
-  constructor(private player: Player) {
+  constructor(player: Player) {
     this.layer.activate();
     this.layer.name = 'player';
 
@@ -142,21 +158,23 @@ export class PlayerRenderer {
       height: cellSize,
     });
 
-    this.cell.bounds.top = player.y * cellSize;
-    this.cell.bounds.left = player.x * cellSize;
+    this.cell.bounds.top = player.position.y * cellSize;
+    this.cell.bounds.left = player.position.x * cellSize;
     this.cell.fillColor = new Color('#99F');
 
-    player.position.addListener(PointEvent.changed, ({ x, y }) => {
-      this.target = {
+    player.addListener(PlayerEvent.moved, ({ x, y }) => {
+      this.target = new Point({
         x: x * cellSize,
         y: y * cellSize,
-      };
+      });
     });
-  }
 
-  updatePosition() {
-    this.cell.bounds.left = this.player.x * cellSize;
-    this.cell.bounds.top = this.player.y * cellSize;
+    player.addListener(PlayerEvent.reset, () => {
+      this.target = new Point({
+        x: player.position.x * cellSize,
+        y: player.position.y * cellSize,
+      });
+    });
   }
 
   onFrame() {
@@ -198,22 +216,20 @@ class LevelBoundaries {
     this.path.strokeWidth = 2;
     this.path.strokeCap = 'round';
 
-    this.level.forEachCell((cell) => {
-      const { x, y } = cell.position;
-
-      if (!this.level.has(x, y - 1)) {
+    this.level.cells().forEach(({ x, y }) => {
+      if (this.level.atUnsafe(x, y - 1) === undefined) {
         this.addSegment(x, y, 'horizontal');
       }
 
-      if (!this.level.has(x, y + 1)) {
+      if (this.level.atUnsafe(x, y + 1) === undefined) {
         this.addSegment(x, y + 1, 'horizontal');
       }
 
-      if (!this.level.has(x - 1, y)) {
+      if (this.level.atUnsafe(x - 1, y) === undefined) {
         this.addSegment(x, y, 'vertical');
       }
 
-      if (!this.level.has(x + 1, y)) {
+      if (this.level.atUnsafe(x + 1, y) === undefined) {
         this.addSegment(x + 1, y, 'vertical');
       }
     });

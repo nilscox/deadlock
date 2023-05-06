@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
-import { Game, Game as GameClass } from './game/game';
-import { LevelEventType } from './game/level';
+import { Game, LevelEvent } from '@deadlock/game';
 import { levels } from './game/levels';
+import { PlayerControls } from './game/player-controls';
+import { GameRenderer } from './game/renderer';
 import { useNavigate } from './hooks/use-navigate';
 import { useStopwatch } from './hooks/use-stopwatch';
 import { getNextLevelId } from './use-levels';
@@ -18,7 +19,8 @@ export const useGame = (
   levelId: string,
   { scale, onLoaded, onCompleted }: UseGameOptions = {}
 ) => {
-  const [game, setGame] = useState<GameClass>();
+  const game = useRef<Game>();
+  const renderer = useRef<GameRenderer>();
 
   const navigate = useNavigate();
   const nextLevel = useGoToNextLevel(levelId);
@@ -35,47 +37,40 @@ export const useGame = (
   useEffect(() => {
     tries.current = 1;
     stopwatch.restart();
-    game?.setLevel(levels[levelId]);
-  }, [levelId, stopwatch, game]);
+    game.current?.setLevel(levels[levelId]);
+  }, [levelId, stopwatch]);
 
   useEffect(() => {
     if (!canvas) {
       return;
     }
 
-    const game = new GameClass(canvas);
+    const controls = new PlayerControls();
 
-    setGame(game);
-    onLoaded?.(game);
+    game.current = new Game(controls, levels[levelId]);
+    renderer.current = new GameRenderer(canvas, game.current);
 
-    return () => game.cleanup();
-  }, [canvas, onLoaded]);
-
-  useEffect(() => {
-    if (game && scale !== undefined) {
-      game.scale(scale);
-    }
-  }, [game, scale]);
-
-  useEffect(() => {
-    if (!game) {
-      return;
+    if (scale !== undefined) {
+      renderer.current.scale(scale);
     }
 
-    const emitter = game.level.cloneEmitter();
+    const emitter = game.current.level.cloneEmitter();
 
-    emitter.addListener(LevelEventType.restarted, () => {
+    emitter.addListener(LevelEvent.restarted, () => {
       tries.current++;
     });
 
-    emitter.addListener(LevelEventType.completed, () => {
+    emitter.addListener(LevelEvent.completed, () => {
       onCompleted?.(tries.current, stopwatch.elapsed());
     });
 
+    onLoaded?.(game.current);
+
     return () => {
       emitter.removeListeners();
+      controls.cleanup();
     };
-  }, [game, levelId, onCompleted, nextLevel, stopwatch]);
+  }, [canvas, scale, onLoaded]);
 
   return {
     tries: useCallback(() => tries.current, []),

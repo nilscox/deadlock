@@ -1,0 +1,16 @@
+{
+  "name": "@deadlock/game",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "vitest": "^0.30.1"
+  }
+}

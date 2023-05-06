@@ -1,6 +1,7 @@
+import { toObject } from '@deadlock/game';
 import { useCallback, useEffect, useState } from 'react';
+
 import { levels as levelsData } from './game/levels';
-import { toObject } from './game/utils';
 
 type StoredLevel = {
   completed?: boolean;
