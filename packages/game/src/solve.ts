@@ -1,8 +1,9 @@
-import { Level } from './level';
+import { Level, LevelDefinition } from './level';
 import { Player } from './player';
 import { Path, directions } from './utils/direction';
 
-export const solve = (level: Level, max = Infinity) => {
+export const solve = (lvl: Level | LevelDefinition, max = Infinity) => {
+  const level = lvl instanceof Level ? lvl : new Level(lvl);
   const player = new Player(level.start);
 
   const path: Path = [];
@@ -29,7 +30,7 @@ export const solve = (level: Level, max = Infinity) => {
       }
 
       path.pop();
-      player.moveBack();
+      level.movePlayerBack(player);
     }
 
     return true;
