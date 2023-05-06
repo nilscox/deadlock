@@ -11,10 +11,10 @@ import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { FixedSizeList as List } from 'react-window';
 import { Link } from 'wouter';
 
-import { levels } from '../game/levels';
 import { useGame } from '../use-game';
-import { getLevelNumber } from '../use-levels';
 import { copy } from '../utils';
+import { useLevel, useLevelNumber, useLevelsIds, useNextLevelId } from '../game/levels-context';
+import { useConfig } from '../hooks/use-config';
 
 export type LevelsStats = Record<string, LevelStats>;
 
@@ -34,28 +34,28 @@ export type LevelStats = {
   };
 };
 
-const serverUrl = import.meta.env.VITE_APP_SERVER_URL;
-const levelIds = Object.keys(levels);
-
 export const AdminView = () => {
+  const { serverUrl } = useConfig();
+
+  const levelsIds = useLevelsIds();
   const [stats, setStats] = useState<LevelsStats>();
 
   useEffect(() => {
     void fetch(serverUrl)
       .then((res) => res.json())
       .then(setStats);
-  }, []);
+  }, [serverUrl]);
 
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   const [search, setSearch] = useState('');
 
   const filteredIds = useMemo(() => {
     if (search === '') {
-      return levelIds;
+      return levelsIds;
     }
 
-    return levelIds.filter((levelId) => levelId.match(search));
-  }, [search]);
+    return levelsIds.filter((levelId) => levelId.match(search));
+  }, [levelsIds, search]);
 
   return (
     <div ref={setWrapperRef} className="col gap-4 h-full col">
@@ -96,40 +96,45 @@ type LevelRowProps = {
   stats?: LevelsStats;
 };
 
-const LevelRow = ({ levelId, stats }: LevelRowProps) => (
-  <div className="row divide-x p-4">
-    <div className="px-4">
-      <div className="row gap-2 items-center">
-        <Link href={`/level/${levelId}`}>#{getLevelNumber(levelId)}</Link>
+const LevelRow = ({ levelId, stats }: LevelRowProps) => {
+  const { definition } = useLevel(levelId);
+  const levelNumber = useLevelNumber(levelId);
 
-        <button onClick={() => copy(levelId)} className="text-muted">
-          {levelId}
-        </button>
+  return (
+    <div className="row divide-x p-4">
+      <div className="px-4">
+        <div className="row gap-2 items-center">
+          <Link href={`/level/${levelId}`}>#{levelNumber}</Link>
 
-        <button
-          onClick={() => copy(JSON.stringify(levels[levelId]))}
-          className="ml-auto text-muted text-sm font-semibold"
-        >
-          Copy JSON
-        </button>
+          <button onClick={() => copy(levelId)} className="text-muted">
+            {levelId}
+          </button>
+
+          <button
+            onClick={() => copy(JSON.stringify(definition))}
+            className="ml-auto text-muted text-sm font-semibold"
+          >
+            Copy JSON
+          </button>
+        </div>
+
+        <LevelPreview levelId={levelId} />
       </div>
 
-      <LevelPreview levelId={levelId} />
-    </div>
+      <div className="px-4 min-w-[400px]">
+        <Solutions levelId={levelId} />
+      </div>
 
-    <div className="px-4 min-w-[400px]">
-      <Solutions levelId={levelId} />
-    </div>
+      <div className="px-4">
+        <Score levelId={levelId} />
+      </div>
 
-    <div className="px-4">
-      <Score levelId={levelId} />
+      <div className="px-4">
+        <Stats stats={stats?.[levelId]} />
+      </div>
     </div>
-
-    <div className="px-4">
-      <Stats stats={stats?.[levelId]} />
-    </div>
-  </div>
-);
+  );
+};
 
 type LeveLPreviewProps = {
   levelId: string;
@@ -153,8 +158,10 @@ type SolutionsProps = {
 };
 
 const Solutions = ({ levelId }: SolutionsProps) => {
+  const { definition } = useLevel(levelId);
+
   const solutions = useMemo(() => {
-    const level = new Level(levels[levelId]);
+    const level = new Level(definition);
 
     const solutions = (solve(level) || []).map((solution) => ({
       solution,
@@ -166,7 +173,7 @@ const Solutions = ({ levelId }: SolutionsProps) => {
     }
 
     return solutions;
-  }, [levelId]);
+  }, [definition]);
 
   const copySolutions = () => {
     navigator.clipboard.writeText(
@@ -213,9 +220,11 @@ type ScoreProps = {
 };
 
 const Score = ({ levelId }: ScoreProps) => {
+  const { definition } = useLevel(levelId);
+
   const { difficulty, numberOfSolutions, numberOfSolutionsScore, easiestSolution } = useMemo(
-    () => evaluateLevelDifficulty(levels[levelId]),
-    [levelId]
+    () => evaluateLevelDifficulty(definition),
+    [definition]
   );
 
   const r = 255 * Math.min(1, difficulty / 20);

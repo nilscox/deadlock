@@ -1,21 +1,14 @@
 import { Redirect, Route, Router, Switch } from 'wouter';
 import Helmet from 'react-helmet';
 
-import { useLevels } from './use-levels';
 import { GameView } from './views/game-view';
 import { AdminView } from './views/admin-view';
 import { LevelsView } from './views/levels-view';
 import { NotFoundView } from './views/not-found-view';
-
-const RedirectToNextLevel = () => {
-  const { levels } = useLevels();
-  const nextLevel = Object.entries(levels).find(([, level]) => !level?.completed)?.[0];
-
-  return <Redirect href={`/level/${nextLevel}`} />;
-};
+import { LevelsProvider, useLevels } from './game/levels-context';
 
 export const App = () => (
-  <>
+  <LevelsProvider>
     <Helmet>
       <title>Deadlock</title>
     </Helmet>
@@ -43,5 +36,12 @@ export const App = () => (
         </Route>
       </Switch>
     </Router>
-  </>
+  </LevelsProvider>
 );
+
+const RedirectToNextLevel = () => {
+  const levels = useLevels();
+  const nextLevel = Object.entries(levels).find(([, level]) => !level?.completed)?.[0];
+
+  return <Redirect href={`/level/${nextLevel}`} />;
+};

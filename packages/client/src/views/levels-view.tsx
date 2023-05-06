@@ -1,11 +1,11 @@
 import clsx from 'clsx';
 import { Link } from 'wouter';
 
-import { useLevels } from '../use-levels';
 import { MobileView } from '../mobile-view';
+import { useLevels } from '../game/levels-context';
 
 export const LevelsView = () => {
-  const { levels } = useLevels();
+  const levels = useLevels();
 
   return (
     <MobileView>
@@ -13,7 +13,7 @@ export const LevelsView = () => {
 
       <div className="grid grid-cols-3 gap-4 p-4">
         {Object.entries(levels).map(([id, level], index) => (
-          <Level key={id} levelId={id} levelNumber={index + 1} completed={Boolean(level?.completed)} />
+          <Level key={id} levelId={id} levelNumber={index + 1} completed={Boolean(level.completed)} />
         ))}
       </div>
     </MobileView>

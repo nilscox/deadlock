@@ -76,6 +76,11 @@ export class LevelRenderer {
       this.onLevelCompleted();
     });
 
+    level.addListener(LevelEvent.loaded, () => {
+      this.clear();
+      this.init();
+    });
+
     level.addListener(LevelEvent.restarted, () => {
       for (const { x, y, type } of level.cells()) {
         const rect = this.cells.get(`${x},${y}`);

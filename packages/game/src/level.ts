@@ -66,13 +66,15 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
       this._cells.push([]);
 
       for (let x = 0; x < definition.width; ++x) {
-        this._cells[y].push(CellType.empty);
+        let type = CellType.empty;
 
         if (blocks.find((block) => block.equals({ x, y }))) {
-          this.set(x, y, CellType.block);
+          type = CellType.block;
         } else if (this._start.equals({ x, y })) {
-          this.set(x, y, CellType.player);
+          type = CellType.player;
         }
+
+        this._cells[y].push(type);
       }
     }
   }

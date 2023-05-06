@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import { Game, LevelEvent } from '@deadlock/game';
-import { levels } from './game/levels';
+import { useLevel, useNextLevelId } from './game/levels-context';
 import { PlayerControls } from './game/player-controls';
 import { GameRenderer } from './game/renderer';
 import { useNavigate } from './hooks/use-navigate';
 import { useStopwatch } from './hooks/use-stopwatch';
-import { getNextLevelId } from './use-levels';
 
 type UseGameOptions = {
   scale?: number;
@@ -19,26 +18,19 @@ export const useGame = (
   levelId: string,
   { scale, onLoaded, onCompleted }: UseGameOptions = {}
 ) => {
+  const { definition } = useLevel(levelId);
+
   const game = useRef<Game>();
   const renderer = useRef<GameRenderer>();
-
-  const navigate = useNavigate();
-  const nextLevel = useGoToNextLevel(levelId);
 
   const tries = useRef(1);
   const stopwatch = useStopwatch();
 
   useEffect(() => {
-    if (!levels[levelId]) {
-      navigate('/levels');
-    }
-  }, [levelId, navigate]);
-
-  useEffect(() => {
     tries.current = 1;
     stopwatch.restart();
-    game.current?.setLevel(levels[levelId]);
-  }, [levelId, stopwatch]);
+    game.current?.setLevel(definition);
+  }, [definition, stopwatch]);
 
   useEffect(() => {
     if (!canvas) {
@@ -47,7 +39,7 @@ export const useGame = (
 
     const controls = new PlayerControls();
 
-    game.current = new Game(controls, levels[levelId]);
+    game.current = new Game(controls, definition);
     renderer.current = new GameRenderer(canvas, game.current);
 
     if (scale !== undefined) {
@@ -70,7 +62,7 @@ export const useGame = (
       emitter.removeListeners();
       controls.cleanup();
     };
-  }, [canvas, scale, onLoaded]);
+  }, [canvas, definition, stopwatch, scale, onLoaded, onCompleted]);
 
   return {
     tries: useCallback(() => tries.current, []),
@@ -80,14 +72,13 @@ export const useGame = (
 
 export const useGoToNextLevel = (levelId: string) => {
   const navigate = useNavigate();
+  const nextLevelId = useNextLevelId(levelId);
 
   return useCallback(() => {
-    const nextLevelId = getNextLevelId(levelId);
-
     if (nextLevelId) {
       navigate(`/level/${nextLevelId}`);
     } else {
       navigate('/levels');
     }
-  }, [levelId, navigate]);
+  }, [nextLevelId, navigate]);
 };
