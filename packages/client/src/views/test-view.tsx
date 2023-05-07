@@ -1,7 +1,6 @@
 import { Level } from '@deadlock/game';
 import { useMemo } from 'react';
 import Helmet from 'react-helmet';
-import { Link } from 'wouter';
 
 import { Game } from '../game/game';
 import { useSearchParam } from '../hooks/use-search-params';
@@ -27,12 +26,8 @@ export const TestView = () => {
         <div className="text-xl">Test Level</div>
       </div>
 
-      <Game definition={level.definition} />
-
-      <div className="flex-1 row items-end justify-between">
-        <Link href="/levels" className="row gap-2 items-center">
-          <div className="text-muted flip-horizontal">➜</div> levels
-        </Link>
+      <div className="flex-2">
+        <Game definition={level.definition} />
       </div>
     </MobileView>
   );

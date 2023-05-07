@@ -33,6 +33,13 @@ export class GameRenderer {
       this.playerRenderer.onFrame();
       this.group.bounds.center = this.view.center;
     };
+
+    game.level.addListener(LevelEvent.loaded, () => {
+      setTimeout(() => {
+        const { x, y } = game.player.position;
+        this.playerRenderer.setPlayerPosition(x, y);
+      }, 0);
+    });
   }
 
   clear() {
@@ -180,6 +187,11 @@ export class PlayerRenderer {
         y: player.position.y * cellSize,
       });
     });
+  }
+
+  setPlayerPosition(x: number, y: number) {
+    this.cell.bounds.left = x * cellSize;
+    this.cell.bounds.top = y * cellSize;
   }
 
   onFrame() {

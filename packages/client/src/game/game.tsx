@@ -40,5 +40,5 @@ export const Game = ({ definition, onLoaded, styles }: GameProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(definition)]);
 
-  return <canvas ref={setCanvas} style={{ width: '100%', height: 300, ...styles }} />;
+  return <canvas ref={setCanvas} style={{ margin: 'auto', width: 300, height: 300, ...styles }} />;
 };
