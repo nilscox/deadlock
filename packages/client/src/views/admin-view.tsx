@@ -1,20 +1,11 @@
-import {
-  Direction,
-  Game,
-  LevelSolutions,
-  LevelStats,
-  LevelsSolutions,
-  LevelsStats,
-  evaluateLevelDifficulty,
-  round,
-} from '@deadlock/game';
-import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Direction, LevelSolutions, LevelStats, LevelsSolutions, LevelsStats, round } from '@deadlock/game';
+import { CSSProperties, memo, useEffect, useMemo, useState } from 'react';
 import { FixedSizeList as List, areEqual } from 'react-window';
 import { Link } from 'wouter';
 
+import { Game } from '../game/game';
 import { useLevel, useLevelInstance, useLevelNumber, useLevelsIds } from '../game/levels-context';
 import { useConfig } from '../hooks/use-config';
-import { useGame } from '../use-game';
 import { copy } from '../utils';
 
 export const AdminView = () => {
@@ -150,17 +141,18 @@ type LeveLPreviewProps = {
 };
 
 const LevelPreview = ({ levelId }: LeveLPreviewProps) => {
-  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const { definition } = useLevel(levelId);
 
-  useGame(canvas, definition, {
-    scale: 0.4,
-    onLoaded: useCallback((game: Game) => {
-      game.allowRestartWhenCompleted = true;
-    }, []),
-  });
-
-  return <canvas ref={setCanvas} style={{ height: 120 }} />;
+  return (
+    <Game
+      styles={{ width: 220, height: 150 }}
+      definition={definition}
+      onLoaded={(game, renderer) => {
+        renderer.scale(0.4);
+        game.allowRestartWhenCompleted = true;
+      }}
+    />
+  );
 };
 
 type SolutionsProps = {

@@ -1,5 +1,6 @@
-import { Level, LevelDefinition } from './level';
+import { Level, LevelDefinition, LevelEvent } from './level';
 import { Player } from './player';
+import { Stopwatch } from './stopwatch';
 import { Direction } from './utils/direction';
 import { Emitter } from './utils/emitter';
 
@@ -21,6 +22,8 @@ export class Game {
   public readonly level: Level;
   public readonly player: Player;
 
+  public tries = 1;
+  public stopwatch = new Stopwatch();
   public allowRestartWhenCompleted = false;
 
   constructor(controls: Controls, levelDefinition: LevelDefinition) {
@@ -48,6 +51,19 @@ export class Game {
 
       this.level.restart();
       this.player.reset();
+    });
+
+    this.level.addListener(LevelEvent.completed, () => {
+      this.stopwatch.pause();
+    });
+
+    this.level.addListener(LevelEvent.loaded, () => {
+      this.tries = 1;
+      this.stopwatch.restart();
+    });
+
+    this.level.addListener(LevelEvent.restarted, () => {
+      this.tries++;
     });
   }
 

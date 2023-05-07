@@ -5,14 +5,18 @@ import { GameView } from './views/game-view';
 import { AdminView } from './views/admin-view';
 import { LevelsView } from './views/levels-view';
 import { NotFoundView } from './views/not-found-view';
-import { LevelsProvider, useLevels } from './game/levels-context';
+import { LevelsProvider, useLevels, useLevelsIds } from './game/levels-context';
 import { TestView } from './views/test-view';
+import { useNavigate } from './hooks/use-navigate';
+import { useEffect } from 'react';
 
 export const App = () => (
   <LevelsProvider>
     <Helmet>
       <title>Deadlock</title>
     </Helmet>
+
+    <GoToFirstLevel />
 
     <Router base={import.meta.env.VITE_APP_BASE_URL}>
       <Switch>
@@ -43,6 +47,21 @@ export const App = () => (
     </Router>
   </LevelsProvider>
 );
+
+const GoToFirstLevel = () => {
+  const navigate = useNavigate();
+  const levels = useLevelsIds();
+
+  useEffect(() => {
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'F4') {
+        navigate(`/level/${levels[0]}`);
+      }
+    });
+  }, [levels, navigate]);
+
+  return null;
+};
 
 const RedirectToNextLevel = () => {
   const levels = useLevels();

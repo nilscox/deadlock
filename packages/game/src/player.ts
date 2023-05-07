@@ -36,6 +36,7 @@ export class Player extends Emitter<PlayerEvent, PlayerEventsMap> {
     }
 
     this._position.set(this._start);
+    this._path = [];
 
     this.emit(PlayerEvent.reset);
   }

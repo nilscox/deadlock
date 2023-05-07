@@ -1,15 +1,13 @@
-import { useCallback, useMemo, useState } from 'react';
+import { Level } from '@deadlock/game';
+import { useMemo } from 'react';
 import Helmet from 'react-helmet';
 import { Link } from 'wouter';
 
-import { Game, Level } from '@deadlock/game';
+import { Game } from '../game/game';
 import { useSearchParam } from '../hooks/use-search-params';
 import { MobileView } from '../mobile-view';
-import { useGame } from '../use-game';
 
 export const TestView = () => {
-  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-
   const definition = useSearchParam('definition');
   const hash = useSearchParam('hash');
 
@@ -18,12 +16,6 @@ export const TestView = () => {
     if (hash) return Level.fromHash(hash);
     throw new Error('missing definition or hash query parameter');
   }, [definition, hash]);
-
-  useGame(canvas, level.definition, {
-    onLoaded: useCallback((game: Game) => {
-      game.allowRestartWhenCompleted = true;
-    }, []),
-  });
 
   return (
     <MobileView>
@@ -35,7 +27,12 @@ export const TestView = () => {
         <div className="text-xl">Test Level</div>
       </div>
 
-      <canvas style={{ width: '100%', height: 400 }} ref={setCanvas} />
+      <Game
+        definition={level.definition}
+        onLoaded={(game) => {
+          game.allowRestartWhenCompleted = true;
+        }}
+      />
 
       <div className="flex-1 row items-end justify-between">
         <Link href="/levels" className="row gap-2 items-center">
