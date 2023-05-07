@@ -15,6 +15,7 @@ type GameProps = {
 export const Game = ({ definition, onLoaded, styles }: GameProps) => {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>();
 
+  const controlsRef = useRef<PlayerControls>();
   const rendererRef = useRef<GameRenderer>();
   const gameRef = useRef<GameClass>();
 
@@ -28,6 +29,7 @@ export const Game = ({ definition, onLoaded, styles }: GameProps) => {
     const game = new GameClass(controls, definition);
     const renderer = new GameRenderer(canvas, game);
 
+    controlsRef.current = controls;
     gameRef.current = game;
     rendererRef.current = renderer;
 
@@ -39,6 +41,10 @@ export const Game = ({ definition, onLoaded, styles }: GameProps) => {
     gameRef.current?.setLevel(definition);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(definition)]);
+
+  useEffect(() => {
+    return () => controlsRef.current?.cleanup();
+  }, []);
 
   return <canvas ref={setCanvas} style={{ margin: 'auto', width: 300, height: 300, ...styles }} />;
 };
