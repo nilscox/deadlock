@@ -17,4 +17,7 @@ export class SqlLevel implements LevelDefinition {
 
   @Property({ type: 'json' })
   start!: IPoint;
+
+  @Property()
+  fingerprint!: string;
 }

@@ -37,7 +37,7 @@ export const solve = (lvl: Level | LevelDefinition, max = Infinity) => {
   };
 
   if (!run()) {
-    return false;
+    return;
   }
 
   return solutions;

@@ -1,3 +1,4 @@
+import { ReflectionTransform, RotationTransform } from './level-transforms';
 import { Player } from './player';
 import { assert } from './utils/assert';
 import { Direction, getDirectionVector } from './utils/direction';
@@ -158,4 +159,31 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   isCompleted() {
     return this.cells(CellType.empty).length === 0;
   }
+
+  get hash() {
+    return computeHash(this._definition);
+  }
+
+  get fingerprint() {
+    const hashes = [
+      this.hash,
+      computeHash(ReflectionTransform.horizontal(this._definition)),
+      computeHash(ReflectionTransform.vertical(this._definition)),
+      computeHash(RotationTransform.quarter(this._definition)),
+      computeHash(RotationTransform.half(this._definition)),
+      computeHash(RotationTransform.threeQuarters(this._definition)),
+    ];
+
+    return hashes.sort()[0];
+  }
 }
+
+const computeHash = (definition: LevelDefinition) => {
+  const { width, height, start, blocks } = definition;
+
+  return [
+    [width, height].join(','),
+    [start.x, start.y].join(','),
+    ...blocks.map((cell) => [cell.x, cell.y].join(',')),
+  ].join('|');
+};

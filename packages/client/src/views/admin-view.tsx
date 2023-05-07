@@ -1,19 +1,18 @@
 import {
   Direction,
   Game,
-  Level,
   LevelStats,
   LevelsStats,
+  Path,
   evaluateLevelDifficulty,
-  evaluateSolutionDifficulty,
   round,
   solve,
 } from '@deadlock/game';
-import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react';
-import { FixedSizeList as List } from 'react-window';
+import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { FixedSizeList as List, areEqual } from 'react-window';
 import { Link } from 'wouter';
 
-import { useLevel, useLevelNumber, useLevelsIds } from '../game/levels-context';
+import { useLevel, useLevelInstance, useLevelNumber, useLevelsIds } from '../game/levels-context';
 import { useConfig } from '../hooks/use-config';
 import { useGame } from '../use-game';
 import { copy } from '../utils';
@@ -41,6 +40,8 @@ export const AdminView = () => {
     return levelsIds.filter((levelId) => levelId.match(search));
   }, [levelsIds, search]);
 
+  const itemData = useMemo(() => ({ filteredIds, stats }), [filteredIds, stats]);
+
   return (
     <div ref={setWrapperRef} className="col gap-4 h-full col">
       <input
@@ -55,7 +56,7 @@ export const AdminView = () => {
         itemCount={filteredIds.length}
         itemSize={180}
         width="100%"
-        itemData={{ filteredIds, stats }}
+        itemData={itemData}
       >
         {Row}
       </List>
@@ -69,10 +70,13 @@ type RowProps = {
   data: { filteredIds: string[]; stats?: LevelsStats };
 };
 
-const Row = ({ index, style, data }: RowProps) => (
-  <div style={style}>
-    <LevelRow levelId={data.filteredIds[index]} stats={data.stats} />
-  </div>
+const Row = memo(
+  ({ index, style, data }: RowProps) => (
+    <div style={style}>
+      <LevelRow key={data.filteredIds[index]} levelId={data.filteredIds[index]} stats={data.stats} />
+    </div>
+  ),
+  areEqual
 );
 
 type LevelRowProps = {
@@ -82,7 +86,12 @@ type LevelRowProps = {
 
 const LevelRow = ({ levelId, stats }: LevelRowProps) => {
   const { definition } = useLevel(levelId);
+  const level = useLevelInstance(levelId);
   const levelNumber = useLevelNumber(levelId);
+
+  const solutions = useMemo(() => {
+    return solve(definition);
+  }, [definition]);
 
   return (
     <div className="row divide-x p-4">
@@ -94,23 +103,22 @@ const LevelRow = ({ levelId, stats }: LevelRowProps) => {
             {levelId}
           </button>
 
-          <button
-            onClick={() => copy(JSON.stringify(definition))}
-            className="ml-auto text-muted text-sm font-semibold"
-          >
-            Copy JSON
-          </button>
+          <div className="row gap-2 text-muted text-xs ml-auto">
+            <button onClick={() => copy(JSON.stringify(definition))}>JSON</button>
+            {' | '}
+            <button onClick={() => copy(level.fingerprint)}>FP</button>
+          </div>
         </div>
 
         <LevelPreview levelId={levelId} />
       </div>
 
       <div className="px-4 min-w-[400px]">
-        <Solutions levelId={levelId} />
+        <Solutions levelId={levelId} solutions={solutions} />
       </div>
 
       <div className="px-4">
-        <Score levelId={levelId} />
+        <Score levelId={levelId} solutions={solutions} />
       </div>
 
       <div className="px-4">
@@ -139,47 +147,29 @@ const LevelPreview = ({ levelId }: LeveLPreviewProps) => {
 
 type SolutionsProps = {
   levelId: string;
+  solutions?: Path[];
 };
 
-const Solutions = ({ levelId }: SolutionsProps) => {
-  const { definition } = useLevel(levelId);
-
-  const solutions = useMemo(() => {
-    const level = new Level(definition);
-
-    const solutions = (solve(level) || []).map((solution) => ({
-      solution,
-      difficulty: evaluateSolutionDifficulty(level, solution),
-    }));
-
-    if (solutions) {
-      solutions.sort(({ difficulty: a }, { difficulty: b }) => a - b);
+const Solutions = ({ solutions }: SolutionsProps) => {
+  const copySolutions = () => {
+    if (!solutions) {
+      return;
     }
 
-    return solutions;
-  }, [definition]);
-
-  const copySolutions = () => {
-    navigator.clipboard.writeText(
-      solutions
-        .map(({ solution }) => solution)
-        .map((solution) => solution.join(' '))
-        .join('\n')
-    );
+    navigator.clipboard.writeText(solutions.map((solution) => solution.join(' ')).join('\n'));
   };
 
-  if (solutions.length === 0) {
+  if (!solutions || solutions?.length === 0) {
     return <div className="text-muted">No solution found</div>;
   }
 
   return (
     <div className="col gap-1 h-full">
-      {solutions.slice(0, 3).map(({ solution, difficulty }, index) => (
+      {solutions.slice(0, 3).map((solution, index) => (
         <div key={index} className="row gap-2 items-center">
           {solution.map((direction, index) => (
             <span key={index}>{directions[direction]}</span>
           ))}
-          <span className="text-muted text-sm">({difficulty})</span>
         </div>
       ))}
 
@@ -201,14 +191,15 @@ const directions: Record<Direction, JSX.Element> = {
 
 type ScoreProps = {
   levelId: string;
+  solutions?: Path[];
 };
 
-const Score = ({ levelId }: ScoreProps) => {
+const Score = ({ levelId, solutions }: ScoreProps) => {
   const { definition } = useLevel(levelId);
 
   const { difficulty, numberOfSolutions, numberOfSolutionsScore, easiestSolution } = useMemo(
-    () => evaluateLevelDifficulty(definition),
-    [definition]
+    () => evaluateLevelDifficulty(definition, solutions),
+    [definition, solutions]
   );
 
   const r = 255 * Math.min(1, difficulty / 20);

@@ -1,7 +1,7 @@
 import { CellType, Level, LevelDefinition } from './level';
 import { Player } from './player';
 import { solve } from './solve';
-import { Direction, directions, getDirectionVector } from './utils/direction';
+import { Direction, Path, getDirectionVector } from './utils/direction';
 import { abs, min } from './utils/math';
 
 export const computeLevelsDifficulties = (levels: Array<Level | LevelDefinition>) => {
@@ -20,19 +20,19 @@ export const computeLevelsDifficulties = (levels: Array<Level | LevelDefinition>
   };
 };
 
-export const evaluateLevelDifficulty = (input: Level | LevelDefinition) => {
+export const evaluateLevelDifficulty = (input: Level | LevelDefinition, solutionsInput?: Path[]) => {
   const level = input instanceof Level ? input : new Level(input);
-  const solutions = solve(level);
+  const solutions = solutionsInput ?? solve(level);
 
   if (!solutions || solutions.length === 0) {
     return { difficulty: Infinity };
   }
 
-  const numberOfSolutionsScore = Math.log2(solutions.length) + 1;
+  const numberOfSolutionsScore = Math.floor(Math.max(0, 7 - Math.log2(solutions.length) + 1));
   const easiestSolution = min(solutions.map((solution) => evaluateSolutionDifficulty(level, solution)));
 
   return {
-    difficulty: easiestSolution / numberOfSolutionsScore,
+    difficulty: numberOfSolutionsScore + easiestSolution,
     numberOfSolutions: solutions.length,
     numberOfSolutionsScore,
     easiestSolution,

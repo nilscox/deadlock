@@ -1,4 +1,4 @@
-import { LevelDefinition, identity, toObject, assert } from '@deadlock/game';
+import { LevelDefinition, identity, toObject, assert, Level } from '@deadlock/game';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useConfig } from '../hooks/use-config';
 
@@ -76,6 +76,14 @@ export const useLevel = (levelId: string) => {
   assert(level, `level ${levelId} not found`);
 
   return level;
+};
+
+export const useLevelInstance = (levelId: string) => {
+  const { definition } = useLevel(levelId);
+
+  return useMemo(() => {
+    return new Level(definition);
+  }, [definition]);
 };
 
 export const useStoreLevelResult = () => {
