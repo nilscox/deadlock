@@ -11,5 +11,6 @@ export default defineConfig({
   test: {
     watch: false,
     globals: true,
+    reporters: ['verbose'],
   },
 });

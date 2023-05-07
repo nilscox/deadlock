@@ -4,7 +4,13 @@ import Helmet from 'react-helmet';
 
 import { useGame, useGoToNextLevel } from '../use-game';
 import { MobileView } from '../mobile-view';
-import { useLevelNumber, useLevels, useSaveReport, useStoreLevelResult } from '../game/levels-context';
+import {
+  useLevel,
+  useLevelNumber,
+  useLevels,
+  useSaveReport,
+  useStoreLevelResult,
+} from '../game/levels-context';
 import { useNavigate } from '../hooks/use-navigate';
 
 type GameViewProps = {
@@ -19,6 +25,8 @@ export const GameView = ({ levelId }: GameViewProps) => {
   if (!levels[levelId]) {
     navigate('/levels');
   }
+
+  const { definition } = useLevel(levelId);
 
   const levelNumber = useLevelNumber(levelId);
   const storeResult = useStoreLevelResult();
@@ -44,7 +52,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
     [levelId, storeResult, saveReport, nextLevel]
   );
 
-  const { tries, elapsed } = useGame(canvas, levelId, { onCompleted });
+  const { tries, elapsed } = useGame(canvas, definition, { onCompleted });
 
   return (
     <MobileView>

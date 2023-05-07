@@ -41,6 +41,10 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     this.load(this._definition);
   }
 
+  get definition() {
+    return this._definition;
+  }
+
   get start() {
     return this._start.clone();
   }
@@ -88,6 +92,10 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     const type = this.atUnsafe(x, y);
     assert(type);
     return type;
+  }
+
+  isEdge(x: number, y: number) {
+    return x === 0 || y === 0 || x === this.definition.width - 1 || y === this.definition.height - 1;
   }
 
   cells(type?: CellType) {
@@ -176,6 +184,10 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
 
     return hashes.sort()[0];
   }
+
+  static fromHash(hash: string) {
+    return new Level(parseHash(hash));
+  }
 }
 
 const computeHash = (definition: LevelDefinition) => {
@@ -186,4 +198,21 @@ const computeHash = (definition: LevelDefinition) => {
     [start.x, start.y].join(','),
     ...blocks.map((cell) => [cell.x, cell.y].join(',')),
   ].join('|');
+};
+
+const parseHash = (hash: string): LevelDefinition => {
+  const [size, start, ...blocks] = hash.split('|');
+  const [width, height] = size.split(',').map(Number);
+
+  const parsePoint = (str: string): IPoint => {
+    const [x, y] = str.split(',').map(Number);
+    return { x, y };
+  };
+
+  return {
+    width,
+    height,
+    start: parsePoint(start),
+    blocks: blocks.map(parsePoint),
+  };
 };

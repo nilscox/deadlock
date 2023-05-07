@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { Game, LevelEvent } from '@deadlock/game';
-import { useLevel, useNextLevelId } from './game/levels-context';
+import { Game, LevelDefinition, LevelEvent } from '@deadlock/game';
+import { useNextLevelId } from './game/levels-context';
 import { PlayerControls } from './game/player-controls';
 import { GameRenderer } from './game/renderer';
 import { useNavigate } from './hooks/use-navigate';
@@ -15,11 +15,9 @@ type UseGameOptions = {
 
 export const useGame = (
   canvas: HTMLCanvasElement | null,
-  levelId: string,
+  definition: LevelDefinition,
   { scale, onLoaded, onCompleted }: UseGameOptions = {}
 ) => {
-  const { definition } = useLevel(levelId);
-
   const game = useRef<Game>();
   const renderer = useRef<GameRenderer>();
 

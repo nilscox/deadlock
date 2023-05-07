@@ -121,6 +121,8 @@ const LevelRow = ({ levelId, stats, solutions }: LevelRowProps) => {
           <div className="row gap-2 text-muted text-xs ml-auto">
             <button onClick={() => copy(JSON.stringify(definition))}>JSON</button>
             {' | '}
+            <button onClick={() => copy(level.hash)}>hash</button>
+            {' | '}
             <button onClick={() => copy(level.fingerprint)}>FP</button>
           </div>
         </div>
@@ -149,8 +151,9 @@ type LeveLPreviewProps = {
 
 const LevelPreview = ({ levelId }: LeveLPreviewProps) => {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const { definition } = useLevel(levelId);
 
-  useGame(canvas, levelId, {
+  useGame(canvas, definition, {
     scale: 0.4,
     onLoaded: useCallback((game: Game) => {
       game.allowRestartWhenCompleted = true;

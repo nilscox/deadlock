@@ -1,19 +1,11 @@
-import { Emitter } from './emitter';
+import { Direction, getDirectionVector } from './direction';
 import { inspectCustomSymbol } from './inspect';
-
-export enum PointEvent {
-  changed = 'changed',
-}
-
-type PointEventsMap = {
-  [PointEvent.changed]: { x: number; y: number };
-};
 
 export type IPoint = { x: number; y: number };
 
 type PointArgs = [x: number, y: number] | [IPoint];
 
-export class Point extends Emitter<PointEvent, PointEventsMap> implements IPoint {
+export class Point implements IPoint {
   private _x = 0;
   private _y = 0;
 
@@ -22,7 +14,6 @@ export class Point extends Emitter<PointEvent, PointEventsMap> implements IPoint
   constructor(other: IPoint);
 
   constructor(...args: PointArgs) {
-    super();
     this.assign(...args);
   }
 
@@ -43,11 +34,6 @@ export class Point extends Emitter<PointEvent, PointEventsMap> implements IPoint
 
   set(...args: PointArgs) {
     this.assign(...args);
-
-    this.emit(PointEvent.changed, {
-      x: this.x,
-      y: this.y,
-    });
   }
 
   clone() {
@@ -56,6 +42,15 @@ export class Point extends Emitter<PointEvent, PointEventsMap> implements IPoint
 
   equals(other: IPoint) {
     return this.x === other.x && this.y === other.y;
+  }
+
+  add(x: number, y: number): Point {
+    return new Point(this.x + x, this.y + y);
+  }
+
+  move(dir: Direction) {
+    const [dx, dy] = getDirectionVector(dir);
+    return this.add(dx, dy);
   }
 
   get x(): number {
