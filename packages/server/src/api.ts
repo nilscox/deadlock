@@ -3,7 +3,7 @@ import {
   LevelsSolutions,
   LevelsStats,
   MapSet,
-  Path,
+  assert,
   max,
   mean,
   min,
@@ -37,7 +37,16 @@ export function api(em: EntityManager) {
 
 const getLevels = (em: EntityManager): RequestHandler => {
   return async (req, res) => {
-    const levels = await em.find(SqlLevel, {});
+    const levels = await em.find(
+      SqlLevel,
+      {},
+      {
+        orderBy: {
+          levelNumber: 'asc nulls last' as 'asc_nulls_last',
+          difficulty: 'asc',
+        },
+      }
+    );
     res.json(toObject(levels, ({ id }) => id, formatLevel));
   };
 };
@@ -114,15 +123,22 @@ const formatLevelStats = (sessions: SqlLevelSession[]) => ({
 
 const getSolutions = (em: EntityManager): RequestHandler => {
   return async (req, res) => {
+    const levels = await em.find(SqlLevel, {});
     const solutions = await em.find(SqlSolution, {});
     const result: LevelsSolutions = {};
 
     for (const solution of solutions) {
       const levelId = solution.level.id;
+      const level = levels.find((level) => level.id === levelId);
+
+      assert(level);
 
       result[levelId] ??= {
         total: 0,
         items: [],
+        difficulty: level.difficulty,
+        numberOfSolutionsScore: level.numberOfSolutionsScore,
+        easiestSolutionScore: level.easiestSolutionScore,
       };
 
       const levelSolutions = result[levelId];

@@ -20,4 +20,16 @@ export class SqlLevel implements LevelDefinition {
 
   @Property()
   fingerprint!: string;
+
+  @Property()
+  levelNumber?: number;
+
+  @Property()
+  difficulty!: number;
+
+  @Property()
+  numberOfSolutionsScore!: number;
+
+  @Property()
+  easiestSolutionScore!: number;
 }

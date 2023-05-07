@@ -199,13 +199,12 @@ type ScoreProps = {
   solutions?: LevelSolutions;
 };
 
-const Score = ({ levelId, solutions }: ScoreProps) => {
-  const { definition } = useLevel(levelId);
+const Score = ({ solutions }: ScoreProps) => {
+  if (!solutions) {
+    return null;
+  }
 
-  const { difficulty, numberOfSolutions, numberOfSolutionsScore, easiestSolution } = useMemo(
-    () => evaluateLevelDifficulty(definition, solutions?.items),
-    [definition, solutions]
-  );
+  const { difficulty, numberOfSolutionsScore, easiestSolutionScore } = solutions;
 
   const r = 255 * Math.min(1, difficulty / 20);
   const g = 255 - r;
@@ -217,11 +216,8 @@ const Score = ({ levelId, solutions }: ScoreProps) => {
         Difficulty: {round(difficulty, 3)}
       </div>
 
-      <div className="text-muted text-sm">
-        Number of solutions: {numberOfSolutions} ({round(numberOfSolutionsScore ?? 0, 2)})
-      </div>
-
-      <div className="text-muted text-sm">Easiest solution: {easiestSolution}</div>
+      <div className="text-muted text-sm">Number of solutions score: {numberOfSolutionsScore}</div>
+      <div className="text-muted text-sm">Easiest solution score: {easiestSolutionScore}</div>
     </>
   );
 };
