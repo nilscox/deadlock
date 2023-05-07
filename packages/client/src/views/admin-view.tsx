@@ -125,9 +125,7 @@ const LevelRow = ({ levelId, stats, solutions }: LevelRowProps) => {
 
           <div className="row gap-2 text-muted text-xs ml-auto">
             <button onClick={() => copy(JSON.stringify(definition))}>JSON</button>
-            {' | '}
             <button onClick={() => copy(level.hash)}>hash</button>
-            {' | '}
             <button onClick={() => copy(level.fingerprint)}>FP</button>
           </div>
         </div>
@@ -194,9 +192,11 @@ const Solutions = ({ solutions }: SolutionsProps) => {
     <div className="col gap-1 h-full">
       {solutions.items.slice(0, 3).map((solution, index) => (
         <div key={index} className="row gap-2 items-center">
-          {solution.map((direction, index) => (
+          {solution.path.map((direction, index) => (
             <span key={index}>{directions[direction]}</span>
           ))}
+
+          <span className="text-muted text-xs">({solution.complexity})</span>
         </div>
       ))}
 

@@ -29,7 +29,7 @@ export const evaluateLevelDifficulty = (input: Level | LevelDefinition, solution
   }
 
   const numberOfSolutionsScore = Math.floor(Math.max(0, 7 - Math.log2(solutions.length)));
-  const easiestSolutionScore = min(solutions.map((solution) => evaluateSolutionDifficulty(level, solution)));
+  const easiestSolutionScore = min(solutions.map((solution) => evaluateSolutionComplexity(level, solution)));
 
   return {
     difficulty: numberOfSolutionsScore + easiestSolutionScore,
@@ -39,7 +39,7 @@ export const evaluateLevelDifficulty = (input: Level | LevelDefinition, solution
   };
 };
 
-export const evaluateSolutionDifficulty = (level: Level, solution: Direction[]) => {
+export const evaluateSolutionComplexity = (level: Level, solution: Direction[]) => {
   const player = new Player(level.start);
   let prevDir: Direction | undefined;
   let difficulty = 0;

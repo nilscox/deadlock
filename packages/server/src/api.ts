@@ -1,6 +1,5 @@
 import {
   LevelDefinition,
-  LevelsSolutions,
   LevelsStats,
   MapSet,
   assert,
@@ -124,31 +123,30 @@ const formatLevelStats = (sessions: SqlLevelSession[]) => ({
 const getSolutions = (em: EntityManager): RequestHandler => {
   return async (req, res) => {
     const levels = await em.find(SqlLevel, {});
-    const solutions = await em.find(SqlSolution, {});
-    const result: LevelsSolutions = {};
 
-    for (const solution of solutions) {
-      const levelId = solution.level.id;
-      const level = levels.find((level) => level.id === levelId);
+    const solutions = await em.find(SqlSolution, {}, { orderBy: { complexity: 'asc' } });
+    const solutionsMap = new MapSet<SqlLevel, SqlSolution>();
 
-      assert(level);
+    solutions.forEach((solution) => solutionsMap.add(solution.level, solution));
 
-      result[levelId] ??= {
-        total: 0,
-        items: [],
-        difficulty: level.difficulty,
-        numberOfSolutionsScore: level.numberOfSolutionsScore,
-        easiestSolutionScore: level.easiestSolutionScore,
-      };
+    const result = toObject(
+      levels,
+      (level) => level.id,
+      (level) => {
+        const solutions = solutionsMap.get(level);
+        assert(solutions);
 
-      const levelSolutions = result[levelId];
-
-      levelSolutions.total++;
-
-      if (levelSolutions.items.length < 3) {
-        levelSolutions.items.push(solution.path);
+        return {
+          total: solutions.size,
+          items: Array.from(solutions)
+            .slice(0, 3)
+            .map(({ complexity, path }) => ({ complexity, path })),
+          difficulty: level.difficulty,
+          numberOfSolutionsScore: level.numberOfSolutionsScore,
+          easiestSolutionScore: level.easiestSolutionScore,
+        };
       }
-    }
+    );
 
     res.json(result);
   };

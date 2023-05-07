@@ -10,4 +10,4 @@ export { Game, Controls, ControlEvent } from './game';
 export { Level, LevelEvent, type LevelDefinition, CellType } from './level';
 export { Player, PlayerEvent } from './player';
 export { solve } from './solve';
-export { evaluateLevelDifficulty, evaluateSolutionDifficulty } from './evaluate-difficulty';
+export { evaluateLevelDifficulty, evaluateSolutionComplexity } from './evaluate-difficulty';

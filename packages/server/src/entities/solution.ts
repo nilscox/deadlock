@@ -12,4 +12,7 @@ export class SqlSolution {
 
   @Property({ type: 'json' })
   path!: any;
+
+  @Property()
+  complexity!: number;
 }
