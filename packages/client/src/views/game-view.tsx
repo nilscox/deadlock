@@ -2,13 +2,13 @@ import { Game as GameClass, LevelEvent, assert } from '@deadlock/game';
 import { useCallback, useEffect, useState } from 'react';
 import Helmet from 'react-helmet';
 import { Link } from 'wouter';
+import clsx from 'clsx';
 
 import { Game } from '../game/game';
 import {
   useLevel,
   useLevelNumber,
-  useLevels,
-  useNextLevelId,
+  useLevelsIds,
   useSaveReport,
   useStoreLevelResult,
 } from '../game/levels-context';
@@ -21,9 +21,9 @@ type GameViewProps = {
 
 export const GameView = ({ levelId }: GameViewProps) => {
   const navigate = useNavigate();
-  const levels = useLevels();
+  const level = useLevel(levelId);
 
-  if (!levels[levelId]) {
+  if (!level) {
     navigate('/levels');
   }
 
@@ -32,6 +32,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
 
   const storeResult = useStoreLevelResult();
   const saveReport = useSaveReport();
+  const prevLevel = useGoToPrevLevel(levelId);
   const nextLevel = useGoToNextLevel(levelId);
 
   const [game, setGame] = useState<GameClass>();
@@ -43,10 +44,17 @@ export const GameView = ({ levelId }: GameViewProps) => {
       const time = game.stopwatch.elapsed;
       const tries = game.tries;
 
+      if (!completed && time < 2000) {
+        return;
+      }
+
+      if (level.completed === undefined) {
+        saveReport(levelId, completed, tries, time);
+      }
+
       storeResult(levelId, { completed, tries, time });
-      saveReport(levelId, completed, tries, time);
     },
-    [levelId, game, storeResult, saveReport]
+    [level, levelId, game, storeResult, saveReport]
   );
 
   const onCompleted = useCallback(() => {
@@ -92,29 +100,54 @@ export const GameView = ({ levelId }: GameViewProps) => {
         <title>{`Deadlock - Level ${levelNumber}`}</title>
       </Helmet>
 
-      <div className="flex-1 col items-center justify-center">
-        <div className="text-xl">Level {levelNumber}</div>
-        <div className="text-muted">{levelId}</div>
+      <div className="flex-2 col justify-center">
+        <div className="row items-end justify-between">
+          <button onClick={prevLevel} className="row gap-2 items-center">
+            <div className="text-muted flip-horizontal">➜</div> Back
+          </button>
+
+          <Link href="/levels" onClick={onSkip} className="row gap-2 items-center">
+            Levels
+          </Link>
+
+          <button onClick={onSkip} className="row gap-2 items-center">
+            Skip <div className="text-muted">➜</div>
+          </button>
+        </div>
+
+        <div className="flex-1 col items-center justify-center">
+          <div className={clsx('text-xl font-semibold', level.completed && 'text-green')}>
+            Level {levelNumber}
+          </div>
+          <div className="text-muted">{levelId}</div>
+        </div>
       </div>
 
       <Game definition={definition} onLoaded={setGame} />
 
-      <div className="flex-1 row items-end justify-between">
-        <Link href="/levels" onClick={onSkip} className="row gap-2 items-center">
-          <div className="text-muted flip-horizontal">➜</div> levels
-        </Link>
-
-        <button onClick={onSkip} className="row gap-2 items-center ml-auto">
-          skip <div className="text-muted">➜</div>
-        </button>
-      </div>
+      <div className="flex-1" />
     </MobileView>
   );
 };
 
+const useGoToPrevLevel = (levelId: string) => {
+  const navigate = useNavigate();
+  const levelsIds = useLevelsIds();
+  const prevLevelId = levelsIds[levelsIds.indexOf(levelId) - 1];
+
+  return useCallback(() => {
+    if (prevLevelId) {
+      navigate(`/level/${prevLevelId}`);
+    } else {
+      navigate('/levels');
+    }
+  }, [prevLevelId, navigate]);
+};
+
 const useGoToNextLevel = (levelId: string) => {
   const navigate = useNavigate();
-  const nextLevelId = useNextLevelId(levelId);
+  const levelsIds = useLevelsIds();
+  const nextLevelId = levelsIds[levelsIds.indexOf(levelId) + 1];
 
   return useCallback(() => {
     if (nextLevelId) {

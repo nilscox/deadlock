@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer utilities {
+  .flex-2 {
+    flex: 2;
+  }
+
   .col {
     @apply flex flex-col;
   }

@@ -130,11 +130,6 @@ export const useSaveReport = () => {
   );
 };
 
-export const useNextLevelId = (levelId: string) => {
-  const levelsIds = useLevelsIds();
-  return levelsIds[levelsIds.indexOf(levelId) + 1];
-};
-
 export const useLevelNumber = (levelId: string) => {
   const levelsIds = useLevelsIds();
   return levelsIds.indexOf(levelId) + 1;

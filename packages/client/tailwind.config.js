@@ -6,6 +6,7 @@ export default {
   theme: {
     textColor: {
       muted: colors.neutral[500],
+      green: colors.emerald[600],
     },
     backgroundColor: {
       muted: colors.slate[100],
