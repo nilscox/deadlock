@@ -1,4 +1,12 @@
-import { Direction, LevelSolutions, LevelStats, LevelsSolutions, LevelsStats, round } from '@deadlock/game';
+import {
+  Direction,
+  LevelSolutions,
+  LevelStats,
+  LevelsSolutions,
+  LevelsStats,
+  round,
+  Game as GameClass,
+} from '@deadlock/game';
 import { CSSProperties, memo, useEffect, useMemo, useState } from 'react';
 import { FixedSizeList as List, areEqual } from 'react-window';
 import { Link } from 'wouter';
@@ -99,8 +107,14 @@ const LevelRow = ({ levelId, stats, solutions }: LevelRowProps) => {
   const level = useLevelInstance(levelId);
   const levelNumber = useLevelNumber(levelId);
 
+  const [enableControls, setEnableControl] = useState(false);
+
   return (
-    <div className="row divide-x p-4">
+    <div
+      className="row divide-x p-4 hover:bg-muted/50"
+      onMouseOver={() => setEnableControl(true)}
+      onMouseOut={() => setEnableControl(false)}
+    >
       <div className="px-4">
         <div className="row gap-2 items-center">
           <Link href={`/level/${levelId}`}>#{levelNumber}</Link>
@@ -118,7 +132,7 @@ const LevelRow = ({ levelId, stats, solutions }: LevelRowProps) => {
           </div>
         </div>
 
-        <LevelPreview levelId={levelId} />
+        <LevelPreview levelId={levelId} enableControls={enableControls} />
       </div>
 
       <div className="px-4 min-w-[400px]">
@@ -138,18 +152,29 @@ const LevelRow = ({ levelId, stats, solutions }: LevelRowProps) => {
 
 type LeveLPreviewProps = {
   levelId: string;
+  enableControls: boolean;
 };
 
-const LevelPreview = ({ levelId }: LeveLPreviewProps) => {
+const LevelPreview = ({ levelId, enableControls }: LeveLPreviewProps) => {
   const { definition } = useLevel(levelId);
+  const [game, setGame] = useState<GameClass>();
+
+  useEffect(() => {
+    if (enableControls) {
+      game?.enableControls();
+    } else {
+      game?.disableControls();
+    }
+  }, [game, enableControls]);
 
   return (
     <Game
-      styles={{ width: 220, height: 150 }}
+      styles={{ width: 220, height: 120 }}
       definition={definition}
       onLoaded={(game, renderer) => {
         renderer.scale(0.4);
-        game.allowRestartWhenCompleted = true;
+        game.disableControls();
+        setGame(game);
       }}
     />
   );

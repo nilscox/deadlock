@@ -27,12 +27,7 @@ export const TestView = () => {
         <div className="text-xl">Test Level</div>
       </div>
 
-      <Game
-        definition={level.definition}
-        onLoaded={(game) => {
-          game.allowRestartWhenCompleted = true;
-        }}
-      />
+      <Game definition={level.definition} />
 
       <div className="flex-1 row items-end justify-between">
         <Link href="/levels" className="row gap-2 items-center">

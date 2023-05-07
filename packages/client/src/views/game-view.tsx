@@ -69,7 +69,22 @@ export const GameView = ({ levelId }: GameViewProps) => {
     return () => {
       game.level.removeListener(LevelEvent.completed, onCompleted);
     };
-  }, [levelId, game, onCompleted]);
+  }, [game, onCompleted]);
+
+  useEffect(() => {
+    if (!game) {
+      return;
+    }
+
+    const emitter = game.level.cloneEmitter();
+
+    emitter.addListener(LevelEvent.loaded, () => game.enableControls());
+    emitter.addListener(LevelEvent.completed, () => game.disableControls());
+
+    return () => {
+      emitter.removeListeners();
+    };
+  }, [game]);
 
   return (
     <MobileView>

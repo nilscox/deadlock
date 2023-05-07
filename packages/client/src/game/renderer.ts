@@ -12,7 +12,7 @@ export class GameRenderer {
   private levelRenderer: LevelRenderer;
   private playerRenderer: PlayerRenderer;
 
-  constructor(canvas: HTMLCanvasElement, private game: Game) {
+  constructor(canvas: HTMLCanvasElement, game: Game) {
     this.scope = new paper.PaperScope();
     this.scope.setup(canvas);
 
@@ -31,9 +31,8 @@ export class GameRenderer {
 
     this.view.onFrame = () => {
       this.playerRenderer.onFrame();
+      this.group.bounds.center = this.view.center;
     };
-
-    this.group.bounds.center = this.view.center;
   }
 
   clear() {
