@@ -1,8 +1,9 @@
 import {
   LevelDefinition,
+  LevelsSolutions,
   LevelsStats,
   MapSet,
-  identity,
+  Path,
   max,
   mean,
   min,
@@ -10,12 +11,14 @@ import {
   round,
   toObject,
 } from '@deadlock/game';
-import { EntityManager, RequestContext } from '@mikro-orm/core';
+import { RequestContext } from '@mikro-orm/core';
 import express, { RequestHandler } from 'express';
 import * as yup from 'yup';
 
+import { EntityManager } from '@mikro-orm/sqlite';
 import { SqlLevel } from './entities/level';
 import { SqlLevelSession } from './entities/level-session';
+import { SqlSolution } from './entities/solution';
 
 export function api(em: EntityManager) {
   const router = express.Router();
@@ -27,6 +30,7 @@ export function api(em: EntityManager) {
   router.get('/levels', getLevels(em));
   router.post('/session', storeLevelSession(em));
   router.get('/stats', getStatistics(em));
+  router.get('/solutions', getSolutions(em));
 
   return router;
 }
@@ -107,3 +111,29 @@ const formatLevelStats = (sessions: SqlLevelSession[]) => ({
     max: max(sessions.map(({ time }) => time)),
   },
 });
+
+const getSolutions = (em: EntityManager): RequestHandler => {
+  return async (req, res) => {
+    const solutions = await em.find(SqlSolution, {});
+    const result: LevelsSolutions = {};
+
+    for (const solution of solutions) {
+      const levelId = solution.level.id;
+
+      result[levelId] ??= {
+        total: 0,
+        items: [],
+      };
+
+      const levelSolutions = result[levelId];
+
+      levelSolutions.total++;
+
+      if (levelSolutions.items.length < 3) {
+        levelSolutions.items.push(solution.path);
+      }
+    }
+
+    res.json(result);
+  };
+};

@@ -1,12 +1,12 @@
 import {
   Direction,
   Game,
+  LevelSolutions,
   LevelStats,
+  LevelsSolutions,
   LevelsStats,
-  Path,
   evaluateLevelDifficulty,
   round,
-  solve,
 } from '@deadlock/game';
 import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { FixedSizeList as List, areEqual } from 'react-window';
@@ -21,12 +21,18 @@ export const AdminView = () => {
   const { serverUrl } = useConfig();
 
   const levelsIds = useLevelsIds();
+
   const [stats, setStats] = useState<LevelsStats>();
+  const [solutions, setSolutions] = useState<LevelsSolutions>();
 
   useEffect(() => {
     void fetch(`${serverUrl}/stats`)
       .then((res) => res.json())
       .then(setStats);
+
+    void fetch(`${serverUrl}/solutions`)
+      .then((res) => res.json())
+      .then(setSolutions);
   }, [serverUrl]);
 
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
@@ -40,7 +46,14 @@ export const AdminView = () => {
     return levelsIds.filter((levelId) => levelId.match(search));
   }, [levelsIds, search]);
 
-  const itemData = useMemo(() => ({ filteredIds, stats }), [filteredIds, stats]);
+  const itemData = useMemo(
+    () => ({
+      filteredIds,
+      stats,
+      solutions,
+    }),
+    [filteredIds, stats, solutions]
+  );
 
   return (
     <div ref={setWrapperRef} className="col gap-4 h-full col">
@@ -67,31 +80,33 @@ export const AdminView = () => {
 type RowProps = {
   index: number;
   style: CSSProperties;
-  data: { filteredIds: string[]; stats?: LevelsStats };
+  data: {
+    filteredIds: string[];
+    stats?: LevelsStats;
+    solutions?: LevelsSolutions;
+  };
 };
 
-const Row = memo(
-  ({ index, style, data }: RowProps) => (
+const Row = memo(({ index, style, data }: RowProps) => {
+  const levelId = data.filteredIds[index];
+
+  return (
     <div style={style}>
-      <LevelRow key={data.filteredIds[index]} levelId={data.filteredIds[index]} stats={data.stats} />
+      <LevelRow key={levelId} levelId={levelId} stats={data.stats} solutions={data.solutions?.[levelId]} />
     </div>
-  ),
-  areEqual
-);
+  );
+}, areEqual);
 
 type LevelRowProps = {
   levelId: string;
   stats?: LevelsStats;
+  solutions?: LevelSolutions;
 };
 
-const LevelRow = ({ levelId, stats }: LevelRowProps) => {
+const LevelRow = ({ levelId, stats, solutions }: LevelRowProps) => {
   const { definition } = useLevel(levelId);
   const level = useLevelInstance(levelId);
   const levelNumber = useLevelNumber(levelId);
-
-  const solutions = useMemo(() => {
-    return solve(definition);
-  }, [definition]);
 
   return (
     <div className="row divide-x p-4">
@@ -147,25 +162,17 @@ const LevelPreview = ({ levelId }: LeveLPreviewProps) => {
 
 type SolutionsProps = {
   levelId: string;
-  solutions?: Path[];
+  solutions?: LevelSolutions;
 };
 
 const Solutions = ({ solutions }: SolutionsProps) => {
-  const copySolutions = () => {
-    if (!solutions) {
-      return;
-    }
-
-    navigator.clipboard.writeText(solutions.map((solution) => solution.join(' ')).join('\n'));
-  };
-
-  if (!solutions || solutions?.length === 0) {
+  if (!solutions || solutions.total === 0) {
     return <div className="text-muted">No solution found</div>;
   }
 
   return (
     <div className="col gap-1 h-full">
-      {solutions.slice(0, 3).map((solution, index) => (
+      {solutions.items.slice(0, 3).map((solution, index) => (
         <div key={index} className="row gap-2 items-center">
           {solution.map((direction, index) => (
             <span key={index}>{directions[direction]}</span>
@@ -173,11 +180,9 @@ const Solutions = ({ solutions }: SolutionsProps) => {
         </div>
       ))}
 
-      {solutions.length > 3 && <div className="text-sm">...</div>}
+      {solutions.total > 3 && <div className="text-sm">...</div>}
 
-      <div className="text-muted text-sm mt-auto">
-        total: {solutions.length} <button onClick={copySolutions}>(copy)</button>
-      </div>
+      <div className="text-muted text-sm mt-auto">total: {solutions.total}</div>
     </div>
   );
 };
@@ -191,14 +196,14 @@ const directions: Record<Direction, JSX.Element> = {
 
 type ScoreProps = {
   levelId: string;
-  solutions?: Path[];
+  solutions?: LevelSolutions;
 };
 
 const Score = ({ levelId, solutions }: ScoreProps) => {
   const { definition } = useLevel(levelId);
 
   const { difficulty, numberOfSolutions, numberOfSolutionsScore, easiestSolution } = useMemo(
-    () => evaluateLevelDifficulty(definition, solutions),
+    () => evaluateLevelDifficulty(definition, solutions?.items),
     [definition, solutions]
   );
 
