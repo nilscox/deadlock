@@ -48,13 +48,10 @@ export const GameView = ({ levelId }: GameViewProps) => {
         return;
       }
 
-      if (level.completed === undefined) {
-        saveReport(levelId, completed, tries, time);
-      }
-
+      saveReport(levelId, completed, tries, time);
       storeResult(levelId, { completed, tries, time });
     },
-    [level, levelId, game, storeResult, saveReport]
+    [levelId, game, storeResult, saveReport]
   );
 
   const onCompleted = useCallback(() => {

@@ -1,5 +1,5 @@
 import { Level, LevelDefinition, LevelEvent } from './level';
-import { Player } from './player';
+import { Player, PlayerEvent } from './player';
 import { Stopwatch } from './stopwatch';
 import { Direction } from './utils/direction';
 import { Emitter } from './utils/emitter';
@@ -44,6 +44,17 @@ export class Game {
 
     this.level.addListener(LevelEvent.restarted, () => {
       this.tries++;
+    });
+
+    const pause = this.stopwatch.pause.bind(this.stopwatch);
+    const unpause = this.stopwatch.unpause.bind(this.stopwatch);
+
+    let timeout = setTimeout(pause, 5000);
+
+    this.player.addListener(PlayerEvent.moved, () => {
+      clearTimeout(timeout);
+      unpause();
+      timeout = setTimeout(pause, 5000);
     });
   }
 
