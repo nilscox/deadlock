@@ -41,6 +41,12 @@ export const GameView = ({ levelId }: GameViewProps) => {
     (completed: boolean) => {
       assert(game);
 
+      const alreadyCompleted = level.completed;
+
+      if (alreadyCompleted && !completed) {
+        return;
+      }
+
       const time = game.stopwatch.elapsed;
       const tries = game.tries;
 
@@ -51,7 +57,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
       saveReport(levelId, completed, tries, time);
       storeResult(levelId, { completed, tries, time });
     },
-    [levelId, game, storeResult, saveReport]
+    [levelId, level, game, storeResult, saveReport]
   );
 
   const onCompleted = useCallback(() => {
