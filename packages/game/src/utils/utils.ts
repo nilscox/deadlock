@@ -25,3 +25,13 @@ export const first = <T>(array: T[]): T | undefined => {
 export const last = <T>(array: T[]): T | undefined => {
   return array[array.length - 1];
 };
+
+export const array = <T>(length: number, createElement: (index: number) => T): T[] => {
+  return Array(length)
+    .fill(null)
+    .map((_, index) => createElement(index));
+};
+
+export const isDefined = <T>(value: T | undefined): value is T => {
+  return value !== undefined;
+};

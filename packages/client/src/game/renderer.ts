@@ -1,4 +1,4 @@
-import { CellType, Game, Level, LevelEvent, Player, PlayerEvent, Point, assert } from '@deadlock/game';
+import { CellType, Game, Level, Cell, LevelEvent, Player, PlayerEvent, Point, assert } from '@deadlock/game';
 import paper from 'paper';
 import { getLevelBoundaries } from './get-level-boundaries';
 
@@ -107,13 +107,9 @@ export class LevelRenderer {
     this.boundaries.strokeWidth = 2;
     this.boundaries.strokeCap = 'round';
 
-    const cells = this.level.cells();
+    const cells = this.level.cells().filter((cell) => !this.isEdgeBlock(cell));
 
     for (const { x, y, type } of cells) {
-      if (type === CellType.block && this.level.isEdge(x, y)) {
-        continue;
-      }
-
       const rect = new paper.Shape.Rectangle({
         x: x * cellSize,
         y: y * cellSize,
@@ -126,17 +122,35 @@ export class LevelRenderer {
       this.cells.set(`${x},${y}`, rect);
     }
 
-    const boundariesPath = getLevelBoundaries(
-      cells.filter(({ x, y, type }) => !(type === CellType.block && this.level.isEdge(x, y)))
-    );
+    const path = getLevelBoundaries(cells);
 
-    this.boundaries.moveTo([boundariesPath[0].x * cellSize, boundariesPath[0].y * cellSize]);
+    this.boundaries.moveTo([path[0].x * cellSize, path[0].y * cellSize]);
 
-    for (const { x, y } of boundariesPath) {
+    for (const { x, y } of path) {
       this.boundaries.lineTo([x * cellSize, y * cellSize]);
     }
 
     this.boundaries.closePath();
+  }
+
+  private isEdgeBlock({ x, y, type }: Cell, visited = new Set<string>()): boolean {
+    const key = `${x},${y}`;
+
+    if (type !== CellType.block || visited.has(key)) {
+      return false;
+    }
+
+    visited.add(key);
+
+    if (this.level.isEdge(x, y)) {
+      return true;
+    }
+
+    if (this.level.neighbors(x, y).some((cell) => this.isEdgeBlock(cell, visited))) {
+      return true;
+    }
+
+    return false;
   }
 
   private onLevelCompleted() {

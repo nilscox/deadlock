@@ -2,7 +2,7 @@ export const abs = (value: number) => {
   return Math.abs(value);
 };
 
-export const round = (value: number, precision: number) => {
+export const round = (value: number, precision = 0) => {
   const p10 = Math.pow(10, precision);
   return Math.round(p10 * value) / p10;
 };
@@ -28,7 +28,7 @@ export const randBool = (p = 0.5) => {
 };
 
 export const randFloat = (min: number, max: number) => {
-  return Math.random() * (max - min + 1) + min;
+  return Math.random() * (max - min) + min;
 };
 
 export const randInt = (min: number, max: number) => {
@@ -44,5 +44,5 @@ export const randItems = <T>(array: T[], count: number) => {
 };
 
 export const shuffle = <T>(array: T[]) => {
-  return array.sort(() => (randBool() ? -1 : 1));
+  return array.sort(() => randFloat(0, 1) - 0.5);
 };

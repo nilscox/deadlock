@@ -3,8 +3,6 @@ import { inspectCustomSymbol } from './inspect';
 
 export type IPoint = { x: number; y: number };
 
-type PointArgs = [x: number, y: number] | [IPoint];
-
 export class Point implements IPoint {
   private _x = 0;
   private _y = 0;
@@ -18,15 +16,10 @@ export class Point implements IPoint {
   }
 
   private assign(...args: PointArgs) {
-    if (args.length === 2) {
-      this._x = args[0];
-      this._y = args[1];
-    }
+    const [x, y] = pointArgs(args);
 
-    if (args.length === 1) {
-      this._x = args[0].x;
-      this._y = args[0].y;
-    }
+    this._x = x;
+    this._y = y;
   }
 
   set(x: number, y: number): void;
@@ -73,3 +66,13 @@ export class Point implements IPoint {
     return `Point(${this.x}, ${this.y})`;
   }
 }
+
+export type PointArgs = [x: number, y: number] | [IPoint];
+
+export const pointArgs = (args: PointArgs): [x: number, y: number] => {
+  if (args.length === 2) {
+    return args;
+  }
+
+  return [args[0].x, args[0].y];
+};

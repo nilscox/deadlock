@@ -1,17 +1,24 @@
 import { ReflectionTransform, RotationTransform } from './level-transforms';
 import { Player } from './player';
 import { assert } from './utils/assert';
-import { Direction, getDirectionVector } from './utils/direction';
+import { Direction, directions, getDirectionVector } from './utils/direction';
 import { Emitter } from './utils/emitter';
 import { inspectCustomSymbol } from './utils/inspect';
-import { IPoint, Point } from './utils/point';
-import { first, last } from './utils/utils';
+import { IPoint, Point, PointArgs, pointArgs } from './utils/point';
+import { toObject } from './utils/to-object';
+import { first, identity, isDefined, last } from './utils/utils';
 
 export type LevelDefinition = {
   width: number;
   height: number;
   start: IPoint;
   blocks: IPoint[];
+};
+
+export type Cell = {
+  x: number;
+  y: number;
+  type: CellType;
 };
 
 export enum CellType {
@@ -86,12 +93,19 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     }
   }
 
-  atUnsafe(x: number, y: number): CellType | undefined {
+  atUnsafe(x: number, y: number): CellType | undefined;
+  atUnsafe(point: Point): CellType | undefined;
+
+  atUnsafe(...args: PointArgs): CellType | undefined {
+    const [x, y] = pointArgs(args);
     return this._cells[y]?.[x];
   }
 
-  at(x: number, y: number): CellType {
-    const type = this.atUnsafe(x, y);
+  at(x: number, y: number): CellType;
+  at(point: Point): CellType;
+
+  at(...args: PointArgs): CellType {
+    const type = this.atUnsafe(...pointArgs(args));
     assert(type);
     return type;
   }
@@ -100,7 +114,20 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     return x === 0 || y === 0 || x === this.definition.width - 1 || y === this.definition.height - 1;
   }
 
-  cells(type?: CellType) {
+  neighbors(x: number, y: number) {
+    return directions
+      .map((dir) => {
+        const p = new Point(x, y).move(dir);
+        const type = this.atUnsafe(p);
+
+        if (type) {
+          return { x: p.x, y: p.y, type };
+        }
+      })
+      .filter(isDefined);
+  }
+
+  cells(type?: CellType): Cell[] {
     const cells = new Array<{ x: number; y: number; type: CellType }>();
 
     for (let y = 0; y < this._definition.height; ++y) {
