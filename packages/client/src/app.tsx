@@ -18,7 +18,7 @@ export const App = () => (
 
     <GoToFirstLevel />
 
-    <Router base={import.meta.env.VITE_APP_BASE_URL}>
+    <Router>
       <Switch>
         <Route path="/">
           <RedirectToNextLevel />
