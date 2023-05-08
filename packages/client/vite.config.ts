@@ -1,7 +1,9 @@
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vitest/config';
+import { mergeConfig } from 'vitest/config';
 
-export default defineConfig({
+import baseConfig from '../../vitest.config';
+
+export default mergeConfig(baseConfig, {
   base: process.env.VITE_APP_BASE_URL,
   plugins: [react()],
   build: {
@@ -10,10 +12,5 @@ export default defineConfig({
   server: {
     port: 8000,
     host: true,
-  },
-  test: {
-    watch: false,
-    globals: true,
-    reporters: ['verbose'],
   },
 });

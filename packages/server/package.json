@@ -11,13 +11,9 @@
   },
   "dependencies": {
     "@deadlock/game": "workspace:*",
-    "@mikro-orm/cli": "^5.7.4",
-    "@mikro-orm/core": "^5.7.4",
-    "@mikro-orm/migrations": "^5.7.4",
-    "@mikro-orm/reflection": "^5.7.4",
-    "@mikro-orm/sql-highlighter": "^1.0.1",
-    "@mikro-orm/sqlite": "^5.7.4",
+    "@deadlock/persistence": "workspace:*",
     "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
     "express": "5.0.0-beta.1",
     "nanoid": "^4.0.2",
     "yup": "^1.1.1"
@@ -25,15 +21,6 @@
   "devDependencies": {
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
-    "@types/node": "^20.1.0",
-    "nodemon": "^2.0.22",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
-  },
-  "mikro-orm": {
-    "useTsNode": true,
-    "configPaths": [
-      "./src/mikro-orm.config.ts"
-    ]
+    "nodemon": "^2.0.22"
   }
 }

@@ -2,5 +2,14 @@
   "name": "@deadlock/root",
   "private": true,
   "version": "0.0.0",
-  "packageManager": "pnpm@8.4.0"
+  "module": "true",
+  "packageManager": "pnpm@8.4.0",
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.1.0",
+    "typescript": "^5.0.4",
+    "vitest": "^0.31.0"
+  }
 }

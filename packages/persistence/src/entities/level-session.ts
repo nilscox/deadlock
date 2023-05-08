@@ -1,4 +1,5 @@
 import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+
 import { SqlLevel } from './level';
 
 @Entity({ tableName: 'level_session' })

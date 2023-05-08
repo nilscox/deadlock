@@ -12,7 +12,9 @@ export class Point implements IPoint {
   constructor(other: IPoint);
 
   constructor(...args: PointArgs) {
-    this.assign(...args);
+    if (args.length > 0) {
+      this.assign(...args);
+    }
   }
 
   private assign(...args: PointArgs) {

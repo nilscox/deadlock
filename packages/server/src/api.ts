@@ -10,21 +10,15 @@ import {
   round,
   toObject,
 } from '@deadlock/game';
-import { RequestContext } from '@mikro-orm/core';
 import express, { RequestHandler } from 'express';
 import * as yup from 'yup';
 
-import { EntityManager } from '@mikro-orm/sqlite';
-import { SqlLevel } from './entities/level';
-import { SqlLevelSession } from './entities/level-session';
-import { SqlSolution } from './entities/solution';
+import { EntityManager, SqlLevel, SqlLevelSession, SqlSolution, ormMiddleware } from '@deadlock/persistence';
 
 export function api(em: EntityManager) {
   const router = express.Router();
 
-  router.use((req, res, next) => {
-    RequestContext.create(em, next);
-  });
+  router.use(ormMiddleware(em));
 
   router.get('/levels', getLevels(em));
   router.post('/session', storeLevelSession(em));
