@@ -67,5 +67,5 @@ const RedirectToNextLevel = () => {
   const levels = useLevels();
   const nextLevel = Object.entries(levels).find(([, level]) => !level?.completed)?.[0];
 
-  return <Redirect href={`/level/${nextLevel}`} />;
+  return <Redirect replace href={`/level/${nextLevel}`} />;
 };
