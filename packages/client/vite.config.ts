@@ -4,6 +4,9 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   base: process.env.VITE_APP_BASE_URL,
   plugins: [react()],
+  build: {
+    sourcemap: true,
+  },
   server: {
     port: 8000,
     host: true,
