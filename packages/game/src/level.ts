@@ -258,9 +258,9 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   [inspectCustomSymbol]() {
     const charMap: Record<CellType, string> = {
       [CellType.empty]: ' ',
-      [CellType.block]: 'x',
-      [CellType.player]: 'o',
-      [CellType.path]: '.',
+      [CellType.block]: '█',
+      [CellType.player]: 'x',
+      [CellType.path]: '░',
     };
 
     const lines: string[][] = [];

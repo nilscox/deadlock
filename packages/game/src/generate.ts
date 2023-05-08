@@ -3,6 +3,7 @@ import { ReflectionTransform, RotationTransform } from './level-transforms';
 import { solve } from './solve';
 import { Path } from './utils/direction';
 import { randBool, randInt, randItem } from './utils/math';
+import { IPoint } from './utils/point';
 import { array, identity } from './utils/utils';
 
 export type GenerateLevelsOptions = {
@@ -18,7 +19,7 @@ export type GenerateLevelsOptions = {
 
 export const generateLevels = async (
   options: GenerateLevelsOptions,
-  onProgress: (total: number, index: number, solutions: boolean) => void | Promise<void>,
+  onProgress: (levels: LevelDefinition[], index: number, hasSolutions: boolean) => void | Promise<void>,
   onGenerated: (level: LevelDefinition, solutions: Path[]) => void | Promise<void>
 ) => {
   const levels = generateAllLevels(options);
@@ -28,10 +29,10 @@ export const generateLevels = async (
     const hasSolutions = Boolean(paths?.length);
 
     if (level.blocks.length !== options.blocks) {
-      throw Level.computeFingerprint(level);
+      throw new Error(`invalid level generated: ${Level.computeFingerprint(level)}`);
     }
 
-    await onProgress(levels.length, levels.indexOf(level), hasSolutions);
+    await onProgress(levels, levels.indexOf(level), hasSolutions);
 
     if (!hasSolutions) {
       continue;
@@ -67,7 +68,7 @@ const generateAllLevels = (options: GenerateLevelsOptions): LevelDefinition[] =>
     const level = Level.fromHash(Level.fromHash(startHash).fingerprint);
 
     for (const cell of level.cells(CellType.block)) {
-      cells[cell.x + cell.y * width] = CellType.block;
+      cells[pointToIndex(cell.x, cell.y, height)] = CellType.block;
     }
   } else {
     for (let i = 0; i < blocks; ++i) {
@@ -78,7 +79,7 @@ const generateAllLevels = (options: GenerateLevelsOptions): LevelDefinition[] =>
   do {
     const blocks = Array(cells.length)
       .fill(null)
-      .map((_, i) => ({ x: i % width, y: Math.floor(i / width) }))
+      .map((_, i) => indexToPoint(i, height))
       .filter((_, i) => cells[i] === CellType.block);
 
     const generate = (start: { x: number; y: number }) => {
@@ -102,20 +103,14 @@ const generateAllLevels = (options: GenerateLevelsOptions): LevelDefinition[] =>
     if (singleStartPosition) {
       const i = randItem(array(cells.length, identity).filter((i) => cells[i] === CellType.empty));
 
-      generate({
-        x: i % width,
-        y: Math.floor(i / width),
-      });
+      generate(indexToPoint(i, height));
     } else {
       for (let i = 0; i < cells.length; ++i) {
         if (cells[i] !== CellType.empty) {
           continue;
         }
 
-        generate({
-          x: i % width,
-          y: Math.floor(i / width),
-        });
+        generate(indexToPoint(i, height));
       }
     }
   } while (next(cells) !== -1 && levels.length < limit);
@@ -149,4 +144,15 @@ export const nextLevel = (cells: CellType[], slice = cells.length): number => {
   }
 
   return lastBlockIdx + 1;
+};
+
+const pointToIndex = (x: number, y: number, height: number): number => {
+  return x * height + y;
+};
+
+const indexToPoint = (index: number, height: number): IPoint => {
+  return {
+    x: Math.floor(index / height),
+    y: index % height,
+  };
 };

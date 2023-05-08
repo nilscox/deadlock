@@ -22,6 +22,12 @@ importers:
       '@deadlock/persistence':
         specifier: workspace:*
         version: link:../persistence
+      commander:
+        specifier: ^10.0.1
+        version: 10.0.1
+      nanoid:
+        specifier: ^4.0.2
+        version: 4.0.2
 
   packages/client:
     dependencies:
@@ -142,9 +148,6 @@ importers:
       express:
         specifier: 5.0.0-beta.1
         version: 5.0.0-beta.1
-      nanoid:
-        specifier: ^4.0.2
-        version: 4.0.2
       yup:
         specifier: ^1.1.1
         version: 1.1.1
@@ -1714,6 +1717,11 @@ packages:
   /colors@1.2.5:
     resolution: {integrity: sha512-erNRLao/Y3Fv54qUa0LBB+//Uf3YwMUmdJinN20yMXm9zdKKqH9wt7R9IIVZ+K7ShzfpLV/Zg8+VyrBJYB4lpg==}
     engines: {node: '>=0.1.90'}
+    dev: false
+
+  /commander@10.0.1:
+    resolution: {integrity: sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==}
+    engines: {node: '>=14'}
     dev: false
 
   /commander@4.1.1:

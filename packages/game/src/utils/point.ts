@@ -64,8 +64,12 @@ export class Point implements IPoint {
     this.set(this._x, y);
   }
 
+  toString() {
+    return `(${this.x}, ${this.y})`;
+  }
+
   [inspectCustomSymbol]() {
-    return `Point(${this.x}, ${this.y})`;
+    return this.toString();
   }
 }
 
