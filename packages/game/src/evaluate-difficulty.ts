@@ -28,14 +28,19 @@ export const evaluateLevelDifficulty = (input: Level | LevelDefinition, solution
     return { difficulty: Infinity };
   }
 
+  const solutionsComplexities = new Map(
+    solutions.map((solution) => [solution, evaluateSolutionComplexity(level, solution)])
+  );
+
   const numberOfSolutionsScore = Math.floor(Math.max(0, 7 - Math.log2(solutions.length)));
-  const easiestSolutionScore = min(solutions.map((solution) => evaluateSolutionComplexity(level, solution)));
+  const easiestSolutionScore = min(Array.from(solutionsComplexities.values()));
 
   return {
     difficulty: numberOfSolutionsScore + easiestSolutionScore,
     numberOfSolutions: solutions.length,
     numberOfSolutionsScore,
     easiestSolutionScore,
+    solutionsComplexities,
   };
 };
 

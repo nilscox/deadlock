@@ -19,6 +19,7 @@
     "@mikro-orm/sqlite": "^5.7.4",
     "cors": "^2.8.5",
     "express": "5.0.0-beta.1",
+    "nanoid": "^4.0.2",
     "yup": "^1.1.1"
   },
   "devDependencies": {

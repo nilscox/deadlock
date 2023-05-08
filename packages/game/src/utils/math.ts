@@ -1,9 +1,3 @@
-import { IPoint } from './point';
-
-export const identity = <T>(value: T) => {
-  return value;
-};
-
 export const abs = (value: number) => {
   return Math.abs(value);
 };
@@ -51,18 +45,4 @@ export const randItems = <T>(array: T[], count: number) => {
 
 export const shuffle = <T>(array: T[]) => {
   return array.sort(() => (randBool() ? -1 : 1));
-};
-
-export const randomId = () => {
-  return Math.random().toString(36).slice(-6);
-};
-
-export const boundaries = (points: IPoint[]): { min: IPoint; max: IPoint } => {
-  const xs = points.map(({ x }) => x);
-  const ys = points.map(({ y }) => y);
-
-  return {
-    min: { x: Math.min(...xs), y: Math.min(...ys) },
-    max: { x: Math.max(...xs), y: Math.max(...ys) },
-  };
 };

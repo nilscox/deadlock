@@ -160,12 +160,19 @@ describe('Level', () => {
       start: { x: 1, y: 0 },
     });
 
-    expect(level.hash).toEqual('3,1|1,0|0,0');
+    expect(level.hash).toEqual('3,1;0,0;1,0');
   });
 
   it("computes a level's fingerprint", () => {
     const level1 = new Level({ width: 3, height: 1, blocks: [{ x: 0, y: 0 }], start: { x: 1, y: 0 } });
     const level2 = new Level({ width: 3, height: 1, blocks: [{ x: 2, y: 0 }], start: { x: 1, y: 0 } });
+
+    expect(level1.fingerprint).toEqual(level2.fingerprint);
+  });
+
+  it("computes a level's fingerprint 2", () => {
+    const level1 = Level.fromHash('3,3;1,0;0,0');
+    const level2 = Level.fromHash(level1.fingerprint);
 
     expect(level1.fingerprint).toEqual(level2.fingerprint);
   });

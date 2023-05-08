@@ -3,7 +3,9 @@ import { Player } from './player';
 import { assert } from './utils/assert';
 import { Direction, getDirectionVector } from './utils/direction';
 import { Emitter } from './utils/emitter';
+import { inspectCustomSymbol } from './utils/inspect';
 import { IPoint, Point } from './utils/point';
+import { first, last } from './utils/utils';
 
 export type LevelDefinition = {
   width: number;
@@ -41,7 +43,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     this.load(this._definition);
   }
 
-  get definition() {
+  get definition(): LevelDefinition {
     return this._definition;
   }
 
@@ -164,55 +166,91 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     return true;
   }
 
-  isCompleted() {
+  isCompleted(): boolean {
     return this.cells(CellType.empty).length === 0;
   }
 
-  get hash() {
-    return computeHash(this._definition);
+  get hash(): string {
+    return Level.computeHash(this._definition);
   }
 
-  get fingerprint() {
-    const hashes = [
-      this.hash,
-      computeHash(ReflectionTransform.horizontal(this._definition)),
-      computeHash(ReflectionTransform.vertical(this._definition)),
-      computeHash(RotationTransform.quarter(this._definition)),
-      computeHash(RotationTransform.half(this._definition)),
-      computeHash(RotationTransform.threeQuarters(this._definition)),
+  get fingerprint(): string {
+    return Level.computeFingerprint(this._definition);
+  }
+
+  static fromHash(hash: string): Level {
+    return new Level(Level.parseHash(hash));
+  }
+
+  static computeHash(definition: LevelDefinition): string {
+    const { width, height, start, blocks } = definition;
+
+    return [
+      [width, height].join(','),
+      ...blocks.map((cell) => [cell.x, cell.y].join(',')),
+      [start.x, start.y].join(','),
+    ].join(';');
+  }
+
+  static computeFingerprint(definition: LevelDefinition): string {
+    const rotations = (def: LevelDefinition) => [
+      Level.computeHash(def),
+      Level.computeHash(RotationTransform.quarter(def)),
+      Level.computeHash(RotationTransform.half(def)),
+      Level.computeHash(RotationTransform.threeQuarters(def)),
     ];
 
-    return hashes.sort()[0];
+    const hashes = [
+      ...rotations(definition),
+      ...rotations(ReflectionTransform.horizontal(definition)),
+      ...rotations(ReflectionTransform.vertical(definition)),
+    ].sort();
+
+    return first(hashes) as string;
   }
 
-  static fromHash(hash: string) {
-    return new Level(parseHash(hash));
+  static parseHash(hash: string): LevelDefinition {
+    const [size, ...cells] = hash.split(';');
+    const blocks = cells.slice(0, -1);
+    const start = last(cells) as string;
+    const [width, height] = size.split(',').map(Number);
+
+    const parsePoint = (str: string): IPoint => {
+      const [x, y] = str.split(',').map(Number);
+      return { x, y };
+    };
+
+    return {
+      width,
+      height,
+      start: parsePoint(start),
+      blocks: blocks.map(parsePoint),
+    };
+  }
+
+  [inspectCustomSymbol]() {
+    const charMap: Record<CellType, string> = {
+      [CellType.empty]: ' ',
+      [CellType.block]: 'x',
+      [CellType.player]: 'o',
+      [CellType.path]: '.',
+    };
+
+    const lines: string[][] = [];
+
+    this.cells().forEach(({ x, y, type }) => {
+      lines[y] ??= [];
+      lines[y][x] = charMap[type];
+    });
+
+    lines.forEach((line) => {
+      line.unshift('|');
+      line.push('|');
+    });
+
+    lines.unshift(['+', ...Array(this.definition.width).fill('-'), '+']);
+    lines.push(lines[0]);
+
+    return lines.map((line) => line.join('')).join('\n');
   }
 }
-
-const computeHash = (definition: LevelDefinition) => {
-  const { width, height, start, blocks } = definition;
-
-  return [
-    [width, height].join(','),
-    [start.x, start.y].join(','),
-    ...blocks.map((cell) => [cell.x, cell.y].join(',')),
-  ].join('|');
-};
-
-const parseHash = (hash: string): LevelDefinition => {
-  const [size, start, ...blocks] = hash.split('|');
-  const [width, height] = size.split(',').map(Number);
-
-  const parsePoint = (str: string): IPoint => {
-    const [x, y] = str.split(',').map(Number);
-    return { x, y };
-  };
-
-  return {
-    width,
-    height,
-    start: parsePoint(start),
-    blocks: blocks.map(parsePoint),
-  };
-};
