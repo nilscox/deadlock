@@ -103,27 +103,25 @@ export const GameView = ({ levelId }: GameViewProps) => {
         <title>{`Deadlock - Level ${levelNumber}`}</title>
       </Helmet>
 
-      <div className="flex-2 col justify-center">
-        <div className="row items-end justify-between">
-          <button onClick={prevLevel} className="row gap-2 items-center">
-            <div className="text-muted flip-horizontal">➜</div> Back
-          </button>
+      <div className="row items-end justify-between">
+        <button onClick={prevLevel} className="row gap-2 items-center">
+          <div className="text-muted flip-horizontal">➜</div> Back
+        </button>
 
-          <Link href="/levels" onClick={onSkip} className="row gap-2 items-center">
-            Levels
-          </Link>
+        <Link href="/levels" onClick={onSkip} className="row gap-2 items-center">
+          Levels
+        </Link>
 
-          <button onClick={onSkip} className="row gap-2 items-center">
-            Skip <div className="text-muted">➜</div>
-          </button>
+        <button onClick={onSkip} className="row gap-2 items-center">
+          Skip <div className="text-muted">➜</div>
+        </button>
+      </div>
+
+      <div className="flex-1 col justify-center text-center">
+        <div className={clsx('text-xl font-semibold', level.completed && 'text-green')}>
+          Level {levelNumber}
         </div>
-
-        <div className="flex-1 col items-center justify-center">
-          <div className={clsx('text-xl font-semibold', level.completed && 'text-green')}>
-            Level {levelNumber}
-          </div>
-          <div className="text-muted">{levelId}</div>
-        </div>
+        <div className="text-muted">{levelId}</div>
       </div>
 
       <Game definition={definition} onLoaded={setGame} />
