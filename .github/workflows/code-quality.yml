@@ -1,0 +1,24 @@
+name: Code quality
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  type-checking:
+    name: Type checking
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup
+      - run: pnpm tsc -b
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup
+      - run: pnpm test
