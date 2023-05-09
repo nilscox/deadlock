@@ -114,6 +114,27 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     return x === 0 || y === 0 || x === this.definition.width - 1 || y === this.definition.height - 1;
   }
 
+  isEdgeBlock(x: number, y: number, visited = new Set<string>()): boolean {
+    const type = this.atUnsafe(x, y);
+    const key = `${x},${y}`;
+
+    if (type !== CellType.block || visited.has(key)) {
+      return false;
+    }
+
+    visited.add(key);
+
+    if (this.isEdge(x, y)) {
+      return true;
+    }
+
+    if (this.neighbors(x, y).some(({ x, y }) => this.isEdgeBlock(x, y, visited))) {
+      return true;
+    }
+
+    return false;
+  }
+
   neighbors(x: number, y: number) {
     return directions
       .map((dir) => {
@@ -149,13 +170,13 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   }
 
   movePlayer(player: Player, direction: Direction): boolean {
-    const [dx, dy] = getDirectionVector(direction);
     const p = player.position;
-
     let cell: CellType | undefined;
 
     do {
-      cell = this.atUnsafe((p.x += dx), (p.y += dy));
+      p.set(p.move(direction));
+
+      cell = this.atUnsafe(p);
 
       if (cell === CellType.block) {
         return false;

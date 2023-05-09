@@ -1,4 +1,4 @@
-import { CellType, Game, Level, Cell, LevelEvent, Player, PlayerEvent, Point, assert } from '@deadlock/game';
+import { CellType, Game, Level, LevelEvent, Player, PlayerEvent, Point, assert } from '@deadlock/game';
 import paper from 'paper';
 import { getLevelBoundaries } from './get-level-boundaries';
 
@@ -107,7 +107,7 @@ export class LevelRenderer {
     this.boundaries.strokeWidth = 2;
     this.boundaries.strokeCap = 'round';
 
-    const cells = this.level.cells().filter((cell) => !this.isEdgeBlock(cell));
+    const cells = this.level.cells().filter((cell) => !this.level.isEdgeBlock(cell.x, cell.y));
 
     for (const { x, y, type } of cells) {
       const rect = new paper.Shape.Rectangle({
@@ -133,26 +133,6 @@ export class LevelRenderer {
     this.boundaries.closePath();
   }
 
-  private isEdgeBlock({ x, y, type }: Cell, visited = new Set<string>()): boolean {
-    const key = `${x},${y}`;
-
-    if (type !== CellType.block || visited.has(key)) {
-      return false;
-    }
-
-    visited.add(key);
-
-    if (this.level.isEdge(x, y)) {
-      return true;
-    }
-
-    if (this.level.neighbors(x, y).some((cell) => this.isEdgeBlock(cell, visited))) {
-      return true;
-    }
-
-    return false;
-  }
-
   private onLevelCompleted() {
     const path = this.level.cells(CellType.path);
 
@@ -172,6 +152,8 @@ export class PlayerRenderer {
 
   private cell: paper.Shape;
   private target?: Point;
+
+  private stiffness = 0.45;
 
   constructor(player: Player) {
     this.layer.activate();
@@ -221,8 +203,8 @@ export class PlayerRenderer {
       this.cell.bounds.top = y;
       delete this.target;
     } else {
-      this.cell.bounds.left += dx * 0.5;
-      this.cell.bounds.top += dy * 0.5;
+      this.cell.bounds.left += dx * this.stiffness;
+      this.cell.bounds.top += dy * this.stiffness;
     }
   }
 }
