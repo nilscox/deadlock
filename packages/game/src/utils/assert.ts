@@ -9,3 +9,8 @@ export function assert(value: unknown, message?: string): asserts value {
     throw new AssertionError(message);
   }
 }
+
+export function defined<T>(value: T | undefined, message?: string): T {
+  assert(value, message);
+  return value;
+}

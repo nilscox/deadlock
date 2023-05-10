@@ -56,6 +56,7 @@ const colors: Record<CellType, paper.Color> = {
   [CellType.path]: new paper.Color('#EEE'),
   [CellType.block]: new paper.Color('#CCC'),
   [CellType.player]: new paper.Color('#FFF'),
+  [CellType.teleport]: new paper.Color('#CFF'),
 };
 
 export class LevelRenderer {
@@ -151,7 +152,8 @@ export class PlayerRenderer {
   public layer = new paper.Layer();
 
   private cell: paper.Shape;
-  private target?: Point;
+  private moveTarget?: Point;
+  private teleport?: { to: Point; scaleFactor: number };
 
   private stiffness = 0.45;
 
@@ -171,14 +173,24 @@ export class PlayerRenderer {
     this.cell.fillColor = new paper.Color('#99F');
 
     player.addListener(PlayerEvent.moved, ({ x, y }) => {
-      this.target = new Point({
+      this.moveTarget = new Point({
         x: x * cellSize,
         y: y * cellSize,
       });
     });
 
+    player.addListener(PlayerEvent.teleported, ({ x, y }) => {
+      this.teleport = {
+        scaleFactor: 1 - this.stiffness,
+        to: new Point({
+          x: x * cellSize,
+          y: y * cellSize,
+        }),
+      };
+    });
+
     player.addListener(PlayerEvent.reset, () => {
-      this.target = new Point({
+      this.moveTarget = new Point({
         x: player.position.x * cellSize,
         y: player.position.y * cellSize,
       });
@@ -191,20 +203,48 @@ export class PlayerRenderer {
   }
 
   onFrame() {
-    if (!this.target) {
-      return;
+    if (this.moveTarget) {
+      this.moveFrame();
     }
 
-    const { x, y } = this.target;
+    if (this.teleport) {
+      this.teleportFrame();
+    }
+  }
+
+  moveFrame() {
+    assert(this.moveTarget);
+
+    const { x, y } = this.moveTarget;
     const [dx, dy] = [x - this.cell.bounds.left, y - this.cell.bounds.top];
 
     if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
       this.cell.bounds.left = x;
       this.cell.bounds.top = y;
-      delete this.target;
+      delete this.moveTarget;
     } else {
       this.cell.bounds.left += dx * this.stiffness;
       this.cell.bounds.top += dy * this.stiffness;
+    }
+  }
+
+  teleportFrame() {
+    assert(this.teleport);
+
+    const { to, scaleFactor } = this.teleport;
+
+    this.cell.scale(scaleFactor);
+
+    if (this.cell.scaling.length < 0.05) {
+      this.cell.position.x = to.x + cellSize / 2;
+      this.cell.position.y = to.y + cellSize / 2;
+      this.teleport.scaleFactor = 1 + this.stiffness;
+    }
+
+    if (this.cell.scaling.length >= 1) {
+      this.cell.scaling.x = 1;
+      this.cell.scaling.y = 1;
+      delete this.teleport;
     }
   }
 }

@@ -12,7 +12,8 @@ abstract class LevelTransform {
       width: this.width?.(def) ?? def.width,
       height: this.height?.(def) ?? def.height,
       start: this.point(def, def.start),
-      blocks: def.blocks.map((block) => this.point(def, block)),
+      blocks: def.blocks.map((point) => this.point(def, point)),
+      teleports: def.teleports.map((point) => this.point(def, point)),
     };
   }
 }

@@ -43,7 +43,7 @@ export async function generate({ random, ...options }: GenerateOptions) {
 }
 
 function randomLevel(width: number, height: number, blocksCount: number) {
-  const [start, ...blocks] = shuffle(
+  const [start, t1, t2, ...blocks] = shuffle(
     array(width * height, (i) => ({ x: i % width, y: Math.floor(i / width) }))
   );
 
@@ -52,6 +52,7 @@ function randomLevel(width: number, height: number, blocksCount: number) {
     height,
     start,
     blocks: blocks.slice(0, blocksCount),
+    teleports: [t1, t2],
   });
 }
 

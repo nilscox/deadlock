@@ -11,6 +11,7 @@ describe('Game', () => {
       height: 1,
       blocks: [],
       start: { x: 0, y: 0 },
+      teleports: [],
     });
 
     controls.emit(ControlEvent.movePlayer, { direction: Direction.right });

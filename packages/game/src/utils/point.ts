@@ -35,8 +35,12 @@ export class Point implements IPoint {
     return new Point(this.x, this.y);
   }
 
-  equals(other: IPoint) {
-    return this.x === other.x && this.y === other.y;
+  equals(x: number, y: number): boolean;
+  equals(other: IPoint): boolean;
+
+  equals(...args: PointArgs) {
+    const [x, y] = pointArgs(args);
+    return this.x === x && this.y === y;
   }
 
   add(x: number, y: number): Point {

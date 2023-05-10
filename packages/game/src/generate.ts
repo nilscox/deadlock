@@ -66,6 +66,10 @@ const generateAllLevels = (options: GenerateLevelsOptions): LevelDefinition[] =>
     for (const cell of level.cells(CellType.block)) {
       cells[pointToIndex(cell.x, cell.y, height)] = CellType.block;
     }
+
+    for (const cell of level.cells(CellType.teleport)) {
+      cells[pointToIndex(cell.x, cell.y, height)] = CellType.teleport;
+    }
   } else {
     for (let i = 0; i < blocks; ++i) {
       cells[i] = CellType.block;
@@ -78,12 +82,18 @@ const generateAllLevels = (options: GenerateLevelsOptions): LevelDefinition[] =>
       .map((_, i) => indexToPoint(i, height))
       .filter((_, i) => cells[i] === CellType.block);
 
+    const teleports = Array(cells.length)
+      .fill(null)
+      .map((_, i) => indexToPoint(i, height))
+      .filter((_, i) => cells[i] === CellType.teleport);
+
     const generate = (start: { x: number; y: number }) => {
       const definition: LevelDefinition = {
         width,
         height,
         start,
         blocks,
+        teleports,
       };
 
       const hash = Level.computeHash(definition);

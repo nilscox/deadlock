@@ -49,6 +49,7 @@ const formatLevel = (level: SqlLevel): LevelDefinition => ({
   height: level.height,
   blocks: level.blocks,
   start: level.start,
+  teleports: level.teleports,
 });
 
 const sessionBodySchema = yup.object({

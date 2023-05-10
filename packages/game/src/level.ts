@@ -1,17 +1,18 @@
 import { ReflectionTransform, RotationTransform } from './level-transforms';
 import { Player } from './player';
-import { assert } from './utils/assert';
+import { assert, defined } from './utils/assert';
 import { Direction, directions } from './utils/direction';
 import { Emitter } from './utils/emitter';
 import { inspectCustomSymbol } from './utils/inspect';
 import { IPoint, Point, PointArgs, pointArgs } from './utils/point';
-import { first, isDefined, last } from './utils/utils';
+import { first, isDefined } from './utils/utils';
 
 export type LevelDefinition = {
   width: number;
   height: number;
   start: IPoint;
   blocks: IPoint[];
+  teleports: IPoint[];
 };
 
 export type Cell = {
@@ -25,6 +26,7 @@ export enum CellType {
   block = 'block',
   player = 'player',
   path = 'path',
+  teleport = 'teleport',
 }
 
 export enum LevelEvent {
@@ -71,6 +73,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   private reset() {
     const definition = this._definition;
     const blocks = definition.blocks.map(({ x, y }) => new Point(x, y));
+    const teleports = definition.teleports.map(({ x, y }) => new Point(x, y));
 
     this._start = new Point(definition.start);
     this._cells = [];
@@ -83,6 +86,8 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
 
         if (blocks.find((block) => block.equals({ x, y }))) {
           type = CellType.block;
+        } else if (teleports.find((block) => block.equals({ x, y }))) {
+          type = CellType.teleport;
         } else if (this._start.equals({ x, y })) {
           type = CellType.player;
         }
@@ -174,22 +179,29 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
 
     do {
       p.set(p.move(direction));
-
       cell = this.atUnsafe(p);
+    } while (cell === CellType.path);
 
-      if (cell === CellType.block) {
-        return false;
-      }
-    } while (cell && cell !== CellType.empty);
-
-    if (!cell) {
+    if (!cell || cell === CellType.block) {
       return false;
     }
 
-    this.set(player.position.x, player.position.y, CellType.path);
-    this.set(p.x, p.y, CellType.player);
+    if (cell === CellType.empty) {
+      this.set(player.position.x, player.position.y, CellType.path);
+      this.set(p.x, p.y, CellType.player);
 
-    player.move(p);
+      player.move(p);
+    }
+
+    if (cell === CellType.teleport) {
+      const teleports = this.cells(CellType.teleport).filter((cell) => !p.equals(cell));
+      assert(teleports.length === 1);
+
+      this.set(player.position.x, player.position.y, CellType.path);
+      this.set(p.x, p.y, CellType.path);
+
+      player.teleport(new Point(teleports[0]));
+    }
 
     if (this.isCompleted()) {
       this.emit(LevelEvent.completed);
@@ -200,6 +212,20 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
 
   movePlayerBack(player: Player): boolean {
     const prevPosition = player.position;
+    const teleports = this.definition.teleports;
+
+    if (teleports.find((point) => player.position.equals(point))) {
+      const other = teleports.find((cell) => !player.position.equals(cell));
+      assert(other);
+
+      assert(player.moveBack());
+
+      this.set(prevPosition.x, prevPosition.y, CellType.teleport);
+      this.set(other.x, other.y, CellType.teleport);
+      this.set(player.position.x, player.position.y, CellType.player);
+
+      return true;
+    }
 
     if (!player.moveBack()) {
       return false;
@@ -230,13 +256,16 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   }
 
   static computeHash(definition: LevelDefinition): string {
-    const { width, height, start, blocks } = definition;
+    const { width, height, start, blocks, teleports } = definition;
 
     return [
       [width, height].join(','),
-      ...blocks.map((cell) => [cell.x, cell.y].join(',')),
-      [start.x, start.y].join(','),
-    ].join(';');
+      blocks.length && 'B' + blocks.map((cell) => [cell.x, cell.y].join(',')).join(';'),
+      teleports.length && 'T' + teleports.map((cell) => [cell.x, cell.y].join(',')).join(';'),
+      'S' + [start.x, start.y].join(','),
+    ]
+      .filter(Boolean)
+      .join('');
   }
 
   static computeFingerprint(definition: LevelDefinition): string {
@@ -257,21 +286,31 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   }
 
   static parseHash(hash: string): LevelDefinition {
-    const [size, ...cells] = hash.split(';');
-    const blocks = cells.slice(0, -1);
-    const start = last(cells) as string;
+    const match = (re: RegExp) => {
+      return hash.match(re);
+    };
+
+    const size = defined(match(/^\d+,\d+/)?.[0]);
     const [width, height] = size.split(',').map(Number);
+    const blocks = match(/B((\d,\d;?)+)/)?.[1];
+    const teleports = match(/T((\d,\d;?)+)/)?.[1];
+    const start = defined(match(/S(\d,\d)$/)?.[1]);
 
     const parsePoint = (str: string): IPoint => {
       const [x, y] = str.split(',').map(Number);
       return { x, y };
     };
 
+    const parsePoints = (str?: string): IPoint[] => {
+      return str?.split(';').map(parsePoint) ?? [];
+    };
+
     return {
       width,
       height,
       start: parsePoint(start),
-      blocks: blocks.map(parsePoint),
+      blocks: parsePoints(blocks),
+      teleports: parsePoints(teleports),
     };
   }
 
@@ -281,6 +320,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
       [CellType.block]: '█',
       [CellType.player]: 'x',
       [CellType.path]: '░',
+      [CellType.teleport]: 'T',
     };
 
     const lines: string[][] = [];

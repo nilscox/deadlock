@@ -7,6 +7,7 @@ describe('LevelTransforms', () => {
     height: 2,
     start: { x: 0, y: 0 },
     blocks: [],
+    teleports: [],
   };
 
   it('horizontal reflection', () => {
@@ -15,6 +16,7 @@ describe('LevelTransforms', () => {
       height: 2,
       start: { x: 2, y: 0 },
       blocks: [],
+      teleports: [],
     });
   });
 
@@ -24,6 +26,7 @@ describe('LevelTransforms', () => {
       height: 2,
       start: { x: 0, y: 1 },
       blocks: [],
+      teleports: [],
     });
   });
 
@@ -33,6 +36,7 @@ describe('LevelTransforms', () => {
       height: 3,
       start: { x: 0, y: 2 },
       blocks: [],
+      teleports: [],
     });
   });
 
@@ -42,6 +46,7 @@ describe('LevelTransforms', () => {
       height: 2,
       start: { x: 2, y: 1 },
       blocks: [],
+      teleports: [],
     });
   });
 
@@ -51,6 +56,7 @@ describe('LevelTransforms', () => {
       height: 3,
       start: { x: 1, y: 0 },
       blocks: [],
+      teleports: [],
     });
   });
 });
