@@ -69,7 +69,7 @@ async function onProgress(levels: LevelDefinition[], index: number, hasSolutions
       .join(' ')
   );
 
-  if (index % 100 === 0) {
+  if (index % 10 === 0) {
     await getEntityManager().flush();
   }
 }

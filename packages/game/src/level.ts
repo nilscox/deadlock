@@ -1,12 +1,11 @@
 import { ReflectionTransform, RotationTransform } from './level-transforms';
 import { Player } from './player';
 import { assert } from './utils/assert';
-import { Direction, directions, getDirectionVector } from './utils/direction';
+import { Direction, directions } from './utils/direction';
 import { Emitter } from './utils/emitter';
 import { inspectCustomSymbol } from './utils/inspect';
 import { IPoint, Point, PointArgs, pointArgs } from './utils/point';
-import { toObject } from './utils/to-object';
-import { first, identity, isDefined, last } from './utils/utils';
+import { first, isDefined, last } from './utils/utils';
 
 export type LevelDefinition = {
   width: number;

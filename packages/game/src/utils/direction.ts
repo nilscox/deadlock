@@ -13,6 +13,14 @@ export function isDirection(value: string): value is Direction {
   return Object.values<string>(Direction).includes(value);
 }
 
+export function isHorizontal(dir: Direction): dir is Direction.left | Direction.right {
+  return dir === Direction.left || dir === Direction.right;
+}
+
+export function isVertical(dir: Direction): dir is Direction.up | Direction.down {
+  return dir === Direction.up || dir === Direction.down;
+}
+
 export function getOppositeDirection(dir: Direction): Direction {
   return {
     [Direction.left]: Direction.right,

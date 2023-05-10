@@ -1,7 +1,7 @@
 import { CellType, Level, LevelDefinition } from './level';
 import { ReflectionTransform, RotationTransform } from './level-transforms';
 import { solve } from './solve';
-import { Path } from './utils/direction';
+import { Direction, Path, getOppositeDirection, isHorizontal, isVertical } from './utils/direction';
 import { randBool, randInt, randItem } from './utils/math';
 import { IPoint } from './utils/point';
 import { array, identity } from './utils/utils';
@@ -38,15 +38,7 @@ export const generateLevels = async (
       continue;
     }
 
-    if (randBool()) ReflectionTransform.horizontal(level);
-    if (randBool()) ReflectionTransform.vertical(level);
-
-    const angle = randInt(0, 4);
-    if (angle === 1) RotationTransform.quarter(level);
-    if (angle === 2) RotationTransform.half(level);
-    if (angle === 3) RotationTransform.threeQuarters(level);
-
-    await onGenerated(level, paths as Path[]);
+    await onGenerated(...applyRandomTransformations(level, paths as Path[]));
   }
 };
 
@@ -159,4 +151,46 @@ const indexToPoint = (index: number, height: number): IPoint => {
     x: Math.floor(index / height),
     y: index % height,
   };
+};
+
+const applyRandomTransformations = (
+  definition: LevelDefinition,
+  solutions: Path[]
+): [LevelDefinition, Path[]] => {
+  if (randBool(1)) {
+    definition = ReflectionTransform.horizontal(definition);
+    solutions = transformPaths(solutions, (dir) => (isHorizontal(dir) ? getOppositeDirection(dir) : dir));
+  }
+
+  if (randBool(0)) {
+    definition = ReflectionTransform.vertical(definition);
+    solutions = transformPaths(solutions, (dir) => (isVertical(dir) ? getOppositeDirection(dir) : dir));
+  }
+
+  const angle = randInt(1, 4);
+
+  if (angle === 1) {
+    definition = RotationTransform.quarter(definition);
+
+    const cycle = [Direction.left, Direction.down, Direction.right, Direction.up];
+    solutions = transformPaths(solutions, (dir) => cycle[(cycle.indexOf(dir) + 1) % 4]);
+  }
+
+  if (angle === 2) {
+    definition = RotationTransform.half(definition);
+    solutions = transformPaths(solutions, getOppositeDirection);
+  }
+
+  if (angle === 3) {
+    definition = RotationTransform.threeQuarters(definition);
+
+    const cycle = [Direction.left, Direction.up, Direction.right, Direction.down];
+    solutions = transformPaths(solutions, (dir) => cycle[(cycle.indexOf(dir) + 1) % 4]);
+  }
+
+  return [definition, solutions];
+};
+
+const transformPaths = (paths: Path[], apply: (direction: Direction) => Direction): Path[] => {
+  return paths.map((path) => path.map(apply));
 };
