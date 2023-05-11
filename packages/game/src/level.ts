@@ -186,12 +186,10 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
       return false;
     }
 
-    if (cell === CellType.empty) {
-      this.set(player.position.x, player.position.y, CellType.path);
-      this.set(p.x, p.y, CellType.player);
+    this.set(player.position.x, player.position.y, CellType.path);
+    this.set(p.x, p.y, CellType.player);
 
-      player.move(p);
-    }
+    player.move(p);
 
     if (cell === CellType.teleport) {
       const teleports = this.cells(CellType.teleport).filter((cell) => !p.equals(cell));
@@ -218,6 +216,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
       const other = teleports.find((cell) => !player.position.equals(cell));
       assert(other);
 
+      assert(player.moveBack());
       assert(player.moveBack());
 
       this.set(prevPosition.x, prevPosition.y, CellType.teleport);

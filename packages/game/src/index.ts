@@ -1,4 +1,5 @@
 export { evaluateLevelDifficulty, evaluateSolutionComplexity } from './evaluate-difficulty';
+export { Emitter } from './utils/emitter';
 export { ControlEvent, Controls, Game } from './game';
 export { generateLevels, type GenerateLevelsOptions } from './generate';
 export { CellType, Level, LevelEvent, type Cell, type LevelDefinition } from './level';

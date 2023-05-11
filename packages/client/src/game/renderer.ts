@@ -1,5 +1,7 @@
-import { CellType, Game, Level, LevelEvent, Player, PlayerEvent, Point, assert } from '@deadlock/game';
+import { CellType, Game, Level, LevelEvent, Player, PlayerEvent, assert } from '@deadlock/game';
 import paper from 'paper';
+
+import { AnimationEvent, ColorAnimation, PositionAnimation, ScaleAnimation } from './animations';
 import { getLevelBoundaries } from './get-level-boundaries';
 
 const cellSize = 40;
@@ -30,6 +32,7 @@ export class GameRenderer {
     this.playerRenderer.layer.bringToFront();
 
     this.view.onFrame = () => {
+      this.levelRenderer.onFrame();
       this.playerRenderer.onFrame();
       this.group.bounds.center = this.view.center;
     };
@@ -62,7 +65,7 @@ const colors: Record<CellType, paper.Color> = {
 export class LevelRenderer {
   public layer = new paper.Layer();
 
-  private cells = new Map<string, paper.Shape>();
+  private cells = new Map<string, { rect: paper.Shape; animation: ColorAnimation }>();
   private boundaries = new paper.CompoundPath([]);
 
   constructor(private level: Level) {
@@ -78,10 +81,16 @@ export class LevelRenderer {
 
     level.addListener(LevelEvent.restarted, () => {
       for (const { x, y, type } of level.cells()) {
-        const rect = this.cells.get(`${x},${y}`);
+        const cell = this.cells.get(`${x},${y}`);
 
-        if (rect) {
-          rect.fillColor = colors[type];
+        if (cell) {
+          cell.animation.duration = 150;
+          cell.animation.target = colors[type];
+
+          const removeListener = cell.animation.addListener(AnimationEvent.ended, () => {
+            removeListener();
+            cell.animation.duration = 0;
+          });
         }
       }
 
@@ -89,10 +98,10 @@ export class LevelRenderer {
     });
 
     level.addListener(LevelEvent.cellChanged, ({ x, y, type }) => {
-      const rect = this.cells.get(`${x},${y}`);
+      const cell = this.cells.get(`${x},${y}`);
 
-      if (rect) {
-        rect.fillColor = colors[type];
+      if (cell) {
+        cell.animation.target = colors[type];
       }
     });
 
@@ -120,7 +129,10 @@ export class LevelRenderer {
 
       rect.fillColor = colors[type];
 
-      this.cells.set(`${x},${y}`, rect);
+      this.cells.set(`${x},${y}`, {
+        rect,
+        animation: new ColorAnimation(rect, 0),
+      });
     }
 
     const path = getLevelBoundaries(cells);
@@ -134,6 +146,12 @@ export class LevelRenderer {
     this.boundaries.closePath();
   }
 
+  onFrame() {
+    for (const { animation } of this.cells.values()) {
+      animation.frame();
+    }
+  }
+
   private onLevelCompleted() {
     const path = this.level.cells(CellType.path);
 
@@ -141,7 +159,7 @@ export class LevelRenderer {
       const rect = this.cells.get(`${x},${y}`);
 
       assert(rect);
-      rect.fillColor = new paper.Color('#CFC');
+      rect.animation.target = new paper.Color('#CFC');
     }
 
     this.boundaries.strokeColor = new paper.Color('#9C9');
@@ -152,10 +170,9 @@ export class PlayerRenderer {
   public layer = new paper.Layer();
 
   private cell: paper.Shape;
-  private moveTarget?: Point;
-  private teleport?: { to: Point; scaleFactor: number };
 
-  private stiffness = 0.45;
+  private translation: PositionAnimation;
+  private scale: ScaleAnimation;
 
   constructor(player: Player) {
     this.layer.activate();
@@ -168,83 +185,50 @@ export class PlayerRenderer {
       height: cellSize,
     });
 
-    this.cell.bounds.top = player.position.y * cellSize;
-    this.cell.bounds.left = player.position.x * cellSize;
+    this.translation = new PositionAnimation(this.cell, 110);
+    this.scale = new ScaleAnimation(this.cell, 150);
+
+    this.cell.bounds.center.set(player.position.x * cellSize, player.position.y * cellSize);
+    this.cell.translate([cellSize / 2, cellSize / 2]);
     this.cell.fillColor = new paper.Color('#99F');
 
     player.addListener(PlayerEvent.moved, ({ x, y }) => {
-      this.moveTarget = new Point({
+      this.translation.target = {
         x: x * cellSize,
         y: y * cellSize,
-      });
-    });
-
-    player.addListener(PlayerEvent.teleported, ({ x, y }) => {
-      this.teleport = {
-        scaleFactor: 1 - this.stiffness,
-        to: new Point({
-          x: x * cellSize,
-          y: y * cellSize,
-        }),
       };
     });
 
+    player.addListener(PlayerEvent.teleported, ({ x, y }) => {
+      let removeListener = this.translation.addListener(AnimationEvent.ended, () => {
+        removeListener();
+
+        this.scale.target = 0;
+
+        removeListener = this.scale.addListener(AnimationEvent.ended, () => {
+          removeListener();
+
+          this.cell.bounds.center.set(x * cellSize, y * cellSize);
+          this.cell.translate([cellSize / 2, cellSize / 2]);
+          this.scale.target = 1;
+        });
+      });
+    });
+
     player.addListener(PlayerEvent.reset, () => {
-      this.moveTarget = new Point({
+      this.translation.target = {
         x: player.position.x * cellSize,
         y: player.position.y * cellSize,
-      });
+      };
     });
   }
 
   setPlayerPosition(x: number, y: number) {
-    this.cell.bounds.left = x * cellSize;
-    this.cell.bounds.top = y * cellSize;
+    this.cell.bounds.topLeft.set(x * cellSize, y * cellSize);
   }
 
   onFrame() {
-    if (this.moveTarget) {
-      this.moveFrame();
-    }
-
-    if (this.teleport) {
-      this.teleportFrame();
-    }
-  }
-
-  moveFrame() {
-    assert(this.moveTarget);
-
-    const { x, y } = this.moveTarget;
-    const [dx, dy] = [x - this.cell.bounds.left, y - this.cell.bounds.top];
-
-    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
-      this.cell.bounds.left = x;
-      this.cell.bounds.top = y;
-      delete this.moveTarget;
-    } else {
-      this.cell.bounds.left += dx * this.stiffness;
-      this.cell.bounds.top += dy * this.stiffness;
-    }
-  }
-
-  teleportFrame() {
-    assert(this.teleport);
-
-    const { to, scaleFactor } = this.teleport;
-
-    this.cell.scale(scaleFactor);
-
-    if (this.cell.scaling.length < 0.05) {
-      this.cell.position.x = to.x + cellSize / 2;
-      this.cell.position.y = to.y + cellSize / 2;
-      this.teleport.scaleFactor = 1 + this.stiffness;
-    }
-
-    if (this.cell.scaling.length >= 1) {
-      this.cell.scaling.x = 1;
-      this.cell.scaling.y = 1;
-      delete this.teleport;
-    }
+    this.translation?.frame();
+    this.scale?.frame();
   }
 }

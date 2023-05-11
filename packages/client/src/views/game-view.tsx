@@ -118,7 +118,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
       </div>
 
       <div className="flex-1 col justify-center text-center">
-        <div className={clsx('text-xl font-semibold', level.completed && 'text-green')}>
+        <div className={clsx('transition-colors text-xl font-semibold', level.completed && 'text-green')}>
           Level {levelNumber}
         </div>
         <div className="text-muted">{levelId}</div>
