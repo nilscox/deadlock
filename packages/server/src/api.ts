@@ -15,7 +15,6 @@ import { EntityManager, SqlLevel, SqlLevelSession, SqlSolution, ormMiddleware } 
 import { RequestHandler, Router } from 'express';
 import * as yup from 'yup';
 
-
 /* eslint-disable @typescript-eslint/no-misused-promises */
 
 export function api(em: EntityManager) {
@@ -26,6 +25,7 @@ export function api(em: EntityManager) {
   router.get('/levels', getLevels(em));
   router.get('/levels/all', getLevels(em, true));
   router.post('/session', storeLevelSession(em));
+  router.patch('/level/:levelId', updateLevel(em));
   router.get('/stats', getStatistics(em));
   router.get('/solutions', getSolutions(em));
 
@@ -76,6 +76,32 @@ const storeLevelSession = (em: EntityManager): RequestHandler => {
     session.time = body.time;
 
     await em.persistAndFlush(session);
+
+    res.status(204);
+    res.end();
+  };
+};
+
+const updateLevelSchema = yup.object({
+  levelNumber: yup.number().min(0).optional(),
+});
+
+const updateLevel = (em: EntityManager): RequestHandler<{ levelId: string }> => {
+  return async (req, res, next) => {
+    const { levelId } = req.params;
+    const level = await em.findOne(SqlLevel, levelId);
+
+    if (!level) {
+      return next();
+    }
+
+    const { levelNumber } = await updateLevelSchema.validate(req.body);
+
+    if (levelNumber) {
+      level.levelNumber = levelNumber;
+    }
+
+    await em.flush();
 
     res.status(204);
     res.end();

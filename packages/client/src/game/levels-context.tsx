@@ -20,7 +20,7 @@ export const useLevelsIds = () => {
 
 export const useLevelNumber = (levelId: string) => {
   const levelsIds = useLevelsIds();
-  return levelsIds.indexOf(levelId) + 1;
+  return levelsIds.indexOf(levelId) + 1 || undefined;
 };
 
 export const useLevelsMatching = (

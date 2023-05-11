@@ -1,16 +1,29 @@
-import { assert, Direction, Game as GameClass, LevelsSolutions, LevelsStats, round } from '@deadlock/game';
-import { useQuery } from '@tanstack/react-query';
+import {
+  assert,
+  Direction,
+  Game as GameClass,
+  identity,
+  Level,
+  LevelDefinition,
+  LevelsSolutions,
+  LevelsStats,
+  round,
+  toObject,
+} from '@deadlock/game';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CSSProperties, memo, useEffect, useMemo, useState } from 'react';
-import { FixedSizeList as List, areEqual } from 'react-window';
+import { areEqual, FixedSizeList as List } from 'react-window';
 import { Link } from 'wouter';
 
 import { Game } from '../game/game';
-import { useLevelDefinition, useLevelInstance, useLevelNumber, useLevelsIds } from '../game/levels-context';
+import { useLevelNumber, useLevelsIds } from '../game/levels-context';
 import { getConfig } from '../hooks/use-config';
 import { copy } from '../utils';
 
+// cspell:word unvalidated
+
 export const AdminView = () => {
-  const levelsIds = useLevelsIds();
+  const levelsIds = Object.keys(useAllLevels());
 
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   const [search, setSearch] = useState('');
@@ -34,7 +47,7 @@ export const AdminView = () => {
   const itemData = useMemo(() => ({ filteredIds }), [filteredIds]);
 
   return (
-    <div ref={setWrapperRef} className="col gap-4 h-full col">
+    <div ref={setWrapperRef} className="col gap-4 h-full col text-sm">
       <input
         type="search"
         placeholder="Search..."
@@ -92,7 +105,7 @@ const LevelRow = ({ levelId }: LevelRowProps) => {
     >
       <div className="px-4">
         <div className="row gap-2 items-center">
-          <Link href={`/level/${levelId}`}>#{levelNumber}</Link>
+          {levelNumber && <Link href={`/level/${levelId}`}>#{levelNumber}</Link>}
 
           <button onClick={() => copy(levelId)} className="text-muted">
             {levelId}
@@ -112,12 +125,16 @@ const LevelRow = ({ levelId }: LevelRowProps) => {
         <Solutions levelId={levelId} />
       </div>
 
-      <div className="px-4">
+      <div className="px-4 min-w-[300px]">
         <Score levelId={levelId} />
       </div>
 
-      <div className="px-4">
+      <div className="px-4 min-w-[400px]">
         <Stats levelId={levelId} />
+      </div>
+
+      <div className="px-4">
+        <Actions levelId={levelId} />
       </div>
     </div>
   );
@@ -176,9 +193,9 @@ const Solutions = ({ levelId }: SolutionsProps) => {
         </div>
       ))}
 
-      {solutions.total > 3 && <div className="text-sm">...</div>}
+      {solutions.total > 3 && <div>...</div>}
 
-      <div className="text-muted text-sm mt-auto">total: {solutions.total}</div>
+      <div className="text-muted mt-auto">total: {solutions.total}</div>
     </div>
   );
 };
@@ -209,12 +226,12 @@ const Score = ({ levelId }: ScoreProps) => {
 
   return (
     <>
-      <div className="font-semibold pb-2" style={{ color: `rgb(${r}, ${g}, ${b})` }}>
+      <div className="font-semibold pb-2 text-base" style={{ color: `rgb(${r}, ${g}, ${b})` }}>
         Difficulty: {round(difficulty, 3)}
       </div>
 
-      <div className="text-muted text-sm">Number of solutions score: {numberOfSolutionsScore}</div>
-      <div className="text-muted text-sm">Easiest solution score: {easiestSolutionScore}</div>
+      <div className="text-muted">Number of solutions score: {numberOfSolutionsScore}</div>
+      <div className="text-muted">Easiest solution score: {easiestSolutionScore}</div>
     </>
   );
 };
@@ -231,7 +248,7 @@ const Stats = ({ levelId }: StatsProps) => {
   }
 
   return (
-    <ul className="text-sm">
+    <ul>
       <li>
         Played: <Times value={stats.played} />
       </li>
@@ -276,6 +293,71 @@ const Times = ({ value }: TimesProps) => {
   );
 };
 
+type ActionsProps = {
+  levelId: string;
+};
+
+const Actions = ({ levelId }: ActionsProps) => {
+  const validated = useIsLevelValidated(levelId);
+  const levelsIds = useLevelsIds();
+  const setLevelNumber = useSetLevelNumber(levelId);
+
+  const nextLevelNumber = levelsIds.length;
+
+  return (
+    <ul className="list-disc list-inside">
+      {!validated && (
+        <li>
+          <button onClick={() => setLevelNumber(nextLevelNumber)}>Validate</button>
+        </li>
+      )}
+    </ul>
+  );
+};
+
+const useAllLevelsIds = () => {
+  return Object.keys(useAllLevels());
+};
+
+const useLevelDefinition = (levelId: string) => {
+  const allLevels = useAllLevels();
+  return allLevels[levelId];
+};
+
+const useLevelInstance = (levelId: string) => {
+  return new Level(useLevelDefinition(levelId));
+};
+
+const useIsLevelValidated = (levelId: string) => {
+  return useLevelsIds().includes(levelId);
+};
+
+const getAllLevels = async (): Promise<Record<string, LevelDefinition>> => {
+  const { serverUrl } = getConfig();
+  const response = await fetch(`${serverUrl}/levels/all`);
+
+  return response.json() as Promise<Record<string, LevelDefinition>>;
+};
+
+const useAllLevels = () => {
+  const { data } = useQuery({ queryKey: ['all-levels'], queryFn: getAllLevels });
+  assert(data);
+  return data;
+};
+
+const useUnvalidatedLevels = () => {
+  const levelsIds = useLevelsIds();
+  const allLevels = useAllLevels();
+
+  return useMemo(() => {
+    return toObject(
+      Object.keys(allLevels).filter((id) => !levelsIds.includes(id)),
+      identity,
+      (levelId) => allLevels[levelId]
+    );
+  }, [allLevels, levelsIds]);
+};
+
 const getStats = async (): Promise<LevelsStats> => {
   const { serverUrl } = getConfig();
   const response = await fetch(`${serverUrl}/stats`);
@@ -300,4 +382,30 @@ const useLevelSolutions = (levelId: string) => {
   const { data } = useQuery({ queryKey: ['solutions'], queryFn: getSolutions });
   assert(data);
   return data[levelId];
+};
+
+const setLevelNumber = async (levelId: string, levelNumber: number): Promise<void> => {
+  const { serverUrl } = getConfig();
+
+  await fetch(`${serverUrl}/level/${levelId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ levelNumber }),
+  });
+};
+
+const useSetLevelNumber = (levelId: string) => {
+  const queryClient = useQueryClient();
+
+  const { mutate } = useMutation({
+    mutationFn: (levelNumber: number) => setLevelNumber(levelId, levelNumber),
+    onSuccess() {
+      void queryClient.invalidateQueries(['levels']);
+      void queryClient.invalidateQueries(['all-levels']);
+    },
+  });
+
+  return mutate;
 };
