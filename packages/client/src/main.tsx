@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Suspense } from 'react';
 import * as ReactDOM from 'react-dom/client';
 
@@ -11,12 +12,14 @@ const queryClient = new QueryClient({
     queries: {
       suspense: true,
       retry: false,
+      refetchOnMount: false,
     },
   },
 });
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <QueryClientProvider client={queryClient}>
+    <ReactQueryDevtools />
     <Suspense fallback={null}>
       <App />
     </Suspense>
