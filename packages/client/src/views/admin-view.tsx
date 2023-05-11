@@ -1,38 +1,16 @@
-import {
-  Direction,
-  LevelSolutions,
-  LevelStats,
-  LevelsSolutions,
-  LevelsStats,
-  round,
-  Game as GameClass,
-} from '@deadlock/game';
+import { assert, Direction, Game as GameClass, LevelsSolutions, LevelsStats, round } from '@deadlock/game';
+import { useQuery } from '@tanstack/react-query';
 import { CSSProperties, memo, useEffect, useMemo, useState } from 'react';
 import { FixedSizeList as List, areEqual } from 'react-window';
 import { Link } from 'wouter';
 
 import { Game } from '../game/game';
-import { useLevel, useLevelInstance, useLevelNumber, useLevelsIds } from '../game/levels-context';
-import { useConfig } from '../hooks/use-config';
+import { useLevelDefinition, useLevelInstance, useLevelNumber, useLevelsIds } from '../game/levels-context';
+import { getConfig } from '../hooks/use-config';
 import { copy } from '../utils';
 
 export const AdminView = () => {
-  const { serverUrl } = useConfig();
-
   const levelsIds = useLevelsIds();
-
-  const [stats, setStats] = useState<LevelsStats>();
-  const [solutions, setSolutions] = useState<LevelsSolutions>();
-
-  useEffect(() => {
-    void fetch(`${serverUrl}/stats`)
-      .then((res) => res.json())
-      .then(setStats);
-
-    void fetch(`${serverUrl}/solutions`)
-      .then((res) => res.json())
-      .then(setSolutions);
-  }, [serverUrl]);
 
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   const [search, setSearch] = useState('');
@@ -45,14 +23,7 @@ export const AdminView = () => {
     return levelsIds.filter((levelId) => levelId.match(search));
   }, [levelsIds, search]);
 
-  const itemData = useMemo(
-    () => ({
-      filteredIds,
-      stats,
-      solutions,
-    }),
-    [filteredIds, stats, solutions]
-  );
+  const itemData = useMemo(() => ({ filteredIds }), [filteredIds]);
 
   return (
     <div ref={setWrapperRef} className="col gap-4 h-full col">
@@ -79,11 +50,7 @@ export const AdminView = () => {
 type RowProps = {
   index: number;
   style: CSSProperties;
-  data: {
-    filteredIds: string[];
-    stats?: LevelsStats;
-    solutions?: LevelsSolutions;
-  };
+  data: { filteredIds: string[] };
 };
 
 const Row = memo(({ index, style, data }: RowProps) => {
@@ -91,7 +58,7 @@ const Row = memo(({ index, style, data }: RowProps) => {
 
   return (
     <div style={style}>
-      <LevelRow key={levelId} levelId={levelId} stats={data.stats} solutions={data.solutions?.[levelId]} />
+      <LevelRow key={levelId} levelId={levelId} />
     </div>
   );
 }, areEqual);
@@ -100,12 +67,10 @@ Row.displayName = 'Row';
 
 type LevelRowProps = {
   levelId: string;
-  stats?: LevelsStats;
-  solutions?: LevelSolutions;
 };
 
-const LevelRow = ({ levelId, stats, solutions }: LevelRowProps) => {
-  const { definition } = useLevel(levelId);
+const LevelRow = ({ levelId }: LevelRowProps) => {
+  const definition = useLevelDefinition(levelId);
   const level = useLevelInstance(levelId);
   const levelNumber = useLevelNumber(levelId);
 
@@ -136,15 +101,15 @@ const LevelRow = ({ levelId, stats, solutions }: LevelRowProps) => {
       </div>
 
       <div className="px-4 min-w-[400px]">
-        <Solutions levelId={levelId} solutions={solutions} />
+        <Solutions levelId={levelId} />
       </div>
 
       <div className="px-4">
-        <Score levelId={levelId} solutions={solutions} />
+        <Score levelId={levelId} />
       </div>
 
       <div className="px-4">
-        <Stats stats={stats?.[levelId]} />
+        <Stats levelId={levelId} />
       </div>
     </div>
   );
@@ -156,7 +121,7 @@ type LeveLPreviewProps = {
 };
 
 const LevelPreview = ({ levelId, enableControls }: LeveLPreviewProps) => {
-  const { definition } = useLevel(levelId);
+  const definition = useLevelDefinition(levelId);
   const [game, setGame] = useState<GameClass>();
 
   useEffect(() => {
@@ -182,10 +147,11 @@ const LevelPreview = ({ levelId, enableControls }: LeveLPreviewProps) => {
 
 type SolutionsProps = {
   levelId: string;
-  solutions?: LevelSolutions;
 };
 
-const Solutions = ({ solutions }: SolutionsProps) => {
+const Solutions = ({ levelId }: SolutionsProps) => {
+  const solutions = useLevelSolutions(levelId);
+
   if (!solutions || solutions.total === 0) {
     return <div className="text-muted">No solution found</div>;
   }
@@ -218,10 +184,11 @@ const directions: Record<Direction, JSX.Element> = {
 
 type ScoreProps = {
   levelId: string;
-  solutions?: LevelSolutions;
 };
 
-const Score = ({ solutions }: ScoreProps) => {
+const Score = ({ levelId }: ScoreProps) => {
+  const solutions = useLevelSolutions(levelId);
+
   if (!solutions) {
     return null;
   }
@@ -245,10 +212,12 @@ const Score = ({ solutions }: ScoreProps) => {
 };
 
 type StatsProps = {
-  stats?: LevelStats;
+  levelId: string;
 };
 
-const Stats = ({ stats }: StatsProps) => {
+const Stats = ({ levelId }: StatsProps) => {
+  const stats = useLevelStats(levelId);
+
   if (!stats) {
     return <div className="text-muted">No stats.</div>;
   }
@@ -297,4 +266,30 @@ const Times = ({ value }: TimesProps) => {
       <strong>{value}</strong> time{value !== 1 && 's'}
     </>
   );
+};
+
+const getStats = async (): Promise<LevelsStats> => {
+  const { serverUrl } = getConfig();
+  const response = await fetch(`${serverUrl}/stats`);
+
+  return response.json() as Promise<LevelsStats>;
+};
+
+const useLevelStats = (levelId: string) => {
+  const { data } = useQuery({ queryKey: ['stats'], queryFn: getStats, refetchInterval: 5 * 1000 });
+  assert(data);
+  return data[levelId];
+};
+
+const getSolutions = async (): Promise<LevelsSolutions> => {
+  const { serverUrl } = getConfig();
+  const response = await fetch(`${serverUrl}/solutions`);
+
+  return response.json() as Promise<LevelsSolutions>;
+};
+
+const useLevelSolutions = (levelId: string) => {
+  const { data } = useQuery({ queryKey: ['solutions'], queryFn: getSolutions });
+  assert(data);
+  return data[levelId];
 };

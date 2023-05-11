@@ -6,11 +6,11 @@ import { Link } from 'wouter';
 
 import { Game } from '../game/game';
 import {
-  useLevel,
+  useIsLevelCompleted,
+  useLevelDefinition,
   useLevelNumber,
   useLevelsIds,
-  useSaveReport,
-  useStoreLevelResult,
+  useOnSessionTerminated,
 } from '../game/levels-context';
 import { useNavigate } from '../hooks/use-navigate';
 import { MobileView } from '../mobile-view';
@@ -20,55 +20,27 @@ type GameViewProps = {
 };
 
 export const GameView = ({ levelId }: GameViewProps) => {
-  const navigate = useNavigate();
-  const level = useLevel(levelId);
-
-  if (!level) {
-    navigate('/levels');
-  }
-
-  const { definition } = useLevel(levelId);
+  const definition = useLevelDefinition(levelId);
   const levelNumber = useLevelNumber(levelId);
+  const completed = useIsLevelCompleted(levelId);
 
-  const storeResult = useStoreLevelResult();
-  const saveReport = useSaveReport();
+  const onSessionTerminated = useOnSessionTerminated(levelId);
   const prevLevel = useGoToPrevLevel(levelId);
   const nextLevel = useGoToNextLevel(levelId);
 
   const [game, setGame] = useState<GameClass>();
 
-  const onChangeLevel = useCallback(
-    (completed: boolean) => {
-      assert(game);
-
-      const alreadyCompleted = level.completed;
-
-      if (alreadyCompleted && !completed) {
-        return;
-      }
-
-      const time = game.stopwatch.elapsed;
-      const tries = game.tries;
-
-      if (!completed && time < 2000) {
-        return;
-      }
-
-      saveReport(levelId, completed, tries, time);
-      storeResult(levelId, { completed, tries, time });
-    },
-    [levelId, level, game, storeResult, saveReport]
-  );
-
   const onCompleted = useCallback(() => {
-    onChangeLevel(true);
+    assert(game);
+    onSessionTerminated(game, true);
     setTimeout(nextLevel, 1000);
-  }, [onChangeLevel, nextLevel]);
+  }, [game, onSessionTerminated, nextLevel]);
 
   const onSkip = useCallback(() => {
-    onChangeLevel(false);
+    assert(game);
+    onSessionTerminated(game, false);
     nextLevel();
-  }, [onChangeLevel, nextLevel]);
+  }, [game, onSessionTerminated, nextLevel]);
 
   useEffect(() => {
     if (!game) {
@@ -118,7 +90,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
       </div>
 
       <div className="flex-1 col justify-center text-center">
-        <div className={clsx('transition-colors text-xl font-semibold', level.completed && 'text-green')}>
+        <div className={clsx('transition-colors text-xl font-semibold', completed && 'text-green')}>
           Level {levelNumber}
         </div>
         <div className="text-muted">{levelId}</div>

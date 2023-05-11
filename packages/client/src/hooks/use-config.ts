@@ -10,6 +10,4 @@ const config: Config = {
 
 assert(config.serverUrl, 'missing server url');
 
-export const useConfig = () => {
-  return config;
-};
+export const getConfig = () => config;

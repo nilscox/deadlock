@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Redirect, Route, Router, Switch } from 'wouter';
 
-import { LevelsProvider, useLevels, useLevelsIds } from './game/levels-context';
+import { useLevelExists, useLevelsIds, useLevelsMatching } from './game/levels-context';
 import { useNavigate } from './hooks/use-navigate';
 import { AdminView } from './views/admin-view';
 import { GameView } from './views/game-view';
@@ -11,7 +11,7 @@ import { NotFoundView } from './views/not-found-view';
 import { TestView } from './views/test-view';
 
 export const App = () => (
-  <LevelsProvider>
+  <>
     <Helmet>
       <title>Deadlock</title>
     </Helmet>
@@ -45,7 +45,7 @@ export const App = () => (
         </Route>
       </Switch>
     </Router>
-  </LevelsProvider>
+  </>
 );
 
 const GoToFirstLevel = () => {
@@ -64,14 +64,13 @@ const GoToFirstLevel = () => {
 };
 
 const RedirectToNextLevel = () => {
-  const levels = useLevels();
-  const nextLevel = Object.entries(levels).find(([, level]) => !level?.completed)?.[0];
+  const [nextLevelId] = useLevelsMatching(useCallback((level, userData) => !userData?.completed, []));
 
-  if (!nextLevel) {
+  if (!nextLevelId) {
     return <Redirect replace href="/levels" />;
   }
 
-  return <Redirect replace href={`/level/${nextLevel}`} />;
+  return <Redirect replace href={`/level/${nextLevelId}`} />;
 };
 
 type GameViewUnsafeProps = {
@@ -79,16 +78,16 @@ type GameViewUnsafeProps = {
 };
 
 const GameViewUnsafe = ({ levelId }: GameViewUnsafeProps) => {
-  const levels = useLevels();
+  const exists = useLevelExists(levelId);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!levels[levelId]) {
+    if (!exists) {
       navigate('/levels', { replace: true });
     }
-  }, [levels, levelId, navigate]);
+  }, [exists, levelId, navigate]);
 
-  if (!levels[levelId]) {
+  if (!exists) {
     return null;
   }
 

@@ -1,19 +1,19 @@
 import { clsx } from 'clsx';
 import { Link } from 'wouter';
 
-import { useLevels } from '../game/levels-context';
+import { useIsLevelCompleted, useLevelNumber, useLevelsIds } from '../game/levels-context';
 import { MobileView } from '../mobile-view';
 
 export const LevelsView = () => {
-  const levels = useLevels();
+  const levelsIds = useLevelsIds();
 
   return (
     <MobileView>
       <div className="pt-8 text-lg text-center">Levels</div>
 
       <div className="grid grid-cols-3 gap-4 p-4">
-        {Object.entries(levels).map(([id, level], index) => (
-          <Level key={id} levelId={id} levelNumber={index + 1} completed={Boolean(level.completed)} />
+        {levelsIds.map((levelId) => (
+          <Level key={levelId} levelId={levelId} />
         ))}
       </div>
     </MobileView>
@@ -22,19 +22,22 @@ export const LevelsView = () => {
 
 type LevelProps = {
   levelId: string;
-  levelNumber: number;
-  completed: boolean;
 };
 
-const Level = ({ levelId, levelNumber, completed }: LevelProps) => (
-  <Link
-    href={`/level/${levelId}`}
-    className={clsx(
-      'text-sm font-semibold rounded py-4 bg-muted col justify-center items-center',
-      completed && 'opacity-50'
-    )}
-  >
-    {levelNumber}
-    <div className="text-muted">{levelId}</div>
-  </Link>
-);
+const Level = ({ levelId }: LevelProps) => {
+  const levelNumber = useLevelNumber(levelId);
+  const completed = useIsLevelCompleted(levelId);
+
+  return (
+    <Link
+      href={`/level/${levelId}`}
+      className={clsx(
+        'text-sm font-semibold rounded py-4 bg-muted col justify-center items-center',
+        completed && 'opacity-50'
+      )}
+    >
+      {levelNumber}
+      <div className="text-muted">{levelId}</div>
+    </Link>
+  );
+};

@@ -1,76 +1,42 @@
-import { LevelDefinition, identity, toObject, assert, Level } from '@deadlock/game';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Game, Level, LevelDefinition, assert } from '@deadlock/game';
+import { useCallback, useMemo } from 'react';
 
-import { useConfig } from '../hooks/use-config';
+import { useLevels, usePostLevelSession } from './levels-api';
+import { LevelUserData, useLevelUserData, useSaveLevelUserData, useUserData } from './levels-user-data';
 
-/* eslint-disable react-refresh/only-export-components */
-
-type StoredLevel = {
-  completed: boolean;
-  tries: number;
-  time: number;
+export const useLevelExists = (levelId: string) => {
+  return levelId in useLevels();
 };
 
-type LevelsContext = {
-  levels: Record<string, LevelDefinition>;
-  storedLevels: Record<string, StoredLevel | undefined>;
-  storeLevelResult: (levelId: string, result: StoredLevel) => void;
-};
-
-const levelsContext = createContext<LevelsContext>(null as never);
-
-type LevelsProviderProps = {
-  children: React.ReactNode;
-};
-
-export const LevelsProvider = ({ children }: LevelsProviderProps) => {
-  const levels = useFetchLevels();
-  const [storedLevels, setStoredLevels] = useStoredLevels();
-
-  const storeLevelResult = useCallback<LevelsContext['storeLevelResult']>(
-    (levelId, result) => {
-      setStoredLevels((levels) => ({ ...levels, [levelId]: result }));
-    },
-    [setStoredLevels]
-  );
-
-  if (levels === undefined) {
-    return null;
-  }
-
-  const value: LevelsContext = {
-    levels,
-    storedLevels,
-    storeLevelResult,
-  };
-
-  return <levelsContext.Provider value={value}>{children}</levelsContext.Provider>;
-};
-
-const useLevelsContext = () => {
-  const ctx = useContext(levelsContext);
-  assert(ctx, 'missing levels context provider');
-  return ctx;
+export const useIsLevelCompleted = (levelId: string) => {
+  const data = useLevelUserData(levelId);
+  return Boolean(data?.completed);
 };
 
 export const useLevelsIds = () => {
-  const { levels } = useLevelsContext();
+  const levels = useLevels();
   return useMemo(() => Object.keys(levels), [levels]);
 };
 
-export const useLevels = () => {
-  const ctx = useLevelsContext();
+export const useLevelNumber = (levelId: string) => {
   const levelsIds = useLevelsIds();
-
-  return useMemo(() => {
-    return toObject(levelsIds, identity, (id) => ({
-      definition: ctx.levels[id],
-      ...ctx.storedLevels[id],
-    }));
-  }, [ctx, levelsIds]);
+  return levelsIds.indexOf(levelId) + 1;
 };
 
-export const useLevel = (levelId: string) => {
+export const useLevelsMatching = (
+  predicate: (level: LevelDefinition, userLevelData: LevelUserData | undefined) => boolean
+) => {
+  const levels = useLevels();
+  const userData = useUserData();
+
+  return useMemo(() => {
+    return Object.entries(levels)
+      .filter(([levelId, level]) => predicate(level, userData[levelId]))
+      .map(([levelId]) => levelId);
+  }, [levels, userData, predicate]);
+};
+
+export const useLevelDefinition = (levelId: string) => {
   const levels = useLevels();
   const level = levels[levelId];
 
@@ -80,58 +46,39 @@ export const useLevel = (levelId: string) => {
 };
 
 export const useLevelInstance = (levelId: string) => {
-  const { definition } = useLevel(levelId);
+  const definition = useLevelDefinition(levelId);
 
   return useMemo(() => {
     return new Level(definition);
   }, [definition]);
 };
 
-export const useStoreLevelResult = () => {
-  return useLevelsContext().storeLevelResult;
-};
+export const useOnSessionTerminated = (levelId: string) => {
+  const userLevelData = useLevelUserData(levelId);
 
-const useFetchLevels = () => {
-  const { serverUrl } = useConfig();
-  const [levels, setLevels] = useState<Record<string, LevelDefinition>>();
-
-  useEffect(() => {
-    void fetch(`${serverUrl}/levels`)
-      .then((res) => res.json())
-      .then(setLevels);
-  }, [serverUrl]);
-
-  return levels;
-};
-
-const useStoredLevels = () => {
-  const [storedLevels, setStoredLevels] = useState<Record<string, StoredLevel | undefined>>(() => {
-    return JSON.parse(localStorage.getItem('levels') ?? '{}') as Record<string, StoredLevel | undefined>;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('levels', JSON.stringify(storedLevels));
-  }, [storedLevels]);
-
-  return [storedLevels, setStoredLevels] as const;
-};
-
-export const useSaveReport = () => {
-  const { serverUrl } = useConfig();
+  const saveUserLevelData = useSaveLevelUserData();
+  const postLevelSession = usePostLevelSession();
 
   return useCallback(
-    (levelId: string, completed: boolean, tries: number, time: number) => {
-      void fetch(`${serverUrl}/session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ levelId, completed, time, tries }),
-      });
-    },
-    [serverUrl]
-  );
-};
+    (game: Game, completed: boolean) => {
+      assert(game);
 
-export const useLevelNumber = (levelId: string) => {
-  const levelsIds = useLevelsIds();
-  return levelsIds.indexOf(levelId) + 1;
+      const alreadyCompleted = userLevelData?.completed;
+
+      if (alreadyCompleted && !completed) {
+        return;
+      }
+
+      const time = game.stopwatch.elapsed;
+      const tries = game.tries;
+
+      if (!completed && time < 2000) {
+        return;
+      }
+
+      saveUserLevelData(levelId, { completed, tries, time });
+      postLevelSession({ levelId, completed, tries, time });
+    },
+    [levelId, userLevelData, saveUserLevelData, postLevelSession]
+  );
 };
