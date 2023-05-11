@@ -16,8 +16,16 @@ export const AdminView = () => {
   const [search, setSearch] = useState('');
 
   const filteredIds = useMemo(() => {
-    if (search === '') {
+    if (search === '' || search === '#') {
       return levelsIds;
+    }
+
+    if (search.startsWith('#')) {
+      const levelNumber = Number.parseInt(search.slice(1));
+
+      if (!Number.isNaN(levelNumber)) {
+        return [levelsIds[levelNumber - 1]];
+      }
     }
 
     return levelsIds.filter((levelId) => levelId.match(search));
