@@ -34,6 +34,13 @@ export class Emitter<Type extends string, EventsMap extends Partial<Record<Type,
     }
   }
 
+  once<T extends Type>(type: T, listener: Listener<EventsMap[T]>): void {
+    const removeListener = this.addListener(type, (payload) => {
+      removeListener();
+      listener(payload);
+    });
+  }
+
   emit<T extends Type>(type: T, ...event: T extends keyof EventsMap ? [EventsMap[T]] : []) {
     this.listeners.get(type)?.forEach((listener) => listener(event[0]));
 

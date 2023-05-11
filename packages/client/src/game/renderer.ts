@@ -87,8 +87,7 @@ export class LevelRenderer {
           cell.animation.duration = 150;
           cell.animation.target = colors[type];
 
-          const removeListener = cell.animation.addListener(AnimationEvent.ended, () => {
-            removeListener();
+          cell.animation.once(AnimationEvent.ended, () => {
             cell.animation.duration = 0;
           });
         }
@@ -200,14 +199,10 @@ export class PlayerRenderer {
     });
 
     player.addListener(PlayerEvent.teleported, ({ x, y }) => {
-      let removeListener = this.translation.addListener(AnimationEvent.ended, () => {
-        removeListener();
-
+      this.translation.once(AnimationEvent.ended, () => {
         this.scale.target = 0;
 
-        removeListener = this.scale.addListener(AnimationEvent.ended, () => {
-          removeListener();
-
+        this.scale.once(AnimationEvent.ended, () => {
           this.cell.bounds.center.set(x * cellSize, y * cellSize);
           this.cell.translate([cellSize / 2, cellSize / 2]);
           this.scale.target = 1;

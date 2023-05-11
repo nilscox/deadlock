@@ -99,6 +99,18 @@ describe('Emitter', () => {
     expect(onMove).not.toHaveBeenCalled();
   });
 
+  it('binds a listener to an event once', () => {
+    const emitter = new TestEmitter();
+    const onJump = vi.fn();
+
+    emitter.once(TestEvent.jump, onJump);
+
+    emitter.emit(TestEvent.jump);
+    emitter.emit(TestEvent.jump);
+
+    expect(onJump).toHaveBeenCalledTimes(1);
+  });
+
   it('clones an emitter', () => {
     const emitter = new TestEmitter();
     const clone = emitter.cloneEmitter();
