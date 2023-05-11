@@ -21,6 +21,7 @@ export function api(em: EntityManager) {
   router.use(ormMiddleware(em));
 
   router.get('/levels', getLevels(em));
+  router.get('/levels/all', getLevels(em, true));
   router.post('/session', storeLevelSession(em));
   router.get('/stats', getStatistics(em));
   router.get('/solutions', getSolutions(em));
@@ -28,18 +29,15 @@ export function api(em: EntityManager) {
   return router;
 }
 
-const getLevels = (em: EntityManager): RequestHandler => {
+const getLevels = (em: EntityManager, all = false): RequestHandler => {
   return async (req, res) => {
-    const levels = await em.find(
-      SqlLevel,
-      {},
-      {
-        orderBy: {
-          levelNumber: 'asc nulls last' as 'asc_nulls_last',
-          difficulty: 'asc',
-        },
-      }
-    );
+    const levels = await em.find(SqlLevel, all ? {} : { levelNumber: { $ne: null } }, {
+      orderBy: {
+        levelNumber: 'asc nulls last' as 'asc_nulls_last',
+        difficulty: 'asc',
+      },
+    });
+
     res.json(toObject(levels, ({ id }) => id, formatLevel));
   };
 };
