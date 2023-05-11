@@ -48,33 +48,3 @@ const t = (input: string) => {
 
   return cells.map((cell) => (cell === CellType.block ? 'x' : ' ')).join('');
 };
-
-const last = <T>(array: T[]) => {
-  return array[array.length - 1];
-};
-
-const next = (cells: Array<{ type: string }>) => {
-  const lastBlockIdx = cells.findLastIndex(({ type }) => type === 'x');
-
-  if (lastBlockIdx === -1) {
-    return -1;
-  }
-
-  if (cells[lastBlockIdx] === last(cells)) {
-    const idx = next(cells.slice(0, -1));
-
-    if (idx === -1) {
-      return -1;
-    }
-
-    if (cells[idx + 1]) {
-      cells[lastBlockIdx].type = ' ';
-      cells[idx + 1].type = 'x';
-    }
-  } else {
-    cells[lastBlockIdx].type = ' ';
-    cells[lastBlockIdx + 1].type = 'x';
-  }
-
-  return lastBlockIdx + 1;
-};

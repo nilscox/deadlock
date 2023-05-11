@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "nodemon -w src -e ts -x pnpm start",
     "start": "ts-node src/main.ts",
-    "mikro-orm": "mikro-orm-esm"
+    "lint": "eslint src"
   },
   "dependencies": {
     "@deadlock/game": "workspace:*",

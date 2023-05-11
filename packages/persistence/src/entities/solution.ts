@@ -11,6 +11,8 @@ export class SqlSolution {
   level!: SqlLevel;
 
   @Property({ type: 'json' })
+  // mikro-orm fails to parse enum
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   path!: any;
 
   @Property()

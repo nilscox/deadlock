@@ -7,6 +7,7 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
+    "lint": "eslint src",
     "mikro-orm": "MIKRO_ORM_DB_NAME=../../db.sqlite mikro-orm-esm",
     "create-migration": "pnpm mikro-orm migration:create",
     "db:migrate": "pnpm mikro-orm migration:up",

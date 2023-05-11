@@ -334,7 +334,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
       line.push('|');
     });
 
-    lines.unshift(['+', ...Array(this.definition.width).fill('-'), '+']);
+    lines.unshift(['+', ...Array<string>(this.definition.width).fill('-'), '+']);
     lines.push(lines[0]);
 
     return lines.map((line) => line.join('')).join('\n');

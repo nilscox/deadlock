@@ -57,7 +57,7 @@ const generateAllLevels = (options: GenerateLevelsOptions): LevelDefinition[] =>
     return generateAllLevels({ ...options, width: height, height: width });
   }
 
-  const cells: CellType[] = Array(width * height).fill(CellType.empty);
+  const cells = Array<CellType>(width * height).fill(CellType.empty);
   const levels: LevelDefinition[] = [];
 
   if (startHash) {

@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:import/recommended",
+    "plugin:import/typescript"
+  ],
+
+  "plugins": ["@typescript-eslint", "import"],
+
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "tsconfigRootDir": ".",
+    "project": ["./tsconfig.json", "./packages/*/tsconfig.json"]
+  },
+
+  "settings": {
+    "import/resolver": {
+      "typescript": true
+    }
+  }
+}

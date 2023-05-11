@@ -96,6 +96,8 @@ const Row = memo(({ index, style, data }: RowProps) => {
   );
 }, areEqual);
 
+Row.displayName = 'Row';
+
 type LevelRowProps = {
   levelId: string;
   stats?: LevelsStats;
@@ -278,7 +280,7 @@ const Stats = ({ stats }: StatsProps) => {
 };
 
 const secs = (time: number) => {
-  return Math.floor(time / 1000) + 's';
+  return `${Math.floor(time / 1000)}s`;
 };
 
 type TimesProps = {

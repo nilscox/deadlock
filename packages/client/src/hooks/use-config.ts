@@ -5,7 +5,7 @@ type Config = {
 };
 
 const config: Config = {
-  serverUrl: import.meta.env.VITE_APP_SERVER_URL,
+  serverUrl: import.meta.env.VITE_APP_SERVER_URL as string,
 };
 
 assert(config.serverUrl, 'missing server url');

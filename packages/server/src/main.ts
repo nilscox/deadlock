@@ -1,7 +1,7 @@
 import { createOrm } from '@deadlock/persistence';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import express from 'express';
+import express, { json } from 'express';
 
 dotenv.config();
 
@@ -15,7 +15,7 @@ async function startServer() {
   const app = express();
 
   app.use(cors({ origin: true }));
-  app.use(express.json());
+  app.use(json());
   app.use(api(orm.em));
 
   const { host, port } = config;

@@ -1,8 +1,8 @@
 import { Game as GameClass, LevelEvent, assert } from '@deadlock/game';
+import { clsx } from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { Link } from 'wouter';
-import clsx from 'clsx';
 
 import { Game } from '../game/game';
 import {

@@ -1,6 +1,6 @@
-import { Level } from '@deadlock/game';
+import { Level, LevelDefinition } from '@deadlock/game';
 import { useMemo } from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 
 import { Game } from '../game/game';
 import { useSearchParam } from '../hooks/use-search-params';
@@ -11,7 +11,7 @@ export const TestView = () => {
   const hash = useSearchParam('hash');
 
   const level = useMemo(() => {
-    if (definition) return new Level(JSON.parse(definition));
+    if (definition) return new Level(JSON.parse(definition) as LevelDefinition);
     if (hash) return Level.fromHash(hash);
     throw new Error('missing definition or hash query parameter');
   }, [definition, hash]);

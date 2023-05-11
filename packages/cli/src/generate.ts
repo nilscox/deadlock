@@ -2,19 +2,13 @@ import {
   GenerateLevelsOptions,
   Level,
   LevelDefinition,
-  Path,
   array,
-  evaluateLevelDifficulty,
   generateLevels,
   shuffle,
 } from '@deadlock/game';
-import { SqlLevel, SqlSolution } from '@deadlock/persistence';
-import { customAlphabet } from 'nanoid';
 
 import { getEntityManager } from './global';
-
-const nanoidShort = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 8);
-const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
+import { insertLevel } from './insert-level';
 
 type GenerateOptions = Pick<
   GenerateLevelsOptions,
@@ -36,7 +30,7 @@ export async function generate({ random, ...options }: GenerateOptions) {
       }),
     },
     onProgress,
-    onGenerated
+    insertLevel
   );
 
   await getEntityManager().flush();
@@ -73,40 +67,6 @@ async function onProgress(levels: LevelDefinition[], index: number, hasSolutions
   if (index % 10 === 0) {
     await getEntityManager().flush();
   }
-}
-
-async function onGenerated(definition: LevelDefinition, paths: Path[]) {
-  const em = getEntityManager();
-  const level = new Level(definition);
-
-  const {
-    //
-    difficulty,
-    numberOfSolutionsScore,
-    easiestSolutionScore,
-    solutionsComplexities,
-  } = evaluateLevelDifficulty(level, paths);
-
-  const levelEntity = em.assign(new SqlLevel(), {
-    id: nanoidShort(),
-    fingerprint: level.fingerprint,
-    difficulty,
-    numberOfSolutionsScore,
-    easiestSolutionScore,
-    ...definition,
-  });
-
-  const solutionsEntities = paths.map((path) =>
-    em.assign(new SqlSolution(), {
-      id: nanoid(),
-      level: levelEntity,
-      complexity: solutionsComplexities?.get(path),
-      path,
-    })
-  );
-
-  em.persist(levelEntity);
-  em.persist(solutionsEntities);
 }
 
 function progress(total: number, index: number) {

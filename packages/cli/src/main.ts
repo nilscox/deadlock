@@ -3,8 +3,9 @@ import { program, InvalidArgumentError } from 'commander';
 
 import { generate } from './generate';
 import { getOrm, setOrm } from './global';
-import { Level } from '@deadlock/game';
+import { Level, LevelDefinition } from '@deadlock/game';
 import { info } from './info';
+import { create } from './create';
 
 main().catch(console.error);
 
@@ -20,6 +21,13 @@ program.option('--clear', 'clear the database before execution').hook('preAction
   }
 });
 
+type GenerateOptions = Partial<{
+  limit: number;
+  maxSolutions: number;
+  start: string;
+  random: boolean;
+}>;
+
 program
   .command('generate')
   .description('Generate levels')
@@ -30,33 +38,29 @@ program
   .option('-m --max-solutions <number>', 'maximum number of solutions per level', parseInt)
   .option('-r --random', 'generate random levels')
   .option('-s --start <hash>', 'start at a given level hash')
-  .action(async (width, height, blocks, args) => {
+  .action(async (width: number, height: number, blocks: number, options: GenerateOptions) => {
     await generate({
-      width: width,
-      height: height,
-      blocks: blocks,
-      limit: args.limit,
-      maxSolutions: args.maxSolutions,
-      startHash: args.start,
-      random: args.random,
+      width,
+      height,
+      blocks,
+      limit: options.limit,
+      maxSolutions: options.maxSolutions,
+      startHash: options.start,
+      random: options.random,
     });
   });
+
+program
+  .command('save')
+  .description('Save a new level to the database')
+  .argument('<input>', 'level definition or hash', parseDefinitionOrHash)
+  .action(create);
 
 program
   .command('info')
   .description('Print information about a level')
   .argument('<input>', 'level definition or hash')
-  .action(async (input) => {
-    let level: Level;
-
-    try {
-      level = new Level(JSON.parse(input));
-    } catch {
-      level = Level.fromHash(input);
-    }
-
-    info(level);
-  });
+  .action(info);
 
 async function main() {
   const orm = await createOrm('../../db.sqlite');
@@ -86,4 +90,12 @@ function parseInt(value: string) {
   }
 
   return parsed;
+}
+
+function parseDefinitionOrHash(input: string) {
+  try {
+    return new Level(JSON.parse(input) as LevelDefinition);
+  } catch {
+    return Level.fromHash(input);
+  }
 }

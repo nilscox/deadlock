@@ -1,4 +1,4 @@
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { Redirect, Route, Router, Switch } from 'wouter';
 
 import { useEffect } from 'react';
@@ -66,6 +66,10 @@ const GoToFirstLevel = () => {
 const RedirectToNextLevel = () => {
   const levels = useLevels();
   const nextLevel = Object.entries(levels).find(([, level]) => !level?.completed)?.[0];
+
+  if (!nextLevel) {
+    return <Redirect replace href="/levels" />;
+  }
 
   return <Redirect replace href={`/level/${nextLevel}`} />;
 };

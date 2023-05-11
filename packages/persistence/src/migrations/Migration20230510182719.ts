@@ -1,5 +1,7 @@
 import { Migration } from '@mikro-orm/migrations';
 
+/* eslint-disable */
+
 export class Migration20230510182719 extends Migration {
 
   async up(): Promise<void> {

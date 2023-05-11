@@ -2,6 +2,7 @@ import {
   LevelDefinition,
   LevelsStats,
   MapSet,
+  Path,
   assert,
   max,
   mean,
@@ -10,13 +11,15 @@ import {
   round,
   toObject,
 } from '@deadlock/game';
-import express, { RequestHandler } from 'express';
+import { RequestHandler, Router } from 'express';
 import * as yup from 'yup';
 
 import { EntityManager, SqlLevel, SqlLevelSession, SqlSolution, ormMiddleware } from '@deadlock/persistence';
 
+/* eslint-disable @typescript-eslint/no-misused-promises */
+
 export function api(em: EntityManager) {
-  const router = express.Router();
+  const router = Router();
 
   router.use(ormMiddleware(em));
 
@@ -133,7 +136,7 @@ const getSolutions = (em: EntityManager): RequestHandler => {
           total: solutions.size,
           items: Array.from(solutions)
             .slice(0, 3)
-            .map(({ complexity, path }) => ({ complexity, path })),
+            .map(({ complexity, path }) => ({ complexity, path: path as Path[] })),
           difficulty: level.difficulty,
           numberOfSolutionsScore: level.numberOfSolutionsScore,
           easiestSolutionScore: level.easiestSolutionScore,

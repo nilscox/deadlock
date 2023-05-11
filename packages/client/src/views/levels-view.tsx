@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { Link } from 'wouter';
 
 import { MobileView } from '../mobile-view';

@@ -36,34 +36,61 @@ export const evaluateSolutionComplexity = (level: Level, solution: Direction[]) 
     const prevDir = solution[i - 1];
     const dir = solution[i];
 
-    if (prevDir && dir !== prevDir) {
-      if (level.movePlayer(player, prevDir)) {
-        level.movePlayerBack(player);
-        difficulty += 5;
-      }
+    if (changedDirection(level, player, prevDir, dir)) {
+      difficulty += 3;
     }
 
-    for (const d of directions) {
-      if (d === dir) {
-        continue;
-      }
-
-      if (level.movePlayer(player, d)) {
-        level.movePlayerBack(player);
-        difficulty += 1;
-      }
+    if (isOnlyOption(level, player, dir)) {
+      difficulty -= 1;
     }
 
-    const last = player.position;
+    if (didJump(level, player, dir)) {
+      difficulty += 1;
+    }
 
     level.movePlayer(player, dir);
-
-    const [dx, dy] = [abs(last.x - player.position.x), abs(last.y - player.position.y)];
-
-    difficulty += dx + dy - 1;
   }
 
   level.restart();
 
   return difficulty;
+};
+
+const changedDirection = (level: Level, player: Player, prevDir: Direction, dir: Direction) => {
+  if (!prevDir || dir == prevDir) {
+    return false;
+  }
+
+  if (level.movePlayer(player, prevDir)) {
+    level.movePlayerBack(player);
+    return true;
+  }
+
+  return false;
+};
+
+const isOnlyOption = (level: Level, player: Player, dir: Direction) => {
+  for (const d of directions) {
+    if (d !== dir) {
+      continue;
+    }
+
+    if (level.movePlayer(player, d)) {
+      level.movePlayerBack(player);
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const didJump = (level: Level, player: Player, dir: Direction) => {
+  const last = player.position;
+
+  level.movePlayer(player, dir);
+  level.movePlayerBack(player);
+
+  const [dx, dy] = [abs(last.x - player.position.x), abs(last.y - player.position.y)];
+
+  return dx + dy > 1;
 };

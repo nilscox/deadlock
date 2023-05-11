@@ -105,7 +105,7 @@ const useFetchLevels = () => {
 
 const useStoredLevels = () => {
   const [storedLevels, setStoredLevels] = useState<Record<string, StoredLevel | undefined>>(() => {
-    return JSON.parse(localStorage.getItem('levels') ?? '{}');
+    return JSON.parse(localStorage.getItem('levels') ?? '{}') as Record<string, StoredLevel | undefined>;
   });
 
   useEffect(() => {
