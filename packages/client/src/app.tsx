@@ -1,7 +1,7 @@
+import { useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Redirect, Route, Router, Switch } from 'wouter';
 
-import { useEffect } from 'react';
 import { LevelsProvider, useLevels, useLevelsIds } from './game/levels-context';
 import { useNavigate } from './hooks/use-navigate';
 import { AdminView } from './views/admin-view';

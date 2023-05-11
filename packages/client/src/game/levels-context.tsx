@@ -1,5 +1,6 @@
 import { LevelDefinition, identity, toObject, assert, Level } from '@deadlock/game';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+
 import { useConfig } from '../hooks/use-config';
 
 /* eslint-disable react-refresh/only-export-components */

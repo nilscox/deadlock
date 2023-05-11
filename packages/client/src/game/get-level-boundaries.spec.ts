@@ -1,4 +1,5 @@
 import { IPoint } from '@deadlock/game';
+
 import { getLevelBoundaries } from './get-level-boundaries';
 
 describe('getLevelBoundaries', () => {

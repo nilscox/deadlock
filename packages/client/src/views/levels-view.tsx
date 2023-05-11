@@ -1,8 +1,8 @@
 import { clsx } from 'clsx';
 import { Link } from 'wouter';
 
-import { MobileView } from '../mobile-view';
 import { useLevels } from '../game/levels-context';
+import { MobileView } from '../mobile-view';
 
 export const LevelsView = () => {
   const levels = useLevels();

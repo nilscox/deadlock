@@ -11,10 +11,10 @@ import {
   round,
   toObject,
 } from '@deadlock/game';
+import { EntityManager, SqlLevel, SqlLevelSession, SqlSolution, ormMiddleware } from '@deadlock/persistence';
 import { RequestHandler, Router } from 'express';
 import * as yup from 'yup';
 
-import { EntityManager, SqlLevel, SqlLevelSession, SqlSolution, ormMiddleware } from '@deadlock/persistence';
 
 /* eslint-disable @typescript-eslint/no-misused-promises */
 

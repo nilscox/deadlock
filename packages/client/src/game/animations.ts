@@ -1,5 +1,5 @@
-import paper from 'paper';
 import { assert, Emitter, IPoint } from '@deadlock/game';
+import paper from 'paper';
 
 export enum AnimationEvent {
   started = 'started',

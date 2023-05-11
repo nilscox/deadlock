@@ -1,10 +1,10 @@
+import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { SqlHighlighter } from '@mikro-orm/sql-highlighter';
 import { defineConfig } from '@mikro-orm/sqlite';
-import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 
 import { SqlLevel } from './entities/level';
-import { SqlSolution } from './entities/solution';
 import { SqlLevelSession } from './entities/level-session';
+import { SqlSolution } from './entities/solution';
 
 export default defineConfig({
   metadataProvider: TsMorphMetadataProvider,

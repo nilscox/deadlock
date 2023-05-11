@@ -1,11 +1,11 @@
+import { Level, LevelDefinition } from '@deadlock/game';
 import { createOrm } from '@deadlock/persistence';
 import { program, InvalidArgumentError } from 'commander';
 
+import { create } from './create';
 import { generate } from './generate';
 import { getOrm, setOrm } from './global';
-import { Level, LevelDefinition } from '@deadlock/game';
 import { info } from './info';
-import { create } from './create';
 
 main().catch(console.error);
 
