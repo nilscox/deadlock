@@ -7,6 +7,7 @@ export default {
     textColor: {
       muted: colors.neutral[500],
       green: colors.emerald[600],
+      red: colors.orange[700],
     },
     backgroundColor: {
       muted: colors.slate[100],

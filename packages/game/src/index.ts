@@ -7,7 +7,7 @@ export { Player, PlayerEvent } from './player';
 export { type LevelSolutions, type LevelsSolutions } from './solutions';
 export { solve } from './solve';
 export { type LevelStats, type LevelsStats } from './stats';
-export { assert } from './utils/assert';
+export { assert, defined } from './utils/assert';
 export { Direction, isDirection, type Path } from './utils/direction';
 export * from './utils/inspect';
 export { MapSet } from './utils/map-set';

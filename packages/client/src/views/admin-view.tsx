@@ -1,29 +1,27 @@
 import {
-  assert,
+  defined,
   Direction,
   Game as GameClass,
-  identity,
   Level,
   LevelDefinition,
   LevelsSolutions,
   LevelsStats,
   round,
-  toObject,
 } from '@deadlock/game';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CSSProperties, memo, useEffect, useMemo, useState } from 'react';
+import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { areEqual, FixedSizeList as List } from 'react-window';
 import { Link } from 'wouter';
 
 import { Game } from '../game/game';
-import { useLevelNumber, useLevelsIds } from '../game/levels-context';
+import { useLevelsIds } from '../game/levels-context';
 import { getConfig } from '../hooks/use-config';
 import { copy } from '../utils';
 
 // cspell:word unvalidated
 
 export const AdminView = () => {
-  const levelsIds = Object.keys(useAllLevels());
+  const levelsIds = useAllLevelsIds();
 
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   const [search, setSearch] = useState('');
@@ -133,7 +131,7 @@ const LevelRow = ({ levelId }: LevelRowProps) => {
         <Stats levelId={levelId} />
       </div>
 
-      <div className="px-4">
+      <div className="px-4 min-w-[300px]">
         <Actions levelId={levelId} />
       </div>
     </div>
@@ -300,28 +298,81 @@ type ActionsProps = {
 const Actions = ({ levelId }: ActionsProps) => {
   const validated = useIsLevelValidated(levelId);
   const levelsIds = useLevelsIds();
+
   const setLevelNumber = useSetLevelNumber(levelId);
+  const deleteLevel = useDeleteLevel(levelId);
 
   const nextLevelNumber = levelsIds.length;
+
+  const handleValidate = () => {
+    setLevelNumber(nextLevelNumber);
+  };
+
+  const handleeSetLevelNumber = () => {
+    const input = window.prompt('Position:');
+
+    if (!input) {
+      return;
+    }
+
+    const value = Number.parseInt(input);
+
+    if (Number.isNaN(value)) {
+      alert('Invalid value');
+      return;
+    }
+
+    setLevelNumber(value);
+  };
+
+  const handleDeleteLevel = () => {
+    if (window.confirm('You sure?')) {
+      deleteLevel();
+    }
+  };
 
   return (
     <ul className="list-disc list-inside">
       {!validated && (
         <li>
-          <button onClick={() => setLevelNumber(nextLevelNumber)}>Validate</button>
+          <button onClick={handleValidate}>Validate</button>
         </li>
       )}
+
+      {validated && (
+        <li>
+          <button onClick={handleeSetLevelNumber}>Set position</button>
+        </li>
+      )}
+
+      <li>
+        <button onClick={handleDeleteLevel} className="text-red">
+          Delete
+        </button>
+      </li>
     </ul>
   );
 };
 
 const useAllLevelsIds = () => {
-  return Object.keys(useAllLevels());
+  const allLevels = useAllLevels();
+  return useMemo(() => allLevels.map(({ id }) => id), [allLevels]);
+};
+
+const useLevelNumber = (levelId: string) => {
+  const allLevelsIds = useAllLevelsIds();
+  return useMemo(() => allLevelsIds.indexOf(levelId) + 1, [levelId, allLevelsIds]);
 };
 
 const useLevelDefinition = (levelId: string) => {
   const allLevels = useAllLevels();
-  return allLevels[levelId];
+
+  const definition = useMemo(
+    () => defined(allLevels.find(({ id }) => id === levelId)?.definition),
+    [levelId, allLevels]
+  );
+
+  return definition;
 };
 
 const useLevelInstance = (levelId: string) => {
@@ -332,79 +383,86 @@ const useIsLevelValidated = (levelId: string) => {
   return useLevelsIds().includes(levelId);
 };
 
-const getAllLevels = async (): Promise<Record<string, LevelDefinition>> => {
-  const { serverUrl } = getConfig();
-  const response = await fetch(`${serverUrl}/levels/all`);
+const api = {
+  async get<Result>(url: string) {
+    const { serverUrl } = getConfig();
+    const response = await fetch(`${serverUrl}${url}`);
+    return response.json() as Promise<Result>;
+  },
 
-  return response.json() as Promise<Record<string, LevelDefinition>>;
+  async patch(url: string, body: unknown) {
+    const { serverUrl } = getConfig();
+    await fetch(`${serverUrl}${url}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  },
+
+  async delete(url: string) {
+    const { serverUrl } = getConfig();
+    await fetch(`${serverUrl}${url}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
+const useRefetchLevels = () => {
+  const queryClient = useQueryClient();
+
+  return useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: ['levels'] });
+  }, [queryClient]);
 };
 
 const useAllLevels = () => {
-  const { data } = useQuery({ queryKey: ['all-levels'], queryFn: getAllLevels });
-  assert(data);
-  return data;
-};
+  const { data } = useQuery({
+    queryKey: ['levels', 'all'],
+    queryFn: async () => {
+      const result = await api.get<Record<string, LevelDefinition>>('/levels/all');
+      return Object.entries(result).map(([id, definition]) => ({ id, definition }));
+    },
+  });
 
-const useUnvalidatedLevels = () => {
-  const levelsIds = useLevelsIds();
-  const allLevels = useAllLevels();
-
-  return useMemo(() => {
-    return toObject(
-      Object.keys(allLevels).filter((id) => !levelsIds.includes(id)),
-      identity,
-      (levelId) => allLevels[levelId]
-    );
-  }, [allLevels, levelsIds]);
-};
-
-const getStats = async (): Promise<LevelsStats> => {
-  const { serverUrl } = getConfig();
-  const response = await fetch(`${serverUrl}/stats`);
-
-  return response.json() as Promise<LevelsStats>;
+  return defined(data);
 };
 
 const useLevelStats = (levelId: string) => {
-  const { data } = useQuery({ queryKey: ['stats'], queryFn: getStats, refetchInterval: 5 * 1000 });
-  assert(data);
-  return data[levelId];
-};
+  const { data } = useQuery({
+    queryKey: ['stats'],
+    refetchInterval: 5 * 1000,
+    queryFn: () => api.get<LevelsStats>('/stats'),
+  });
 
-const getSolutions = async (): Promise<LevelsSolutions> => {
-  const { serverUrl } = getConfig();
-  const response = await fetch(`${serverUrl}/solutions`);
-
-  return response.json() as Promise<LevelsSolutions>;
+  return defined(data)[levelId];
 };
 
 const useLevelSolutions = (levelId: string) => {
-  const { data } = useQuery({ queryKey: ['solutions'], queryFn: getSolutions });
-  assert(data);
-  return data[levelId];
-};
-
-const setLevelNumber = async (levelId: string, levelNumber: number): Promise<void> => {
-  const { serverUrl } = getConfig();
-
-  await fetch(`${serverUrl}/level/${levelId}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ levelNumber }),
+  const { data } = useQuery({
+    queryKey: ['solutions'],
+    queryFn: () => api.get<LevelsSolutions>('/solutions'),
   });
+
+  return defined(data)[levelId];
 };
 
 const useSetLevelNumber = (levelId: string) => {
-  const queryClient = useQueryClient();
+  const refetchLevels = useRefetchLevels();
 
   const { mutate } = useMutation({
-    mutationFn: (levelNumber: number) => setLevelNumber(levelId, levelNumber),
-    onSuccess() {
-      void queryClient.invalidateQueries(['levels']);
-      void queryClient.invalidateQueries(['all-levels']);
-    },
+    onSuccess: refetchLevels,
+    mutationFn: (levelNumber: number) => api.patch(`/level/${levelId}`, { levelNumber }),
+  });
+
+  return mutate;
+};
+
+const useDeleteLevel = (levelId: string) => {
+  const refetchLevels = useRefetchLevels();
+
+  const { mutate } = useMutation({
+    onSuccess: refetchLevels,
+    mutationFn: () => api.delete(`/level/${levelId}`),
   });
 
   return mutate;

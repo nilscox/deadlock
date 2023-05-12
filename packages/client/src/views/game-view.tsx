@@ -72,7 +72,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
   return (
     <MobileView>
       <Helmet>
-        <title>{`Deadlock - Level ${levelNumber}`}</title>
+        <title>{`Deadlock - Level ${String(levelNumber)}`}</title>
       </Helmet>
 
       <div className="row items-end justify-between">
