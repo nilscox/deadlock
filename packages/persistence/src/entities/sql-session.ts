@@ -1,9 +1,9 @@
 import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
 
-import { SqlLevel } from './level';
+import { SqlLevel } from './sql-level';
 
-@Entity({ tableName: 'level_session' })
-export class SqlLevelSession {
+@Entity({ tableName: 'session' })
+export class SqlSession {
   @PrimaryKey()
   id!: string;
 

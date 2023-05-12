@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
 
-import { type SqlLevel } from './level';
+import { type SqlLevel } from './sql-level';
 
 @Entity({ tableName: 'solution' })
 export class SqlSolution {

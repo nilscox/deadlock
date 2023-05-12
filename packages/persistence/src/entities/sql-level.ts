@@ -1,7 +1,8 @@
 import { LevelDefinition, type IPoint } from '@deadlock/game';
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, Filter, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 
 @Entity({ tableName: 'level' })
+// @Filter({ name: 'not-deleted', default: true, cond: { deletedAt: null } })
 export class SqlLevel implements LevelDefinition {
   @PrimaryKey()
   id!: string;
@@ -19,20 +20,25 @@ export class SqlLevel implements LevelDefinition {
   start!: IPoint;
 
   @Property({ type: 'json' })
-  teleports!: IPoint[];
+  teleports!: Array<IPoint>;
 
   @Property()
+  @Unique()
   fingerprint!: string;
 
-  @Property()
+  @Property({ type: 'real' })
+  @Unique()
   levelNumber?: number;
 
-  @Property()
+  @Property({ type: 'real' })
   difficulty!: number;
 
-  @Property()
+  @Property({ type: 'real' })
   numberOfSolutionsScore!: number;
 
-  @Property()
+  @Property({ type: 'real' })
   easiestSolutionScore!: number;
+
+  // @Property()
+  // deletedAt?: Date;
 }

@@ -11,7 +11,7 @@ import {
   round,
   toObject,
 } from '@deadlock/game';
-import { EntityManager, SqlLevel, SqlLevelSession, SqlSolution, ormMiddleware } from '@deadlock/persistence';
+import { EntityManager, SqlLevel, SqlSession, SqlSolution, ormMiddleware } from '@deadlock/persistence';
 import { RequestHandler, Router } from 'express';
 import * as yup from 'yup';
 
@@ -65,7 +65,7 @@ const storeLevelSession = (em: EntityManager): RequestHandler => {
     const ip = String(req.headers['x-forwarded-for'] ?? req.socket.remoteAddress);
     const body = await sessionBodySchema.validate(req.body);
 
-    const session = new SqlLevelSession();
+    const session = new SqlSession();
 
     session.id = randomId();
     session.date = new Date();
@@ -110,9 +110,9 @@ const updateLevel = (em: EntityManager): RequestHandler<{ levelId: string }> => 
 
 const getStatistics = (em: EntityManager): RequestHandler => {
   return async (req, res) => {
-    const map = new MapSet<string, SqlLevelSession>();
+    const map = new MapSet<string, SqlSession>();
 
-    for (const session of await em.find(SqlLevelSession, {})) {
+    for (const session of await em.find(SqlSession, {})) {
       map.add(session.level.id, session);
     }
 
@@ -126,7 +126,7 @@ const getStatistics = (em: EntityManager): RequestHandler => {
   };
 };
 
-const formatLevelStats = (sessions: SqlLevelSession[]) => ({
+const formatLevelStats = (sessions: SqlSession[]) => ({
   played: sessions.length,
   completed: sessions.filter(({ completed }) => completed).length,
   skipped: sessions.filter(({ completed }) => !completed).length,

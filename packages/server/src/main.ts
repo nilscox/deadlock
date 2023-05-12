@@ -11,7 +11,7 @@ import { config } from './config';
 startServer().catch(console.error);
 
 async function startServer() {
-  const orm = await createOrm(config.dbPath, config.dbDebug === 'true');
+  const orm = await createOrm(config.dbUrl, config.dbDebug);
   const app = express();
 
   app.use(cors({ origin: true }));

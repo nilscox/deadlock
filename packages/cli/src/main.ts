@@ -63,7 +63,7 @@ program
   .action(info);
 
 async function main() {
-  const orm = await createOrm('../../db.sqlite');
+  const orm = await createOrm(process.env.DB_URL as string, false);
 
   setOrm(orm, orm.em.fork());
 
