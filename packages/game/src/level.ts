@@ -123,7 +123,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   }
 
   isEdge(x: number, y: number) {
-    return x === 0 || y === 0 || x === this.definition.width - 1 || y === this.definition.height - 1;
+    return x === 0 || y === 0 || x === this._definition.width - 1 || y === this._definition.height - 1;
   }
 
   isEdgeBlock(x: number, y: number, visited = new Set<string>()): boolean {
@@ -221,7 +221,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
 
   movePlayerBack(player: Player): boolean {
     const prevPosition = player.position;
-    const teleports = this.definition.teleports;
+    const teleports = this._definition.teleports;
 
     if (teleports.find((point) => player.position.equals(point))) {
       const other = teleports.find((cell) => !player.position.equals(cell));
@@ -345,7 +345,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
       line.push('|');
     });
 
-    lines.unshift(['+', ...Array<string>(this.definition.width).fill('-'), '+']);
+    lines.unshift(['+', ...Array<string>(this._definition.width).fill('-'), '+']);
     lines.push(lines[0]);
 
     return lines.map((line) => line.join('')).join('\n');

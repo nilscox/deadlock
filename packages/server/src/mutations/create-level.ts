@@ -28,4 +28,6 @@ export async function createLevel(em: EntityManager, definition: LevelDefinition
   });
 
   await em.persistAndFlush(level);
+
+  return level.id;
 }

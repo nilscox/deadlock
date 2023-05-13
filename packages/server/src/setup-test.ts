@@ -1,8 +1,8 @@
-import { randomId } from '@deadlock/game';
+import { LevelDefinition, randomId } from '@deadlock/game';
 import { EntityManager, Orm, SqlLevel, SqlSession, SqlSolution, createOrm } from '@deadlock/persistence';
 
 const dbUrl = process.env.DB_URL ?? 'postgresql://postgres@localhost/test';
-assert(dbUrl.endsWith('/test'), 'DB_URL must use a database named "test"');
+assert(dbUrl.endsWith('/test'), `DB_URL must specify a database named "test", got "${dbUrl}"`);
 
 function createId() {
   return Math.random().toString(36).slice(-6);
@@ -14,13 +14,17 @@ const createFactory = <T>(getDefaults: () => T): Factory<T> => {
   return (overrides) => ({ ...getDefaults(), ...overrides });
 };
 
-export const createLevel = createFactory<SqlLevel>(() => ({
-  id: createId(),
+export const createLevelDefinition = createFactory<LevelDefinition>(() => ({
   width: 0,
   height: 0,
   blocks: [],
   start: { x: 0, y: 0 },
   teleports: [],
+}));
+
+export const createLevel = createFactory<LevelDefinition>(() => ({
+  ...createLevelDefinition(),
+  id: createId(),
   fingerprint: randomId(),
   position: 0,
   difficulty: 0,
