@@ -34,7 +34,7 @@ export const setupTest = () => {
   let em: EntityManager;
 
   beforeEach(async () => {
-    orm = await createOrm('postgresql://postgres@localhost/test', true);
+    orm = await createOrm('postgresql://postgres@localhost/test', false);
     em = orm.em.fork();
 
     const schemaGenerator = orm.getSchemaGenerator();
@@ -53,6 +53,10 @@ export const setupTest = () => {
     return em.fork();
   };
 
+  const debug = (debug = true) => {
+    em.config.getLogger().setDebugMode(debug);
+  };
+
   const save = async <T extends SqlEntity>(entity: T) => {
     await em.persistAndFlush(entity);
     return entity;
@@ -64,6 +68,7 @@ export const setupTest = () => {
 
   return {
     getEntityManager,
+    debug,
     save,
     create,
   };
