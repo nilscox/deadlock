@@ -52,6 +52,9 @@ importers:
       '@deadlock/game':
         specifier: workspace:*
         version: link:../game
+      '@dnd-kit/core':
+        specifier: ^6.0.8
+        version: 6.0.8(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/react-query':
         specifier: ^4.29.5
         version: 4.29.5(react-dom@18.2.0)(react@18.2.0)
@@ -127,10 +130,10 @@ importers:
         version: 7.0.11
       tailwindcss:
         specifier: ^3.3.2
-        version: 3.3.2
+        version: 3.3.2(ts-node@10.9.1)
       vite:
         specifier: ^4.3.2
-        version: 4.3.2
+        version: 4.3.2(@types/node@20.1.0)
 
   packages/game: {}
 
@@ -1519,6 +1522,37 @@ packages:
     engines: {node: '>=10.0.0'}
     dev: true
 
+  /@dnd-kit/accessibility@3.0.1(react@18.2.0):
+    resolution: {integrity: sha512-HXRrwS9YUYQO9lFRc/49uO/VICbM+O+ZRpFDe9Pd1rwVv2PCNkRiTZRdxrDgng/UkvdC3Re9r2vwPpXXrWeFzg==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      tslib: 2.5.0
+    dev: false
+
+  /@dnd-kit/core@6.0.8(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-lYaoP8yHTQSLlZe6Rr9qogouGUz9oRUj4AHhDQGQzq/hqaJRpFo65X+JKsdHf8oUFBzx5A+SJPUvxAwTF2OabA==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      '@dnd-kit/accessibility': 3.0.1(react@18.2.0)
+      '@dnd-kit/utilities': 3.2.1(react@18.2.0)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      tslib: 2.5.0
+    dev: false
+
+  /@dnd-kit/utilities@3.2.1(react@18.2.0):
+    resolution: {integrity: sha512-OOXqISfvBw/1REtkSK2N3Fi2EQiLMlWUlqnOK/UpOISqBZPWpE6TqL+jcPtMOkE8TqYGiURvRdPSI9hltNUjEA==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      tslib: 2.5.0
+    dev: false
+
   /@emotion/use-insertion-effect-with-fallbacks@1.0.1(react@18.2.0):
     resolution: {integrity: sha512-jT/qyKZ9rzLErtrjGgdkMBn2OP8wl0G3sQlBb3YPryvKHsjvINUhVaPFfP+fpBcOkmrVOVEEHQFJ7nbj2TH2gw==}
     peerDependencies:
@@ -1742,7 +1776,7 @@ packages:
       eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
     dependencies:
       eslint: 8.40.0
-      eslint-visitor-keys: 3.4.1
+      eslint-visitor-keys: 3.4.0
     dev: true
 
   /@eslint-community/regexpp@4.5.1:
@@ -1898,7 +1932,7 @@ packages:
       magic-string: 0.27.0
       react-docgen-typescript: 2.2.2(typescript@5.0.4)
       typescript: 5.0.4
-      vite: 4.3.2
+      vite: 4.3.2(@types/node@20.1.0)
     dev: true
 
   /@jridgewell/gen-mapping@0.3.3:
@@ -2568,7 +2602,7 @@ packages:
       remark-slug: 6.1.0
       rollup: 3.21.2
       typescript: 5.0.4
-      vite: 4.3.2
+      vite: 4.3.2(@types/node@20.1.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -2930,7 +2964,7 @@ packages:
       react: 18.2.0
       react-docgen: 6.0.0-alpha.3
       react-dom: 18.2.0(react@18.2.0)
-      vite: 4.3.2
+      vite: 4.3.2(@types/node@20.1.0)
     transitivePeerDependencies:
       - '@preact/preset-vite'
       - supports-color
@@ -3513,7 +3547,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.19.6(@babel/core@7.21.8)
       magic-string: 0.27.0
       react-refresh: 0.14.0
-      vite: 4.3.2
+      vite: 4.3.2(@types/node@20.1.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -3528,7 +3562,7 @@ packages:
       '@babel/plugin-transform-react-jsx-self': 7.21.0(@babel/core@7.21.8)
       '@babel/plugin-transform-react-jsx-source': 7.19.6(@babel/core@7.21.8)
       react-refresh: 0.14.0
-      vite: 4.3.2
+      vite: 4.3.2(@types/node@20.1.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -7483,7 +7517,7 @@ packages:
       postcss: 8.4.23
     dev: true
 
-  /postcss-load-config@4.0.1(postcss@8.4.23):
+  /postcss-load-config@4.0.1(postcss@8.4.23)(ts-node@10.9.1):
     resolution: {integrity: sha512-vEJIc8RdiBRu3oRAI0ymerOn+7rPuMvRXslTvZUKZonDHFIczxztIyJ1urxM1x9JXEikvpWWTUUqal5j/8QgvA==}
     engines: {node: '>= 14'}
     peerDependencies:
@@ -7497,6 +7531,7 @@ packages:
     dependencies:
       lilconfig: 2.1.0
       postcss: 8.4.23
+      ts-node: 10.9.1(@types/node@20.1.0)(typescript@5.0.4)
       yaml: 2.2.2
     dev: true
 
@@ -8553,7 +8588,7 @@ packages:
       tslib: 2.5.0
     dev: true
 
-  /tailwindcss@3.3.2:
+  /tailwindcss@3.3.2(ts-node@10.9.1):
     resolution: {integrity: sha512-9jPkMiIBXvPc2KywkraqsUfbfj+dHDb+JPWtSJa9MLFdrPyazI7q6WX2sUrm7R9eVR7qqv3Pas7EvQFzxKnI6w==}
     engines: {node: '>=14.0.0'}
     hasBin: true
@@ -8575,7 +8610,7 @@ packages:
       postcss: 8.4.23
       postcss-import: 15.1.0(postcss@8.4.23)
       postcss-js: 4.0.1(postcss@8.4.23)
-      postcss-load-config: 4.0.1(postcss@8.4.23)
+      postcss-load-config: 4.0.1(postcss@8.4.23)(ts-node@10.9.1)
       postcss-nested: 6.0.1(postcss@8.4.23)
       postcss-selector-parser: 6.0.12
       postcss-value-parser: 4.2.0
@@ -8818,7 +8853,6 @@ packages:
 
   /tslib@2.5.0:
     resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
-    dev: true
 
   /tsutils@3.21.0(typescript@5.0.4):
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
@@ -9112,38 +9146,6 @@ packages:
       - sugarss
       - supports-color
       - terser
-    dev: true
-
-  /vite@4.3.2:
-    resolution: {integrity: sha512-9R53Mf+TBoXCYejcL+qFbZde+eZveQLDYd9XgULILLC1a5ZwPaqgmdVpL8/uvw2BM/1TzetWjglwm+3RO+xTyw==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.17.18
-      postcss: 8.4.23
-      rollup: 3.21.2
-    optionalDependencies:
-      fsevents: 2.3.2
     dev: true
 
   /vite@4.3.2(@types/node@20.1.0):

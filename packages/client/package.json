@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@deadlock/game": "workspace:*",
+    "@dnd-kit/core": "^6.0.8",
     "@tanstack/react-query": "^4.29.5",
     "@tanstack/react-query-devtools": "^4.29.6",
     "clsx": "^1.2.1",

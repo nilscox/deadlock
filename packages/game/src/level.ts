@@ -168,8 +168,13 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     return cells.filter((cell) => cell.type === type);
   }
 
-  private set(x: number, y: number, type: CellType) {
+  set(x: number, y: number, type: CellType) {
     this._cells[y][x] = type;
+
+    this._definition.blocks = this.cells(CellType.block).map(({ x, y }) => ({ x, y }));
+    this._definition.start = this.cells(CellType.player).map(({ x, y }) => ({ x, y }))[0];
+    this._definition.teleports = this.cells(CellType.teleport).map(({ x, y }) => ({ x, y }));
+
     this.emit(LevelEvent.cellChanged, { x, y, type });
   }
 
