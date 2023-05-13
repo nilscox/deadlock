@@ -23,6 +23,8 @@ export const createLevel = createFactory<SqlLevel>(() => ({
   difficulty: 0,
   numberOfSolutionsScore: 0,
   easiestSolutionScore: 0,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 }));
 
 type SqlEntity = SqlLevel | SqlSession | SqlSolution;

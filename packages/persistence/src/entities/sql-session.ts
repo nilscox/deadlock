@@ -1,12 +1,10 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, ManyToOne, Property } from '@mikro-orm/core';
 
+import { SqlEntity } from './sql-entity';
 import { SqlLevel } from './sql-level';
 
 @Entity({ tableName: 'session' })
-export class SqlSession {
-  @PrimaryKey()
-  id!: string;
-
+export class SqlSession extends SqlEntity {
   @Property()
   date!: Date;
 

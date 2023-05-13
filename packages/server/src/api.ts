@@ -42,6 +42,8 @@ export function api(em: EntityManager) {
     res.end();
   });
 
+  router.delete('/level/:levelId', deleteLevel(em));
+  
   router.get('/stats', getStatistics(em));
   router.get('/solutions', getSolutions(em));
 
@@ -89,6 +91,24 @@ const storeLevelSession = (em: EntityManager): RequestHandler => {
     session.time = body.time;
 
     await em.persistAndFlush(session);
+
+    res.status(204);
+    res.end();
+  };
+};
+
+const deleteLevel = (em: EntityManager): RequestHandler<{ levelId: string }> => {
+  return async (req, res, next) => {
+    const { levelId } = req.params;
+    const level = await em.findOne(SqlLevel, levelId);
+
+    if (!level) {
+      return next();
+    }
+
+    await em.nativeUpdate(SqlLevel, levelId, { deletedAt: new Date() });
+
+    await em.flush();
 
     res.status(204);
     res.end();

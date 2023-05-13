@@ -1,12 +1,11 @@
 import { LevelDefinition, type IPoint } from '@deadlock/game';
-import { Entity, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { Entity, Filter, Property, Unique } from '@mikro-orm/core';
+
+import { SqlEntity } from './sql-entity';
 
 @Entity({ tableName: 'level' })
-// @Filter({ name: 'not-deleted', default: true, cond: { deletedAt: null } })
-export class SqlLevel implements LevelDefinition {
-  @PrimaryKey()
-  id!: string;
-
+@Filter({ name: 'not-deleted', default: true, cond: { deletedAt: null } })
+export class SqlLevel extends SqlEntity implements LevelDefinition {
   @Property()
   width!: number;
 
@@ -39,6 +38,6 @@ export class SqlLevel implements LevelDefinition {
   @Property({ type: 'real' })
   easiestSolutionScore!: number;
 
-  // @Property()
-  // deletedAt?: Date;
+  @Property()
+  deletedAt?: Date;
 }

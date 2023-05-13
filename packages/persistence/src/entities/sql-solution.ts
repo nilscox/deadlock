@@ -1,12 +1,10 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, ManyToOne, Property } from '@mikro-orm/core';
 
+import { SqlEntity } from './sql-entity';
 import { type SqlLevel } from './sql-level';
 
 @Entity({ tableName: 'solution' })
-export class SqlSolution {
-  @PrimaryKey()
-  id!: string;
-
+export class SqlSolution extends SqlEntity {
   @ManyToOne()
   level!: SqlLevel;
 
