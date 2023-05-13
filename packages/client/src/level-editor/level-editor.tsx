@@ -1,4 +1,4 @@
-import { CellType, Level, LevelDefinition, Cell as TCell, array } from '@deadlock/game';
+import { CellType, Level, LevelDefinition, Cell as TCell, array, solve } from '@deadlock/game';
 import {
   DndContext,
   DragEndEvent,
@@ -9,6 +9,7 @@ import {
 } from '@dnd-kit/core';
 import { clsx } from 'clsx';
 import { forwardRef, useCallback, useMemo, useState } from 'react';
+import { Link } from 'wouter';
 
 const clone = <T,>(value: T): T => {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -23,23 +24,34 @@ type LevelEditorProps = {
 
 export const LevelEditor = ({ definition, onChange }: LevelEditorProps) => {
   const level = useMemo(() => new Level(definition), [definition]);
+  const solutions = useMemo(() => solve(new Level(clone(definition)), 500), [definition]);
+
   const handleChangeSize = useSizeChangeHandler(level, onChange);
   const [dragging, handleDragStart, handleDragEnd] = useDragHandlers(level, onChange);
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="p-4 row max-w-lg md:max-w-2xl">
-        <HeightSlider height={definition.height} onChange={(height) => handleChangeSize({ height })} />
-
-        <div className="flex-1 col">
-          <div className="flex-1 col items-center justify-center">
-            <CellsGrid level={level} />
-          </div>
-
-          <WidthSlider width={definition.width} onChange={(width) => handleChangeSize({ width })} />
+      <div className="col gap-4 p-4 max-w-lg md:max-w-2xl">
+        <div className="row">
+          <div>Solutions: {solutions === undefined ? '> 500' : solutions.length}</div>
+          <Link to={`/test?hash=${level.hash}`} className="ml-auto row items-center gap-2">
+            Test <div className="text-muted">➜</div>
+          </Link>
         </div>
 
-        <NewCells />
+        <div className="row">
+          <HeightSlider height={definition.height} onChange={(height) => handleChangeSize({ height })} />
+
+          <div className="flex-1 col">
+            <div className="flex-1 col items-center justify-center">
+              <CellsGrid level={level} />
+            </div>
+
+            <WidthSlider width={definition.width} onChange={(width) => handleChangeSize({ width })} />
+          </div>
+
+          <NewCells />
+        </div>
       </div>
 
       <DragOverlay dropAnimation={null}>{dragging && <Cell type={dragging.type} />}</DragOverlay>

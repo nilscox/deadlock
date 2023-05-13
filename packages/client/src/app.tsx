@@ -9,6 +9,7 @@ import { GameView } from './views/game-view';
 import { LevelsView } from './views/levels-view';
 import { NotFoundView } from './views/not-found-view';
 import { TestView } from './views/test-view';
+import { LevelEditorView } from './views/level-editor-view';
 
 export const App = () => (
   <>
@@ -34,6 +35,10 @@ export const App = () => (
 
         <Route<{ levelId: string }> path="/level/:levelId">
           {(params) => <GameViewUnsafe levelId={params.levelId} />}
+        </Route>
+
+        <Route path="/level-editor">
+          <LevelEditorView />
         </Route>
 
         <Route path="/test">
