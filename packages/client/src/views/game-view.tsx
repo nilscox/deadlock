@@ -1,4 +1,4 @@
-import { Game as GameClass, LevelEvent, assert } from '@deadlock/game';
+import { Game as GameClass, Level, LevelEvent, assert } from '@deadlock/game';
 import { clsx } from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
@@ -20,6 +20,8 @@ type GameViewProps = {
 };
 
 export const GameView = ({ levelId }: GameViewProps) => {
+  const navigate = useNavigate();
+
   const definition = useLevelDefinition(levelId);
   const levelNumber = useLevelNumber(levelId);
   const completed = useIsLevelCompleted(levelId);
@@ -90,7 +92,10 @@ export const GameView = ({ levelId }: GameViewProps) => {
       </div>
 
       <div className="flex-1 col justify-center text-center">
-        <div className={clsx('transition-colors text-xl font-semibold', completed && 'text-green')}>
+        <div
+          className={clsx('transition-colors text-xl font-semibold', completed && 'text-green')}
+          onDoubleClick={() => navigate(`/level-editor?hash=${new Level(definition).hash}`)}
+        >
           Level {levelNumber}
         </div>
         <div className="text-muted">{levelId}</div>
