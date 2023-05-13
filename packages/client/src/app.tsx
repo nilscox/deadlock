@@ -6,10 +6,10 @@ import { useLevelExists, useLevelsIds, useLevelsMatching } from './game/levels-c
 import { useNavigate } from './hooks/use-navigate';
 import { AdminView } from './views/admin-view';
 import { GameView } from './views/game-view';
+import { LevelEditorView } from './views/level-editor-view';
 import { LevelsView } from './views/levels-view';
 import { NotFoundView } from './views/not-found-view';
 import { TestView } from './views/test-view';
-import { LevelEditorView } from './views/level-editor-view';
 
 export const App = () => (
   <>

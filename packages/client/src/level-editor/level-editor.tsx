@@ -9,7 +9,6 @@ import {
 } from '@dnd-kit/core';
 import { clsx } from 'clsx';
 import { forwardRef, useCallback, useMemo, useState } from 'react';
-import { Link } from 'wouter';
 
 const clone = <T,>(value: T): T => {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -31,14 +30,7 @@ export const LevelEditor = ({ definition, onChange }: LevelEditorProps) => {
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="col gap-4 p-4 max-w-lg md:max-w-2xl">
-        <div className="row">
-          <div>Solutions: {solutions === undefined ? '> 500' : solutions.length}</div>
-          <Link to={`/test?hash=${level.hash}`} className="ml-auto row items-center gap-2">
-            Test <div className="text-muted">➜</div>
-          </Link>
-        </div>
-
+      <div className="flex-1 justify-center col gap-4 p-4 max-w-lg md:max-w-2xl">
         <div className="row">
           <HeightSlider height={definition.height} onChange={(height) => handleChangeSize({ height })} />
 
@@ -54,6 +46,7 @@ export const LevelEditor = ({ definition, onChange }: LevelEditorProps) => {
         </div>
       </div>
 
+      <div>Solutions: {solutions === undefined ? '> 500' : solutions.length}</div>
       <DragOverlay dropAnimation={null}>{dragging && <Cell type={dragging.type} />}</DragOverlay>
     </DndContext>
   );
@@ -263,7 +256,7 @@ type DraggableCellNewProps = {
 };
 
 const DraggableCellNew = ({ type }: DraggableCellNewProps) => {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef } = useDraggable({
     id: `new-${type}`,
     data: { type },
   });

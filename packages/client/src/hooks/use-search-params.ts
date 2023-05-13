@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from 'react';
-import { useLocationProperty } from 'wouter/use-location';
-import { useNavigate } from './use-navigate';
 import { useLocation } from 'wouter';
+import { useLocationProperty } from 'wouter/use-location';
+
+import { useNavigate } from './use-navigate';
 
 const searchParams = () => window.location.search;
 
@@ -37,5 +38,5 @@ export const useSearchParam = (key: string) => {
     [key, location, navigate]
   );
 
-  return [value, setSearchParam] as const;
+  return [value ?? undefined, setSearchParam] as const;
 };

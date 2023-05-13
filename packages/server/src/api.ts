@@ -1,7 +1,9 @@
+import { LevelDefinition } from '@deadlock/game';
 import { EntityManager, ormMiddleware } from '@deadlock/persistence';
 import { Router } from 'express';
 import * as yup from 'yup';
 
+import { createLevel } from './mutations/create-level';
 import { deleteLevel } from './mutations/delete-level';
 import { storeSession } from './mutations/store-session';
 import { updateLevel } from './mutations/upate-level';
@@ -28,6 +30,15 @@ export function api(em: EntityManager) {
     const body = await sessionBodySchema.validate(req.body);
 
     await storeSession(em, ip, body);
+
+    res.status(204);
+    res.end();
+  });
+
+  router.post('/level', async (req, res) => {
+    const body = await createLevelBodySchema.validate(req.body);
+
+    await createLevel(em, body.definition as LevelDefinition);
 
     res.status(204);
     res.end();
@@ -78,4 +89,8 @@ const sessionBodySchema = yup.object({
   completed: yup.boolean().required(),
   tries: yup.number().required(),
   time: yup.number().required(),
+});
+
+const createLevelBodySchema = yup.object({
+  definition: yup.object().required(),
 });

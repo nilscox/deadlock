@@ -26,7 +26,17 @@
   },
 
   "rules": {
-    "react/prop-types": false,
+    "react/prop-types": "off",
+    "react/display-name": "off",
     "react-refresh/only-export-components": "warn"
-  }
+  },
+
+  "overrides": [
+    {
+      "files": "*.stories.tsx",
+      "rules": {
+        "react-hooks/rules-of-hooks": "off"
+      }
+    }
+  ]
 }

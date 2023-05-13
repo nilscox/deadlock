@@ -1,11 +1,11 @@
 import { Level, LevelDefinition } from '@deadlock/game';
 import { useMemo } from 'react';
 import { Helmet } from 'react-helmet';
+import { Link, Redirect } from 'wouter';
 
 import { Game } from '../game/game';
 import { useSearchParam } from '../hooks/use-search-params';
 import { MobileView } from '../mobile-view';
-import { Link } from 'wouter';
 
 export const TestView = () => {
   const [definition] = useSearchParam('definition');
@@ -16,6 +16,10 @@ export const TestView = () => {
     if (hash) return Level.fromHash(hash);
     throw new Error('missing definition or hash query parameter');
   }, [definition, hash]);
+
+  if (!hash) {
+    return <Redirect to="/level-editor" />;
+  }
 
   return (
     <MobileView>

@@ -13,9 +13,9 @@ import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from '
 import { areEqual, FixedSizeList as List } from 'react-window';
 import { Link } from 'wouter';
 
+import { api } from '../api';
 import { Game } from '../game/game';
 import { useLevelsIds } from '../game/levels-context';
-import { getConfig } from '../hooks/use-config';
 import { copy } from '../utils';
 
 // cspell:word unvalidated
@@ -381,30 +381,6 @@ const useLevelInstance = (levelId: string) => {
 
 const useIsLevelValidated = (levelId: string) => {
   return useLevelsIds().includes(levelId);
-};
-
-const api = {
-  async get<Result>(url: string) {
-    const { serverUrl } = getConfig();
-    const response = await fetch(`${serverUrl}${url}`);
-    return response.json() as Promise<Result>;
-  },
-
-  async patch(url: string, body: unknown) {
-    const { serverUrl } = getConfig();
-    await fetch(`${serverUrl}${url}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-  },
-
-  async delete(url: string) {
-    const { serverUrl } = getConfig();
-    await fetch(`${serverUrl}${url}`, {
-      method: 'DELETE',
-    });
-  },
 };
 
 const useRefetchLevels = () => {

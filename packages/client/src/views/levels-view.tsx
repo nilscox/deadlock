@@ -16,6 +16,10 @@ export const LevelsView = () => {
           <Level key={levelId} levelId={levelId} />
         ))}
       </div>
+
+      <Link to="/level-editor" className="py-12 text-center">
+        Level editor
+      </Link>
     </MobileView>
   );
 };
