@@ -198,7 +198,10 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
 
     if (cell === CellType.teleport) {
       const teleports = this.cells(CellType.teleport).filter((cell) => !p.equals(cell));
-      assert(teleports.length === 1);
+
+      if (teleports.length !== 1) {
+        return false;
+      }
 
       this.set(player.position.x, player.position.y, CellType.path);
       this.set(p.x, p.y, CellType.path);
