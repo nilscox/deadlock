@@ -419,7 +419,7 @@ const useAllLevels = () => {
   const { data } = useQuery({
     queryKey: ['levels', 'all'],
     queryFn: async () => {
-      const result = await api.get<Record<string, LevelDefinition>>('/levels/all');
+      const result = await api.get<Record<string, LevelDefinition>>('/levels');
       return Object.entries(result).map(([id, definition]) => ({ id, definition }));
     },
   });
