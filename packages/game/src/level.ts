@@ -52,7 +52,15 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   }
 
   get definition(): LevelDefinition {
-    return this._definition;
+    const cellToPoint = ({ x, y }: Cell) => ({ x, y });
+
+    return {
+      width: this._definition.width,
+      height: this._definition.height,
+      start: cellToPoint(this.cells(CellType.player)[0]),
+      blocks: this.cells(CellType.block).map(cellToPoint),
+      teleports: this.cells(CellType.teleport).map(cellToPoint),
+    };
   }
 
   get start() {
@@ -170,11 +178,6 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
 
   set(x: number, y: number, type: CellType) {
     this._cells[y][x] = type;
-
-    this._definition.blocks = this.cells(CellType.block).map(({ x, y }) => ({ x, y }));
-    this._definition.start = this.cells(CellType.player).map(({ x, y }) => ({ x, y }))[0];
-    this._definition.teleports = this.cells(CellType.teleport).map(({ x, y }) => ({ x, y }));
-
     this.emit(LevelEvent.cellChanged, { x, y, type });
   }
 
