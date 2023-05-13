@@ -23,6 +23,9 @@ const definition = {
 
 export default {
   title: 'LevelEditor',
+  parameters: {
+    layout: 'fullscreen',
+  },
   args: {
     definition,
   },

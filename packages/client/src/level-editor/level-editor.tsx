@@ -28,11 +28,11 @@ export const LevelEditor = ({ definition, onChange }: LevelEditorProps) => {
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="inline-flex flex-row">
+      <div className="p-4 row max-w-lg md:max-w-2xl">
         <HeightSlider height={definition.height} onChange={(height) => handleChangeSize({ height })} />
 
-        <div className="flex-1">
-          <div className="col items-center justify-center h-full">
+        <div className="flex-1 col">
+          <div className="flex-1 col items-center justify-center">
             <CellsGrid level={level} />
           </div>
 
@@ -55,7 +55,7 @@ type WidthSliderProps = {
 const WidthSlider = ({ width, onChange }: WidthSliderProps) => (
   <div className="col items-center">
     <input
-      className="w-[410px]"
+      className="w-full"
       type="range"
       min={0}
       max={6}
@@ -73,7 +73,7 @@ type HeightSliderProps = {
 };
 
 const HeightSlider = ({ height, onChange }: HeightSliderProps) => (
-  <div className="row items-center h-[410px] gap-2">
+  <div className="row items-center h-[300px] md:h-[480px] gap-1 pb-10">
     {height}
     <input
       type="range"
@@ -170,7 +170,7 @@ const CellsGrid = ({ level }: CellsGridProps) => {
       className="border grid"
       style={{
         gridTemplateAreas: areas,
-        gridTemplateColumns: `repeat(${level.definition.width}, 60px)`,
+        gridTemplateColumns: `repeat(${level.definition.width}, 1fr)`,
       }}
     >
       {level.cells(CellType.empty).map((cell) => (
@@ -197,7 +197,7 @@ const gridArea = (x: number, y: number) => {
 };
 
 const NewCells = () => (
-  <div className="col gap-4 justify-center">
+  <div className="col gap-4 justify-center w-[40px] md:w-[80px] ml-4">
     <DraggableCellNew type={CellType.block} />
     <DraggableCellNew type={CellType.teleport} />
   </div>
@@ -272,5 +272,5 @@ type CellProps = React.HTMLProps<HTMLDivElement> & {
 };
 
 const Cell = forwardRef<HTMLDivElement, CellProps>(({ type, className, ...props }, ref) => (
-  <div ref={ref} className={clsx('w-[60px] h-[60px]', colors[type], className)} {...props} />
+  <div ref={ref} className={clsx('w-[40px] md:w-[60px] aspect-square', colors[type], className)} {...props} />
 ));
