@@ -1,5 +1,5 @@
 import { LevelDefinition, type IPoint } from '@deadlock/game';
-import { Entity, Filter, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 
 @Entity({ tableName: 'level' })
 // @Filter({ name: 'not-deleted', default: true, cond: { deletedAt: null } })
@@ -26,9 +26,9 @@ export class SqlLevel implements LevelDefinition {
   @Unique()
   fingerprint!: string;
 
-  @Property({ type: 'real' })
+  @Property()
   @Unique()
-  levelNumber?: number;
+  position!: number;
 
   @Property({ type: 'real' })
   difficulty!: number;

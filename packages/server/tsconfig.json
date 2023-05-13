@@ -12,7 +12,8 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "types": ["vitest/globals"]
   },
   "ts-node": {
     "esm": true,

@@ -10,9 +10,9 @@
     "lint": "eslint src",
     "mikro-orm": "DB_URL=postgresql://postgres@localhost/deadlock mikro-orm-esm",
     "mo": "pnpm mikro-orm",
-    "create-migration": "pnpm mikro-orm migration:create",
-    "migrate": "pnpm mikro-orm migration:up",
-    "clear-db": "pnpm mikro-orm migration:fresh"
+    "db:create-migration": "pnpm mikro-orm migration:create",
+    "db:migrate": "pnpm mikro-orm migration:up",
+    "db:reset": "pnpm mikro-orm migration:fresh"
   },
   "dependencies": {
     "@deadlock/game": "workspace:*",

@@ -15,7 +15,13 @@ import { EntityManager, SqlLevel, SqlSession, SqlSolution, ormMiddleware } from 
 import { RequestHandler, Router } from 'express';
 import * as yup from 'yup';
 
+import { updateLevel } from './mutations/upate-level';
+
 /* eslint-disable @typescript-eslint/no-misused-promises */
+
+const updateLevelSchema = yup.object({
+  position: yup.number().min(0).optional(),
+});
 
 export function api(em: EntityManager) {
   const router = Router();
@@ -25,7 +31,17 @@ export function api(em: EntityManager) {
   router.get('/levels', getLevels(em));
   router.get('/levels/all', getLevels(em, true));
   router.post('/session', storeLevelSession(em));
-  router.patch('/level/:levelId', updateLevel(em));
+
+  router.patch('/level/:levelId', async (req, res) => {
+    const levelId = req.params.levelId;
+    const body = await updateLevelSchema.validate(req.body);
+
+    await updateLevel(em, levelId, body);
+
+    res.status(204);
+    res.end();
+  });
+
   router.get('/stats', getStatistics(em));
   router.get('/solutions', getSolutions(em));
 
@@ -34,11 +50,8 @@ export function api(em: EntityManager) {
 
 const getLevels = (em: EntityManager, all = false): RequestHandler => {
   return async (req, res) => {
-    const levels = await em.find(SqlLevel, all ? {} : { levelNumber: { $ne: null } }, {
-      orderBy: {
-        levelNumber: 'asc nulls last' as 'asc_nulls_last',
-        difficulty: 'asc',
-      },
+    const levels = await em.find(SqlLevel, all ? {} : { position: { $ne: null } }, {
+      orderBy: { position: 'asc' },
     });
 
     res.json(toObject(levels, ({ id }) => id, formatLevel));
@@ -76,32 +89,6 @@ const storeLevelSession = (em: EntityManager): RequestHandler => {
     session.time = body.time;
 
     await em.persistAndFlush(session);
-
-    res.status(204);
-    res.end();
-  };
-};
-
-const updateLevelSchema = yup.object({
-  levelNumber: yup.number().min(0).optional(),
-});
-
-const updateLevel = (em: EntityManager): RequestHandler<{ levelId: string }> => {
-  return async (req, res, next) => {
-    const { levelId } = req.params;
-    const level = await em.findOne(SqlLevel, levelId);
-
-    if (!level) {
-      return next();
-    }
-
-    const { levelNumber } = await updateLevelSchema.validate(req.body);
-
-    if (levelNumber) {
-      level.levelNumber = levelNumber;
-    }
-
-    await em.flush();
 
     res.status(204);
     res.end();

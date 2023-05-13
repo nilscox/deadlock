@@ -451,7 +451,7 @@ const useSetLevelNumber = (levelId: string) => {
 
   const { mutate } = useMutation({
     onSuccess: refetchLevels,
-    mutationFn: (levelNumber: number) => api.patch(`/level/${levelId}`, { levelNumber }),
+    mutationFn: (levelNumber: number) => api.patch(`/level/${levelId}`, { position: levelNumber }),
   });
 
   return mutate;

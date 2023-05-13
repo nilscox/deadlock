@@ -1,13 +1,11 @@
 import { Migration } from '@mikro-orm/migrations';
 
-/* eslint-disable */
-
-export class Migration20230512214226 extends Migration {
+export class Migration20230513010517 extends Migration {
 
   async up(): Promise<void> {
-    this.addSql('create table "level" ("id" varchar(255) not null, "width" int not null, "height" int not null, "blocks" jsonb not null, "start" jsonb not null, "teleports" jsonb not null, "fingerprint" varchar(255) not null, "level_number" real null, "difficulty" real not null, "number_of_solutions_score" real not null, "easiest_solution_score" real not null, constraint "level_pkey" primary key ("id"));');
+    this.addSql('create table "level" ("id" varchar(255) not null, "width" int not null, "height" int not null, "blocks" jsonb not null, "start" jsonb not null, "teleports" jsonb not null, "fingerprint" varchar(255) not null, "position" int not null, "difficulty" real not null, "number_of_solutions_score" real not null, "easiest_solution_score" real not null, constraint "level_pkey" primary key ("id"));');
     this.addSql('alter table "level" add constraint "level_fingerprint_unique" unique ("fingerprint");');
-    this.addSql('alter table "level" add constraint "level_level_number_unique" unique ("level_number");');
+    this.addSql('alter table "level" add constraint "level_position_unique" unique ("position");');
 
     this.addSql('create table "session" ("id" varchar(255) not null, "date" timestamptz(0) not null, "ip" varchar(255) not null, "level_id" varchar(255) not null, "completed" boolean not null, "tries" int not null, "time" int not null, constraint "session_pkey" primary key ("id"));');
 
