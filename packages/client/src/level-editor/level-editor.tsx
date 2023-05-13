@@ -8,83 +8,182 @@ import {
   useDroppable,
 } from '@dnd-kit/core';
 import { clsx } from 'clsx';
-import { forwardRef, useMemo, useState } from 'react';
+import { forwardRef, useCallback, useMemo, useState } from 'react';
 
 const clone = <T,>(value: T): T => {
   return JSON.parse(JSON.stringify(value)) as T;
 };
 
+type OnDefinitionChange = (definition: LevelDefinition) => void;
+
 type LevelEditorProps = {
   definition: LevelDefinition;
-  onChange: (definition: LevelDefinition) => void;
+  onChange: OnDefinitionChange;
 };
 
 export const LevelEditor = ({ definition, onChange }: LevelEditorProps) => {
   const level = useMemo(() => new Level(definition), [definition]);
-  const areas = useMemo(() => gridTemplateAreas(definition), [definition]);
-
-  const [dragging, setDragging] = useState<TCell>();
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setDragging(event.active.data.current as TCell);
-  };
-
-  const handleDragEn = (event: DragEndEvent) => {
-    setDragging(undefined);
-
-    const isNew = String(event.active.id).startsWith('new');
-    const dragging = event.active.data.current as TCell;
-
-    if (event.over) {
-      const target = event.over.data.current as TCell;
-
-      if (!isNew) {
-        level.set(dragging.x, dragging.y, CellType.empty);
-      }
-
-      level.set(target.x, target.y, dragging.type);
-    } else {
-      if (dragging.type === CellType.player) {
-        return;
-      }
-
-      level.set(dragging.x, dragging.y, CellType.empty);
-    }
-
-    onChange(clone(level.definition));
-  };
+  const handleChangeSize = useSizeChangeHandler(level, onChange);
+  const [dragging, handleDragStart, handleDragEnd] = useDragHandlers(level, onChange);
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEn}>
-      <div
-        className="border p-4 grid max-w-xl"
-        style={{
-          gridTemplateAreas: areas,
-          gridTemplateColumns: `repeat(${level.definition.width}, 1fr)`,
-        }}
-      >
-        {level.cells(CellType.empty).map((cell) => (
-          <DroppableCell key={cellId(cell)} cell={cell} />
-        ))}
+    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <div className="inline-flex flex-row">
+        <HeightSlider height={definition.height} onChange={(height) => handleChangeSize({ height })} />
 
-        {level
-          .cells()
-          .filter(({ type }) => type !== CellType.empty)
-          .map((cell) => (
-            <DraggableCell key={cellId(cell)} cell={cell} />
-          ))}
-      </div>
+        <div className="flex-1">
+          <div className="col items-center justify-center h-full">
+            <CellsGrid level={level} />
+          </div>
 
-      <div
-        className="mt-4 grid max-w-xl gap-4"
-        style={{ gridTemplateRows: 1, gridTemplateColumns: `repeat(${level.definition.width}, 1fr)` }}
-      >
-        <DraggableCellNew type={CellType.block} />
-        <DraggableCellNew type={CellType.teleport} />
+          <WidthSlider width={definition.width} onChange={(width) => handleChangeSize({ width })} />
+        </div>
+
+        <NewCells />
       </div>
 
       <DragOverlay dropAnimation={null}>{dragging && <Cell type={dragging.type} />}</DragOverlay>
     </DndContext>
+  );
+};
+
+type WidthSliderProps = {
+  width: number;
+  onChange: (width: number) => void;
+};
+
+const WidthSlider = ({ width, onChange }: WidthSliderProps) => (
+  <div className="col items-center">
+    <input
+      className="w-[410px]"
+      type="range"
+      min={0}
+      max={6}
+      step={1}
+      value={width}
+      onChange={(event) => onChange(event.target.valueAsNumber)}
+    />
+    {width}
+  </div>
+);
+
+type HeightSliderProps = {
+  height: number;
+  onChange: (height: number) => void;
+};
+
+const HeightSlider = ({ height, onChange }: HeightSliderProps) => (
+  <div className="row items-center h-[410px] gap-2">
+    {height}
+    <input
+      type="range"
+      min={0}
+      max={6}
+      step={1}
+      className="w-4 h-full"
+      style={{ WebkitAppearance: 'slider-vertical' }}
+      value={height}
+      onChange={(event) => onChange(event.target.valueAsNumber)}
+    />
+  </div>
+);
+
+const useSizeChangeHandler = (level: Level, onChange: OnDefinitionChange) => {
+  return useCallback(
+    (size: Partial<Record<'width' | 'height', number>>) => {
+      const def = { ...level.definition, ...size };
+      const { width, height } = def;
+
+      if (def.start.x >= width || def.start.y >= height) {
+        return;
+      }
+
+      for (const cell of def.blocks) {
+        if (cell.x >= width || cell.y >= height) {
+          def.blocks.splice(def.blocks.indexOf(cell), 1);
+        }
+      }
+
+      for (const cell of def.teleports) {
+        if (cell.x >= width || cell.y >= height) {
+          def.teleports.splice(def.teleports.indexOf(cell), 1);
+        }
+      }
+
+      onChange(def);
+    },
+    [level, onChange]
+  );
+};
+
+const useDragHandlers = (level: Level, onChange: OnDefinitionChange) => {
+  const [dragging, setDragging] = useState<TCell>();
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setDragging(event.active.data.current as TCell);
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      setDragging(undefined);
+
+      const isNew = String(event.active.id).startsWith('new');
+      const dragging = event.active.data.current as TCell;
+
+      if (event.over) {
+        const target = event.over.data.current as TCell;
+
+        if (!isNew) {
+          level.set(dragging.x, dragging.y, CellType.empty);
+        }
+
+        level.set(target.x, target.y, dragging.type);
+      } else {
+        if (dragging.type === CellType.player) {
+          return;
+        }
+
+        level.set(dragging.x, dragging.y, CellType.empty);
+      }
+
+      onChange(clone(level.definition));
+    },
+    [level, onChange]
+  );
+
+  return [dragging, handleDragStart, handleDragEnd] as const;
+};
+
+const cellId = (cell: TCell) => {
+  return `${cell.x},${cell.y}`;
+};
+
+type CellsGridProps = {
+  level: Level;
+};
+
+const CellsGrid = ({ level }: CellsGridProps) => {
+  const areas = useMemo(() => gridTemplateAreas(level.definition), [level]);
+
+  return (
+    <div
+      className="border grid"
+      style={{
+        gridTemplateAreas: areas,
+        gridTemplateColumns: `repeat(${level.definition.width}, 60px)`,
+      }}
+    >
+      {level.cells(CellType.empty).map((cell) => (
+        <DroppableCell key={cellId(cell)} cell={cell} />
+      ))}
+
+      {level
+        .cells()
+        .filter(({ type }) => type !== CellType.empty)
+        .map((cell) => (
+          <DraggableCell key={cellId(cell)} cell={cell} />
+        ))}
+    </div>
   );
 };
 
@@ -97,9 +196,12 @@ const gridArea = (x: number, y: number) => {
   return `_${x}_${y}`;
 };
 
-const cellId = (cell: TCell) => {
-  return `${cell.x},${cell.y}`;
-};
+const NewCells = () => (
+  <div className="col gap-4 justify-center">
+    <DraggableCellNew type={CellType.block} />
+    <DraggableCellNew type={CellType.teleport} />
+  </div>
+);
 
 type DroppableCellProps = {
   cell: TCell;
@@ -154,36 +256,21 @@ const DraggableCellNew = ({ type }: DraggableCellNewProps) => {
     data: { type },
   });
 
-  return (
-    <Cell
-      ref={setNodeRef}
-      type={type}
-      className={clsx('outline-none', isDragging && 'opacity-50')}
-      {...listeners}
-      {...attributes}
-    />
-  );
+  return <Cell ref={setNodeRef} type={type} className="outline-none" {...listeners} {...attributes} />;
 };
 
 const colors: Record<CellType, string> = {
-  [CellType.empty]: '#FFF',
-  [CellType.block]: '#CCC',
-  [CellType.path]: '#EEE',
-  [CellType.player]: '#99F',
-  [CellType.teleport]: '#CFF',
+  [CellType.empty]: clsx('bg-[#FFF]'),
+  [CellType.block]: clsx('bg-[#CCC]'),
+  [CellType.path]: clsx('bg-[#EEE]'),
+  [CellType.player]: clsx('bg-[#99F]'),
+  [CellType.teleport]: clsx('bg-[#CFF]'),
 };
 
 type CellProps = React.HTMLProps<HTMLDivElement> & {
   type: CellType;
 };
 
-const Cell = forwardRef<HTMLDivElement, CellProps>(({ type, className, style, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={clsx('aspect-square', className)}
-      style={{ background: colors[type], ...style }}
-      {...props}
-    />
-  );
-});
+const Cell = forwardRef<HTMLDivElement, CellProps>(({ type, className, ...props }, ref) => (
+  <div ref={ref} className={clsx('w-[60px] h-[60px]', colors[type], className)} {...props} />
+));
