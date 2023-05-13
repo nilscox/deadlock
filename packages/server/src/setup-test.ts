@@ -1,6 +1,9 @@
 import { randomId } from '@deadlock/game';
 import { EntityManager, Orm, SqlLevel, SqlSession, SqlSolution, createOrm } from '@deadlock/persistence';
 
+const dbUrl = process.env.DB_URL ?? 'postgresql://postgres@localhost/test';
+assert(dbUrl.endsWith('/test'), 'DB_URL must use a database named "test"');
+
 function createId() {
   return Math.random().toString(36).slice(-6);
 }
@@ -34,7 +37,7 @@ export const setupTest = () => {
   let em: EntityManager;
 
   beforeEach(async () => {
-    orm = await createOrm('postgresql://postgres@localhost/test', false);
+    orm = await createOrm(dbUrl, false);
     em = orm.em.fork();
 
     const schemaGenerator = orm.getSchemaGenerator();
