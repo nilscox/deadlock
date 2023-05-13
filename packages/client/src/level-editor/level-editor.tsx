@@ -1,7 +1,14 @@
-import { CellType, IPoint, Level, LevelDefinition, Cell as TCell, array } from '@deadlock/game';
-import { DndContext, DragEndEvent, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core';
+import { CellType, Level, LevelDefinition, Cell as TCell, array } from '@deadlock/game';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  useDraggable,
+  useDroppable,
+} from '@dnd-kit/core';
 import { clsx } from 'clsx';
-import { useMemo, useState } from 'react';
+import { forwardRef, useMemo, useState } from 'react';
 
 const clone = <T,>(value: T): T => {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -16,22 +23,39 @@ export const LevelEditor = ({ definition, onChange }: LevelEditorProps) => {
   const level = useMemo(() => new Level(definition), [definition]);
   const areas = useMemo(() => gridTemplateAreas(definition), [definition]);
 
+  const [dragging, setDragging] = useState<TCell>();
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setDragging(event.active.data.current as TCell);
+  };
+
   const handleDragEn = (event: DragEndEvent) => {
-    if (!event.over) {
-      return;
-    }
+    setDragging(undefined);
 
+    const isNew = String(event.active.id).startsWith('new');
     const dragging = event.active.data.current as TCell;
-    const target = event.over.data.current as TCell;
 
-    level.set(dragging.x, dragging.y, CellType.empty);
-    level.set(target.x, target.y, dragging.type);
+    if (event.over) {
+      const target = event.over.data.current as TCell;
+
+      if (!isNew) {
+        level.set(dragging.x, dragging.y, CellType.empty);
+      }
+
+      level.set(target.x, target.y, dragging.type);
+    } else {
+      if (dragging.type === CellType.player) {
+        return;
+      }
+
+      level.set(dragging.x, dragging.y, CellType.empty);
+    }
 
     onChange(clone(level.definition));
   };
 
   return (
-    <DndContext key={JSON.stringify(definition)} onDragEnd={handleDragEn}>
+    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEn}>
       <div
         className="border p-4 grid max-w-xl"
         style={{
@@ -40,16 +64,26 @@ export const LevelEditor = ({ definition, onChange }: LevelEditorProps) => {
         }}
       >
         {level.cells(CellType.empty).map((cell) => (
-          <DroppableCell key={`${cell.x},${cell.y}`} {...cell} />
+          <DroppableCell key={cellId(cell)} cell={cell} />
         ))}
 
         {level
           .cells()
-          .filter((cell) => cell.type !== CellType.empty)
+          .filter(({ type }) => type !== CellType.empty)
           .map((cell) => (
-            <DraggableCell key={`${cell.x},${cell.y}`} {...cell} />
+            <DraggableCell key={cellId(cell)} cell={cell} />
           ))}
       </div>
+
+      <div
+        className="mt-4 grid max-w-xl gap-4"
+        style={{ gridTemplateRows: 1, gridTemplateColumns: `repeat(${level.definition.width}, 1fr)` }}
+      >
+        <DraggableCellNew type={CellType.block} />
+        <DraggableCellNew type={CellType.teleport} />
+      </div>
+
+      <DragOverlay dropAnimation={null}>{dragging && <Cell type={dragging.type} />}</DragOverlay>
     </DndContext>
   );
 };
@@ -63,20 +97,20 @@ const gridArea = (x: number, y: number) => {
   return `_${x}_${y}`;
 };
 
-const colors: Record<CellType, string> = {
-  [CellType.empty]: '#FFF',
-  [CellType.block]: '#CCC',
-  [CellType.path]: '#EEE',
-  [CellType.player]: '#99F',
-  [CellType.teleport]: '#CFF',
+const cellId = (cell: TCell) => {
+  return `${cell.x},${cell.y}`;
 };
 
-const DroppableCell = (cell: TCell) => {
+type DroppableCellProps = {
+  cell: TCell;
+};
+
+const DroppableCell = ({ cell }: DroppableCellProps) => {
   const { x, y } = cell;
 
   const { isOver, setNodeRef } = useDroppable({
-    id: `droppable-${x},${y}`,
-    data: { x, y },
+    id: `droppable-${cellId(cell)}`,
+    data: cell,
   });
 
   return (
@@ -88,25 +122,68 @@ const DroppableCell = (cell: TCell) => {
   );
 };
 
-const DraggableCell = (cell: TCell) => {
-  const { x, y } = cell;
+type DraggableCellProps = {
+  cell: TCell;
+};
 
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: `draggable-${x},${y}`,
+const DraggableCell = ({ cell }: DraggableCellProps) => {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `draggable-${cellId(cell)}`,
     data: cell,
   });
 
   return (
-    <div
+    <Cell
       ref={setNodeRef}
-      className={clsx('aspect-square outline-none', isDragging && 'opacity-75 z-10')}
-      style={{
-        gridArea: gridArea(x, y),
-        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-        background: colors[cell.type],
-      }}
+      type={cell.type}
+      className={clsx('outline-none', isDragging && 'opacity-50')}
+      style={{ gridArea: gridArea(cell.x, cell.y) }}
       {...listeners}
       {...attributes}
     />
   );
 };
+
+type DraggableCellNewProps = {
+  type: CellType;
+};
+
+const DraggableCellNew = ({ type }: DraggableCellNewProps) => {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `new-${type}`,
+    data: { type },
+  });
+
+  return (
+    <Cell
+      ref={setNodeRef}
+      type={type}
+      className={clsx('outline-none', isDragging && 'opacity-50')}
+      {...listeners}
+      {...attributes}
+    />
+  );
+};
+
+const colors: Record<CellType, string> = {
+  [CellType.empty]: '#FFF',
+  [CellType.block]: '#CCC',
+  [CellType.path]: '#EEE',
+  [CellType.player]: '#99F',
+  [CellType.teleport]: '#CFF',
+};
+
+type CellProps = React.HTMLProps<HTMLDivElement> & {
+  type: CellType;
+};
+
+const Cell = forwardRef<HTMLDivElement, CellProps>(({ type, className, style, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className={clsx('aspect-square', className)}
+      style={{ background: colors[type], ...style }}
+      {...props}
+    />
+  );
+});
