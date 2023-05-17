@@ -2,7 +2,7 @@ export { evaluateLevelDifficulty, evaluateSolutionComplexity } from './evaluate-
 export { Emitter } from './utils/emitter';
 export { ControlEvent, Controls, Game } from './game';
 export { generateLevels, type GenerateLevelsOptions } from './generate';
-export { CellType, Level, LevelEvent, type Cell, type LevelDefinition } from './level';
+export { CellType, Level, LevelEvent, type Cell, type LevelDefinition, LevelFlag } from './level';
 export { Player, PlayerEvent } from './player';
 export { type LevelSolutions, type LevelsSolutions } from './solutions';
 export { solve } from './solve';

@@ -1,4 +1,4 @@
-import { LevelDefinition, type IPoint } from '@deadlock/game';
+import { LevelDefinition, LevelFlag, type IPoint } from '@deadlock/game';
 import { Entity, Filter, Property, Unique } from '@mikro-orm/core';
 
 import { SqlEntity } from './sql-entity';
@@ -37,6 +37,9 @@ export class SqlLevel extends SqlEntity implements LevelDefinition {
 
   @Property({ type: 'real' })
   easiestSolutionScore!: number;
+
+  @Property({ type: 'json', default: [] })
+  flags!: Array<LevelFlag>;
 
   @Property()
   deletedAt?: Date;

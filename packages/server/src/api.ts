@@ -1,10 +1,11 @@
-import { LevelDefinition } from '@deadlock/game';
+import { LevelDefinition, LevelFlag } from '@deadlock/game';
 import { EntityManager, ormMiddleware } from '@deadlock/persistence';
 import { Router } from 'express';
 import * as yup from 'yup';
 
 import { createLevel } from './mutations/create-level';
 import { deleteLevel } from './mutations/delete-level';
+import { flagLevel } from './mutations/flag-level';
 import { storeSession } from './mutations/store-session';
 import { updateLevel } from './mutations/upate-level';
 import { getLevels } from './queries/get-levels';
@@ -63,6 +64,16 @@ export function api(em: EntityManager) {
     res.end();
   });
 
+  router.post('/level/:levelId/flag', async (req, res) => {
+    const levelId = req.params.levelId;
+    const { flag } = await flagLevelBodySchema.validate(req.body);
+
+    await flagLevel(em, levelId, flag);
+
+    res.status(204);
+    res.end();
+  });
+
   router.get('/stats', async (req, res) => {
     const stats = await getStats(em);
 
@@ -93,4 +104,8 @@ const sessionBodySchema = yup.object({
 
 const createLevelBodySchema = yup.object({
   definition: yup.object().required(),
+});
+
+const flagLevelBodySchema = yup.object({
+  flag: yup.string().oneOf(Object.values(LevelFlag)).required(),
 });

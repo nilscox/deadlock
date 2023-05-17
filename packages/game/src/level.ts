@@ -7,6 +7,12 @@ import { inspectCustomSymbol } from './utils/inspect';
 import { IPoint, Point, PointArgs, pointArgs } from './utils/point';
 import { first, isDefined } from './utils/utils';
 
+export enum LevelFlag {
+  déjàVu = 'déjà_vu',
+  easy = 'easy',
+  hard = 'hard',
+}
+
 export type LevelDefinition = {
   width: number;
   height: number;

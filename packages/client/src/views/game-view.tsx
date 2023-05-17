@@ -1,9 +1,11 @@
-import { Game as GameClass, Level, LevelEvent, assert } from '@deadlock/game';
+import { Game as GameClass, Level, LevelEvent, assert, LevelFlag } from '@deadlock/game';
+import { useMutation } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'wouter';
 
+import { api } from '../api';
 import { Game } from '../game/game';
 import {
   useIsLevelCompleted,
@@ -31,6 +33,10 @@ export const GameView = ({ levelId }: GameViewProps) => {
   const nextLevel = useGoToNextLevel(levelId);
 
   const [game, setGame] = useState<GameClass>();
+
+  const { mutate: flagLevel } = useMutation({
+    mutationFn: (flag: LevelFlag) => api.post(`/level/${levelId}/flag`, { flag }),
+  });
 
   const onCompleted = useCallback(() => {
     assert(game);
@@ -104,6 +110,14 @@ export const GameView = ({ levelId }: GameViewProps) => {
       <Game definition={definition} onLoaded={setGame} />
 
       <div className="flex-1" />
+
+      <div className="row justify-between">
+        {Object.values(LevelFlag).map((value) => (
+          <div key={value} onClick={() => flagLevel(value)}>
+            {value.replaceAll('_', ' ')}
+          </div>
+        ))}
+      </div>
     </MobileView>
   );
 };
