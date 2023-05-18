@@ -33,9 +33,11 @@ export const GameView = ({ levelId }: GameViewProps) => {
   const nextLevel = useGoToNextLevel(levelId);
 
   const [game, setGame] = useState<GameClass>();
+  const [isFlaggedAlready, setIsFlaggedAlready] = useState(false);
 
   const { mutate: flagLevel } = useMutation({
     mutationFn: (flag: LevelFlag) => api.post(`/level/${levelId}/flag`, { flag }),
+    onSuccess: () => setIsFlaggedAlready(true),
   });
 
   const onCompleted = useCallback(() => {
@@ -77,6 +79,8 @@ export const GameView = ({ levelId }: GameViewProps) => {
     };
   }, [game]);
 
+  useEffect(() => setIsFlaggedAlready(false), [levelId]);
+
   return (
     <MobileView>
       <Helmet>
@@ -113,9 +117,14 @@ export const GameView = ({ levelId }: GameViewProps) => {
 
       <div className="row justify-between">
         {Object.values(LevelFlag).map((value) => (
-          <div key={value} onClick={() => flagLevel(value)}>
+          <button
+            key={value}
+            onClick={() => flagLevel(value)}
+            className="disabled:text-muted"
+            disabled={isFlaggedAlready}
+          >
             {value.replaceAll('_', ' ')}
-          </div>
+          </button>
         ))}
       </div>
     </MobileView>
