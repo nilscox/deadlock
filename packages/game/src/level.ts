@@ -11,6 +11,7 @@ export enum LevelFlag {
   déjàVu = 'déjà_vu',
   easy = 'easy',
   hard = 'hard',
+  cool = 'cool',
 }
 
 export type LevelDefinition = {
