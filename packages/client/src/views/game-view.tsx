@@ -14,6 +14,7 @@ import {
   useLevelsIds,
   useOnSessionTerminated,
 } from '../game/levels-context';
+import { useBoolean } from '../hooks/use-boolean';
 import { useNavigate } from '../hooks/use-navigate';
 import { MobileView } from '../mobile-view';
 
@@ -33,11 +34,13 @@ export const GameView = ({ levelId }: GameViewProps) => {
   const nextLevel = useGoToNextLevel(levelId);
 
   const [game, setGame] = useState<GameClass>();
-  const [isFlaggedAlready, setIsFlaggedAlready] = useState(false);
+
+  const [flagged, flag, unFlag] = useBoolean(false);
+  useEffect(() => unFlag(), [levelId, unFlag]);
 
   const { mutate: flagLevel } = useMutation({
     mutationFn: (flag: LevelFlag) => api.post(`/level/${levelId}/flag`, { flag }),
-    onSuccess: () => setIsFlaggedAlready(true),
+    onSuccess: flag,
   });
 
   const onCompleted = useCallback(() => {
@@ -79,8 +82,6 @@ export const GameView = ({ levelId }: GameViewProps) => {
     };
   }, [game]);
 
-  useEffect(() => setIsFlaggedAlready(false), [levelId]);
-
   return (
     <MobileView>
       <Helmet>
@@ -121,7 +122,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
             key={value}
             onClick={() => flagLevel(value)}
             className="disabled:text-muted"
-            disabled={isFlaggedAlready}
+            disabled={flagged}
           >
             {value.replaceAll('_', ' ')}
           </button>
