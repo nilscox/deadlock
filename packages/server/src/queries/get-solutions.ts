@@ -14,7 +14,7 @@ export async function getSolutions(em: EntityManager) {
     (level) => level.id,
     (level) => {
       const solutions = solutionsMap.get(level);
-      assert(solutions);
+      assert(solutions, `no solution found for level ${level.id}`);
 
       return {
         total: solutions.size,
