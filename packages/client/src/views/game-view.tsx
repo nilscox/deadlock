@@ -115,8 +115,8 @@ export const GameView = ({ levelId }: GameViewProps) => {
       <Game definition={definition} onLoaded={setGame} />
 
       <div className="flex-1">
-        {levelNumber === 1 && <Level1Help />}
-        {levelNumber === 4 && <Level4Help />}
+        {Number(levelNumber) === 1 && <HelpSwipe />}
+        {Number(levelNumber) <= 4 && <HelpRestart />}
       </div>
 
       <div className="row justify-between">
@@ -143,7 +143,7 @@ const animateProps: React.SVGProps<SVGAnimateElement> = {
   calcMode: 'spline',
 };
 
-const Level1Help = () => (
+const HelpSwipe = () => (
   <div className="animate-fade-in col gap-4 justify-center items-center">
     <svg
       className="w-[120px]"
@@ -168,7 +168,7 @@ const Level1Help = () => (
   </div>
 );
 
-const Level4Help = () => (
+const HelpRestart = () => (
   <div className="animate-fade-in col gap-4 justify-center items-center">
     <svg className="w-[40px]" viewBox="0 0 4 4" fill="currentColor">
       <circle cx="2" cy="2" r="1.75">
