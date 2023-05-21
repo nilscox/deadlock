@@ -116,7 +116,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
 
       <div className="flex-1">
         {Number(levelNumber) === 1 && <HelpSwipe />}
-        {Number(levelNumber) <= 4 && <HelpRestart />}
+        {Number(levelNumber) > 1 && Number(levelNumber) <= 4 && <HelpRestart />}
       </div>
 
       <div className="row justify-between">
