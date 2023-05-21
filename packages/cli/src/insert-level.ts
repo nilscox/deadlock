@@ -25,6 +25,7 @@ export async function insertLevel(definition: LevelDefinition, paths: Path[]) {
     difficulty,
     numberOfSolutionsScore,
     easiestSolutionScore,
+    position: (await em.count(SqlLevel, {}, { filters: { 'not-deleted': false } })) + 1,
     ...definition,
   });
 

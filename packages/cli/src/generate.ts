@@ -70,7 +70,7 @@ async function onProgress(levels: LevelDefinition[], index: number, hasSolutions
 }
 
 function progress(total: number, index: number) {
-  return `${pad(Math.floor((100 * index) / total), 2)}% (${pad(index, Math.log10(total))}/${total})`;
+  return `${pad(Math.floor((100 * index + 1) / total), 2)}% (${pad(index + 1, Math.log10(total))}/${total})`;
 }
 
 function pad(input: number, length: number) {
