@@ -257,7 +257,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   }
 
   isCompleted(): boolean {
-    return this.cells(CellType.empty).length === 0;
+    return this.cells(CellType.empty).length + this.cells(CellType.teleport).length === 0;
   }
 
   get hash(): string {
