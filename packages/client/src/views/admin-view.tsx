@@ -341,7 +341,9 @@ const Actions = ({ levelId }: ActionsProps) => {
   return (
     <ul className="list-disc list-inside">
       <li>
-        <Link href={`/level-editor?${toSearchParams({ levelId, definition })}`}>Edit</Link>
+        <Link href={`/level-editor?${toSearchParams({ levelId, definition: JSON.stringify(definition) })}`}>
+          Edit
+        </Link>
       </li>
 
       <li>
