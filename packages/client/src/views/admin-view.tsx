@@ -15,8 +15,7 @@ import { Link } from 'wouter';
 
 import { api } from '../api';
 import { Game } from '../game/game';
-import { useLevelsIds } from '../game/levels-context';
-import { toSearchParams } from '../hooks/use-search-params';
+import { toSearchParams, useSearchParam } from '../hooks/use-search-params';
 import { copy } from '../utils';
 
 // cspell:word unvalidated
@@ -25,10 +24,16 @@ export const AdminView = () => {
   const levelsIds = useAllLevelsIds();
 
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useSearchParam('search');
+
+  useEffect(() => {
+    if (search === '') {
+      setSearch(undefined);
+    }
+  }, [search, setSearch]);
 
   const filteredIds = useMemo(() => {
-    if (search === '' || search === '#') {
+    if (search === undefined || search === '#') {
       return levelsIds;
     }
 
@@ -36,7 +41,13 @@ export const AdminView = () => {
       const levelNumber = Number.parseInt(search.slice(1));
 
       if (!Number.isNaN(levelNumber)) {
-        return [levelsIds[levelNumber - 1]];
+        const index = levelNumber - 1;
+
+        if (!levelsIds[index]) {
+          return [];
+        }
+
+        return [levelsIds[index]];
       }
     }
 
@@ -51,8 +62,11 @@ export const AdminView = () => {
         type="search"
         placeholder="Search..."
         className="px-2 py-1 m-4 outline-none border rounded"
+        defaultValue={search}
         onChange={(e) => setSearch(e.target.value)}
       />
+
+      {filteredIds.length === 0 && <div className="py-10 text-center text-muted">No level found.</div>}
 
       <List
         height={wrapperRef?.clientHeight ?? 0}
