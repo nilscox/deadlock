@@ -1,5 +1,5 @@
+import { identity, toObject } from '@deadlock/game';
 import { useCallback, useMemo } from 'react';
-import { useLocation } from 'wouter';
 import { useLocationProperty } from 'wouter/use-location';
 
 import { useNavigate } from './use-navigate';
@@ -21,11 +21,10 @@ export const useSearchParams = () => {
 export const useSearchParam = (key: string) => {
   const value = useSearchParams().get(key);
   const navigate = useNavigate();
-  const [location] = useLocation();
 
   const setSearchParam = useCallback(
     (value: string | undefined) => {
-      const url = new URL(location, window.location.origin);
+      const url = new URL(window.location.toString());
 
       if (value === undefined) {
         url.searchParams.delete(key);
@@ -35,8 +34,14 @@ export const useSearchParam = (key: string) => {
 
       navigate(url.toString(), { replace: true });
     },
-    [key, location, navigate]
+    [key, navigate]
   );
 
   return [value ?? undefined, setSearchParam] as const;
+};
+
+export const toSearchParams = (params: Record<string, unknown>) => {
+  return new URLSearchParams(
+    toObject(Object.keys(params), identity, (key) => String(params[key]))
+  ).toString();
 };

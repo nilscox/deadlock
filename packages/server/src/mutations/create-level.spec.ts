@@ -29,4 +29,16 @@ describe('createLevel', () => {
 
     expect(solutions).toHaveLength(1);
   });
+
+  it('does not save a level having no solutions', async () => {
+    const em = getEntityManager();
+    const definition = createLevelDefinition({
+      width: 3,
+      height: 1,
+      start: { x: 0, y: 0 },
+      blocks: [{ x: 1, y: 0 }],
+    });
+
+    await expect(createLevel(em.fork(), definition)).rejects.toThrow('Level has no solutions');
+  });
 });

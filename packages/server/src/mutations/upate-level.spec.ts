@@ -1,4 +1,4 @@
-import { array } from '@deadlock/game';
+import { Level, array } from '@deadlock/game';
 import { SqlLevel, serialize } from '@deadlock/persistence';
 
 import { setupTest } from '../setup-test';
@@ -7,6 +7,18 @@ import { updateLevel } from './upate-level';
 
 describe('updateLevel', () => {
   const { getEntityManager, create } = setupTest();
+
+  it("updates a level's definition", async () => {
+    const em = getEntityManager();
+    const level = await create.level({ width: 2, height: 1, start: { x: 0, y: 0 } });
+    const { definition } = new Level(level);
+
+    await updateLevel(em, level.id, { definition: { ...definition, start: { x: 1, y: 0 } } });
+
+    const updatedLevel = await em.findOneOrFail(SqlLevel, level.id);
+
+    expect(updatedLevel.start).toEqual({ x: 1, y: 0 });
+  });
 
   it("set a level's position", async () => {
     const em = getEntityManager();

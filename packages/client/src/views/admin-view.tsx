@@ -16,6 +16,7 @@ import { Link } from 'wouter';
 import { api } from '../api';
 import { Game } from '../game/game';
 import { useLevelsIds } from '../game/levels-context';
+import { toSearchParams } from '../hooks/use-search-params';
 import { copy } from '../utils';
 
 // cspell:word unvalidated
@@ -296,17 +297,9 @@ type ActionsProps = {
 };
 
 const Actions = ({ levelId }: ActionsProps) => {
-  const validated = useIsLevelValidated(levelId);
-  const levelsIds = useLevelsIds();
-
+  const definition = useLevelDefinition(levelId);
   const setLevelNumber = useSetLevelNumber(levelId);
   const deleteLevel = useDeleteLevel(levelId);
-
-  const nextLevelNumber = levelsIds.length;
-
-  const handleValidate = () => {
-    setLevelNumber(nextLevelNumber);
-  };
 
   const handleeSetLevelNumber = () => {
     const input = window.prompt('Position:');
@@ -333,17 +326,13 @@ const Actions = ({ levelId }: ActionsProps) => {
 
   return (
     <ul className="list-disc list-inside">
-      {!validated && (
-        <li>
-          <button onClick={handleValidate}>Validate</button>
-        </li>
-      )}
+      <li>
+        <Link href={`/level-editor?${toSearchParams({ levelId, definition })}`}>Edit</Link>
+      </li>
 
-      {validated && (
-        <li>
-          <button onClick={handleeSetLevelNumber}>Set position</button>
-        </li>
-      )}
+      <li>
+        <button onClick={handleeSetLevelNumber}>Set position</button>
+      </li>
 
       <li>
         <button onClick={handleDeleteLevel} className="text-red">
@@ -377,10 +366,6 @@ const useLevelDefinition = (levelId: string) => {
 
 const useLevelInstance = (levelId: string) => {
   return new Level(useLevelDefinition(levelId));
-};
-
-const useIsLevelValidated = (levelId: string) => {
-  return useLevelsIds().includes(levelId);
 };
 
 const useRefetchLevels = () => {

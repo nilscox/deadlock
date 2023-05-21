@@ -1,26 +1,43 @@
-import { Level, LevelDefinition } from '@deadlock/game';
+import { LevelDefinition } from '@deadlock/game';
 import { useMutation } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { Link } from 'wouter';
 
 import { api } from '../api';
-import { useSearchParam } from '../hooks/use-search-params';
+import { toSearchParams, useSearchParam } from '../hooks/use-search-params';
 import { LevelEditor } from '../level-editor/level-editor';
 import { MobileView } from '../mobile-view';
 
-const defaultHash = '5,3B0,0;2,0;3,0;3,2S2,1';
+const defaultDefinition: LevelDefinition = {
+  width: 4,
+  height: 3,
+  blocks: [],
+  start: { x: 0, y: 0 },
+  teleports: [],
+};
 
 export const LevelEditorView = () => {
-  const [hash = defaultHash, setHash] = useSearchParam('hash');
-  const definition = useMemo(() => Level.fromHash(hash).definition, [hash]);
+  const [levelId] = useSearchParam('levelId');
+  const [definitionParam, setDefinitionParam] = useSearchParam('definition');
 
-  const handleChange = (definition: LevelDefinition) => {
-    setHash(new Level(definition).hash);
+  const definition = useMemo<LevelDefinition>(
+    () => (definitionParam ? (JSON.parse(definitionParam) as LevelDefinition) : defaultDefinition),
+    [definitionParam]
+  );
+
+  const setDefinition = (definition: LevelDefinition) => {
+    setDefinitionParam(JSON.stringify(definition));
   };
 
   const { mutate: onSave } = useMutation({
-    mutationKey: [definition],
-    mutationFn: () => api.post('/level', { definition }),
+    mutationKey: [definition, levelId],
+    mutationFn: async () => {
+      if (levelId) {
+        await api.patch(`/level/${levelId}`, { definition });
+      } else {
+        await api.post('/level', { definition });
+      }
+    },
   });
 
   return (
@@ -34,12 +51,15 @@ export const LevelEditorView = () => {
           Save
         </button>
 
-        <Link to={`/test?hash=${hash}`} className="row items-center gap-2">
+        <Link
+          to={`/test?${toSearchParams({ levelId, definition: definitionParam })}`}
+          className="row items-center gap-2"
+        >
           Test <div className="text-muted">➜</div>
         </Link>
       </div>
 
-      <LevelEditor definition={definition} onChange={handleChange} />
+      <LevelEditor definition={definition} onChange={setDefinition} />
     </MobileView>
   );
 };

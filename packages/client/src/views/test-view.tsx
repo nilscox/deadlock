@@ -4,10 +4,11 @@ import { Helmet } from 'react-helmet';
 import { Link, Redirect } from 'wouter';
 
 import { Game } from '../game/game';
-import { useSearchParam } from '../hooks/use-search-params';
+import { toSearchParams, useSearchParam } from '../hooks/use-search-params';
 import { MobileView } from '../mobile-view';
 
 export const TestView = () => {
+  const [levelId] = useSearchParam('levelId');
   const [definition] = useSearchParam('definition');
   const [hash] = useSearchParam('hash');
 
@@ -17,7 +18,7 @@ export const TestView = () => {
     throw new Error('missing definition or hash query parameter');
   }, [definition, hash]);
 
-  if (!hash) {
+  if (!level) {
     return <Redirect to="/level-editor" />;
   }
 
@@ -28,7 +29,10 @@ export const TestView = () => {
       </Helmet>
 
       <div className="row">
-        <Link to={`/level-editor?hash=${hash}`} className="row items-center gap-2">
+        <Link
+          to={`/level-editor?${toSearchParams({ levelId, definition: JSON.stringify(level.definition) })}`}
+          className="row items-center gap-2"
+        >
           <div className="text-muted flip-horizontal">➜</div>Edit
         </Link>
       </div>
