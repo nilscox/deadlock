@@ -22,6 +22,15 @@ export default {
     fontFamily: {
       mono: ['JetBrains Mono', 'Source Code Pro', 'Liberation Mono', 'monospace'],
     },
+    animation: {
+      'fade-in': '2s ease-out 4s both fade-in',
+    },
+    keyframes: {
+      'fade-in': {
+        '0%': { opacity: 0 },
+        '100%': { opacity: 1 },
+      },
+    },
   },
   plugins: [],
 };
