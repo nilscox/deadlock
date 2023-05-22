@@ -5,10 +5,12 @@ import * as yup from 'yup';
 
 import { createLevel } from './mutations/create-level';
 import { deleteLevel } from './mutations/delete-level';
+import { deleteSession } from './mutations/delete-session';
 import { flagLevel } from './mutations/flag-level';
 import { storeSession } from './mutations/store-session';
 import { updateLevel } from './mutations/upate-level';
 import { getLevels } from './queries/get-levels';
+import { getSessions } from './queries/get-sessions';
 import { getSolutions } from './queries/get-solutions';
 import { getStats } from './queries/get-stats';
 
@@ -69,6 +71,20 @@ export function api(em: EntityManager) {
     const { flag } = await flagLevelBodySchema.validate(req.body);
 
     await flagLevel(em, levelId, flag);
+
+    res.status(204);
+    res.end();
+  });
+
+  router.get('/level/:levelId/sessions', async (req, res) => {
+    const sessions = await getSessions(em, req.params.levelId);
+
+    res.status(200);
+    res.json(sessions);
+  });
+
+  router.delete('/session/:sessionId', async (req, res) => {
+    await deleteSession(em, req.params.sessionId);
 
     res.status(204);
     res.end();
