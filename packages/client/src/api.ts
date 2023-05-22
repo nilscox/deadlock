@@ -1,34 +1,41 @@
 import { getConfig } from './hooks/use-config';
 
 export const api = {
-  async get<Result>(url: string) {
-    const { serverUrl } = getConfig();
-    const response = await fetch(`${serverUrl}${url}`);
+  get: async <Result>(url: string) => request<Result>('GET', url),
+  post: async (url: string, body: unknown) => request('POST', url, body),
+  patch: async (url: string, body: unknown) => request('PATCH', url, body),
+  delete: async (url: string) => request('DELETE', url),
+};
+
+const request = async <Result>(method: string, url: string, body?: unknown): Promise<Result> => {
+  const token = localStorage.getItem('token');
+  const { serverUrl } = getConfig();
+
+  const headers = new Headers();
+
+  const init: RequestInit = {
+    method,
+    headers,
+  };
+
+  if (body) {
+    headers.set('Content-Type', 'application/json');
+    init.body = JSON.stringify(body);
+  }
+
+  if (token) {
+    headers.set('Authorization', token);
+  }
+
+  const response = await fetch(`${serverUrl}${url}`, init);
+
+  if (!response.ok) {
+    throw response;
+  }
+
+  if (response.headers.get('Content-Type')?.startsWith('application/json')) {
     return response.json() as Promise<Result>;
-  },
+  }
 
-  async post(url: string, body: unknown) {
-    const { serverUrl } = getConfig();
-    await fetch(`${serverUrl}${url}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-  },
-
-  async patch(url: string, body: unknown) {
-    const { serverUrl } = getConfig();
-    await fetch(`${serverUrl}${url}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-  },
-
-  async delete(url: string) {
-    const { serverUrl } = getConfig();
-    await fetch(`${serverUrl}${url}`, {
-      method: 'DELETE',
-    });
-  },
+  return undefined as Result;
 };
