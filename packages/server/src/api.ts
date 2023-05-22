@@ -1,6 +1,6 @@
 import { LevelDefinition, LevelFlag } from '@deadlock/game';
 import { EntityManager, ormMiddleware } from '@deadlock/persistence';
-import { Router } from 'express';
+import { RequestHandler, Router } from 'express';
 import * as yup from 'yup';
 
 import { createLevel } from './mutations/create-level';
@@ -38,34 +38,6 @@ export function api(em: EntityManager) {
     res.end();
   });
 
-  router.post('/level', async (req, res) => {
-    const body = await createLevelBodySchema.validate(req.body);
-
-    await createLevel(em, body.definition as LevelDefinition);
-
-    res.status(204);
-    res.end();
-  });
-
-  router.patch('/level/:levelId', async (req, res) => {
-    const levelId = req.params.levelId;
-    const body = await updateLevelSchema.validate(req.body);
-
-    await updateLevel(em, levelId, body);
-
-    res.status(204);
-    res.end();
-  });
-
-  router.delete('/level/:levelId', async (req, res) => {
-    const levelId = req.params.levelId;
-
-    await deleteLevel(em, levelId);
-
-    res.status(204);
-    res.end();
-  });
-
   router.post('/level/:levelId/flag', async (req, res) => {
     const levelId = req.params.levelId;
     const { flag } = await flagLevelBodySchema.validate(req.body);
@@ -76,28 +48,56 @@ export function api(em: EntityManager) {
     res.end();
   });
 
-  router.get('/level/:levelId/sessions', async (req, res) => {
+  router.post('/level', admin, async (req, res) => {
+    const body = await createLevelBodySchema.validate(req.body);
+
+    await createLevel(em, body.definition as LevelDefinition);
+
+    res.status(204);
+    res.end();
+  });
+
+  router.patch('/level/:levelId', admin, async (req, res) => {
+    const levelId = req.params.levelId;
+    const body = await updateLevelSchema.validate(req.body);
+
+    await updateLevel(em, levelId, body);
+
+    res.status(204);
+    res.end();
+  });
+
+  router.delete('/level/:levelId', admin, async (req, res) => {
+    const levelId = req.params.levelId;
+
+    await deleteLevel(em, levelId);
+
+    res.status(204);
+    res.end();
+  });
+
+  router.get('/level/:levelId/sessions', admin, async (req, res) => {
     const sessions = await getSessions(em, req.params.levelId);
 
     res.status(200);
     res.json(sessions);
   });
 
-  router.delete('/session/:sessionId', async (req, res) => {
+  router.delete('/session/:sessionId', admin, async (req, res) => {
     await deleteSession(em, req.params.sessionId);
 
     res.status(204);
     res.end();
   });
 
-  router.get('/stats', async (req, res) => {
+  router.get('/stats', admin, async (req, res) => {
     const stats = await getStats(em);
 
     res.status(200);
     res.json(stats);
   });
 
-  router.get('/solutions', async (req, res) => {
+  router.get('/solutions', admin, async (req, res) => {
     const stats = await getSolutions(em);
 
     res.status(200);
@@ -106,6 +106,17 @@ export function api(em: EntityManager) {
 
   return router;
 }
+
+const admin: RequestHandler = (req, res, next) => {
+  const token = req.headers['authorization'] ?? '';
+
+  if (token !== process.env.ADMIN_TOKEN) {
+    res.status(401);
+    res.end();
+  } else {
+    next();
+  }
+};
 
 const updateLevelSchema = yup.object({
   position: yup.number().min(0).optional(),
