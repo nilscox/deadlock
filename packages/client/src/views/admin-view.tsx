@@ -231,20 +231,19 @@ const Score = ({ levelId }: ScoreProps) => {
     return null;
   }
 
-  const { difficulty, numberOfSolutionsScore, easiestSolutionScore } = solutions;
+  const { evaluatedDifficulty, effectiveDifficulty } = solutions;
 
-  const r = 255 * Math.min(1, difficulty / 20);
+  const r = 255 * Math.min(1, effectiveDifficulty / 4);
   const g = 255 - r;
   const b = 0;
 
   return (
     <>
       <div className="font-semibold pb-2 text-base" style={{ color: `rgb(${r}, ${g}, ${b})` }}>
-        Difficulty: {round(difficulty, 3)}
+        Effective difficulty: {round(effectiveDifficulty, 3)}
       </div>
 
-      <div className="text-muted">Number of solutions score: {numberOfSolutionsScore}</div>
-      <div className="text-muted">Easiest solution score: {easiestSolutionScore}</div>
+      <div className="font-semibold pb-2">Evaluated difficulty: {round(evaluatedDifficulty, 3)}</div>
     </>
   );
 };
