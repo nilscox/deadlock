@@ -4,6 +4,7 @@ import {
   Game as GameClass,
   Level,
   LevelDefinition,
+  LevelFlag,
   LevelsSolutions,
   LevelsStats,
   round,
@@ -15,6 +16,7 @@ import { Link } from 'wouter';
 
 import { api } from '../api';
 import { Game } from '../game/game';
+import { useLevels } from '../game/levels-api';
 import { toSearchParams, useSearchParam } from '../hooks/use-search-params';
 import { copy } from '../utils';
 
@@ -22,49 +24,79 @@ import { copy } from '../utils';
 
 export const AdminView = () => {
   const levelsIds = useAllLevelsIds();
+  const levels = useLevels();
 
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   const [search, setSearch] = useSearchParam('search');
+  const [flag, setFlag] = useSearchParam('flag');
 
   useEffect(() => {
-    if (search === '') {
-      setSearch(undefined);
-    }
+    search === '' && setSearch(undefined);
   }, [search, setSearch]);
 
+  useEffect(() => {
+    flag === '' && setFlag(undefined);
+  }, [flag, setFlag]);
+
   const filteredIds = useMemo(() => {
-    if (search === undefined || search === '#') {
-      return levelsIds;
-    }
-
-    if (search.startsWith('#')) {
-      const levelNumber = Number.parseInt(search.slice(1));
-
-      if (!Number.isNaN(levelNumber)) {
-        const index = levelNumber - 1;
-
-        if (!levelsIds[index]) {
-          return [];
-        }
-
-        return [levelsIds[index]];
+    const filterBySearchQuery = (ids: string[]) => {
+      if (search === undefined || search === '#') {
+        return ids;
       }
-    }
 
-    return levelsIds.filter((levelId) => levelId.match(search));
-  }, [levelsIds, search]);
+      if (search.startsWith('#')) {
+        const levelNumber = Number.parseInt(search.slice(1));
+
+        if (!Number.isNaN(levelNumber)) {
+          const index = levelNumber - 1;
+
+          if (!ids[index]) {
+            return [];
+          }
+
+          return [ids[index]];
+        }
+      }
+
+      return levelsIds.filter((levelId) => levelId.match(search));
+    };
+
+    const filterByFlag = (ids: string[]) => {
+      if (!flag) {
+        return ids;
+      }
+
+      return ids.filter((id) => {
+        const level = levels[id] as unknown as { flags: LevelFlag[] };
+        return level.flags.includes(flag as LevelFlag);
+      });
+    };
+
+    return filterByFlag(filterBySearchQuery(levelsIds));
+  }, [levelsIds, levels, search, flag]);
 
   const itemData = useMemo(() => ({ filteredIds }), [filteredIds]);
 
   return (
     <div ref={setWrapperRef} className="col gap-4 h-full col text-sm">
-      <input
-        type="search"
-        placeholder="Search..."
-        className="px-2 py-1 m-4 outline-none border rounded"
-        defaultValue={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="row items-center p-4 gap-4">
+        <input
+          type="search"
+          placeholder="Search..."
+          className="px-2 py-1 outline-none border rounded flex-1"
+          defaultValue={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select className="px-2 py-1" defaultValue={flag} onChange={(e) => setFlag(e.target.value)}>
+          <option value="">Flags</option>
+          {Object.values(LevelFlag).map((flag) => (
+            <option key={flag} value={flag}>
+              {flag}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {filteredIds.length === 0 && <div className="py-10 text-center text-muted">No level found.</div>}
 
@@ -226,6 +258,7 @@ type ScoreProps = {
 
 const Score = ({ levelId }: ScoreProps) => {
   const solutions = useLevelSolutions(levelId);
+  const level = useLevelDefinition(levelId) as unknown as { flags: LevelFlag[] };
 
   if (!solutions) {
     return null;
@@ -244,6 +277,8 @@ const Score = ({ levelId }: ScoreProps) => {
       </div>
 
       <div className="font-semibold pb-2">Evaluated difficulty: {round(evaluatedDifficulty, 3)}</div>
+
+      {level.flags.length > 0 && <div>Flags: {level.flags.join(', ')}</div>}
     </>
   );
 };
