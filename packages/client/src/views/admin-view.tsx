@@ -22,58 +22,74 @@ import { copy } from '../utils';
 
 // cspell:word unvalidated
 
+const useFilter = (name: string, predicate: (value: string, id: string) => boolean) => {
+  const [value, setValue] = useSearchParam(name);
+
+  useEffect(() => {
+    if (value === '') {
+      setValue(undefined);
+    }
+  }, [value, setValue]);
+
+  const filter = (ids: string[]) => {
+    if (value === undefined) {
+      return ids;
+    }
+
+    return ids.filter((id) => predicate(value, id));
+  };
+
+  return [value, setValue, filter] as const;
+};
+
 export const AdminView = () => {
   const levelsIds = useAllLevelsIds();
   const levels = useLevels();
+  const solutions = useSolutions();
 
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
-  const [search, setSearch] = useSearchParam('search');
-  const [flag, setFlag] = useSearchParam('flag');
 
-  useEffect(() => {
-    search === '' && setSearch(undefined);
-  }, [search, setSearch]);
+  const [search, setSearch, searchFilter] = useFilter('search', (search, id) => {
+    if (search === '#') {
+      return true;
+    }
 
-  useEffect(() => {
-    flag === '' && setFlag(undefined);
-  }, [flag, setFlag]);
+    if (search.startsWith('#')) {
+      const levelNumber = Number.parseInt(search.slice(1));
+
+      if (!Number.isNaN(levelNumber)) {
+        const index = levelNumber - 1;
+        return levelsIds.indexOf(id) === index;
+      }
+    }
+
+    return Boolean(id.match(search));
+  });
+
+  const [flag, setFlag, flagFilter] = useFilter('flag', (flag, id) => {
+    const level = levels[id] as unknown as { flags: LevelFlag[] };
+    return level.flags.includes(flag as LevelFlag);
+  });
+
+  const [effectiveDifficulty, setEffectiveDifficulty, effectiveDifficultyFilter] = useFilter(
+    'effective-difficulty',
+    (difficulty, id) => {
+      const { effectiveDifficulty } = solutions[id];
+      return Number(difficulty) === effectiveDifficulty;
+    }
+  );
+
+  const [evaluatedDifficulty, setEvaluatedDifficulty, evaluatedDifficultyFilter] = useFilter(
+    'evaluated-difficulty',
+    (difficulty, id) => {
+      const { evaluatedDifficulty } = solutions[id];
+      return Number(difficulty) === evaluatedDifficulty;
+    }
+  );
 
   const filteredIds = useMemo(() => {
-    const filterBySearchQuery = (ids: string[]) => {
-      if (search === undefined || search === '#') {
-        return ids;
-      }
-
-      if (search.startsWith('#')) {
-        const levelNumber = Number.parseInt(search.slice(1));
-
-        if (!Number.isNaN(levelNumber)) {
-          const index = levelNumber - 1;
-
-          if (!ids[index]) {
-            return [];
-          }
-
-          return [ids[index]];
-        }
-      }
-
-      return levelsIds.filter((levelId) => levelId.match(search));
-    };
-
-    const filterByFlag = (ids: string[]) => {
-      if (!flag) {
-        return ids;
-      }
-
-      return ids.filter((id) => {
-        const level = levels[id] as unknown as { flags: LevelFlag[] };
-        return level.flags.includes(flag as LevelFlag);
-      });
-    };
-
-    return filterByFlag(filterBySearchQuery(levelsIds));
-  }, [levelsIds, levels, search, flag]);
+    return searchFilter(flagFilter(effectiveDifficultyFilter(evaluatedDifficultyFilter(levelsIds))));
+  }, [searchFilter, flagFilter, effectiveDifficultyFilter, evaluatedDifficultyFilter, levelsIds]);
 
   const itemData = useMemo(() => ({ filteredIds }), [filteredIds]);
 
@@ -91,6 +107,32 @@ export const AdminView = () => {
         <select className="px-2 py-1" defaultValue={flag} onChange={(e) => setFlag(e.target.value)}>
           <option value="">Flags</option>
           {Object.values(LevelFlag).map((flag) => (
+            <option key={flag} value={flag}>
+              {flag}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className="px-2 py-1"
+          defaultValue={effectiveDifficulty}
+          onChange={(e) => setEffectiveDifficulty(e.target.value)}
+        >
+          <option value="">Effective difficulty</option>
+          {[0, 1, 2, 3, 4].map((flag) => (
+            <option key={flag} value={flag}>
+              {flag}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className="px-2 py-1"
+          defaultValue={evaluatedDifficulty}
+          onChange={(e) => setEvaluatedDifficulty(e.target.value)}
+        >
+          <option value="">Evaluated difficulty</option>
+          {[0, 1, 2, 3, 4].map((flag) => (
             <option key={flag} value={flag}>
               {flag}
             </option>
@@ -440,13 +482,17 @@ const useLevelStats = (levelId: string) => {
   return defined(data)[levelId];
 };
 
-const useLevelSolutions = (levelId: string) => {
+const useSolutions = () => {
   const { data } = useQuery({
     queryKey: ['solutions'],
     queryFn: () => api.get<LevelsSolutions>('/solutions'),
   });
 
-  return defined(data)[levelId];
+  return defined(data);
+};
+
+const useLevelSolutions = (levelId: string) => {
+  return useSolutions()[levelId];
 };
 
 const useSetLevelNumber = (levelId: string) => {
