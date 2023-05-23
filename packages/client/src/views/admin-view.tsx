@@ -267,14 +267,6 @@ const Stats = ({ levelId }: StatsProps) => {
       </li>
 
       <li>
-        Completed: <Times value={stats.completed} />
-      </li>
-
-      <li>
-        Skipped: <Times value={stats.skipped} />
-      </li>
-
-      <li>
         Tries: <strong>{stats.tries.mean}</strong> (min: {stats.tries.min}, max: {stats.tries.max})
       </li>
 
@@ -287,7 +279,7 @@ const Stats = ({ levelId }: StatsProps) => {
 };
 
 const secs = (time: number) => {
-  return `${Math.floor(time / 1000)}s`;
+  return `${Math.floor(time)}s`;
 };
 
 type TimesProps = {

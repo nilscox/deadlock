@@ -1,34 +1,42 @@
-import { MapSet, LevelsStats, round, mean, min, max } from '@deadlock/game';
-import { EntityManager, SqlSession } from '@deadlock/persistence';
+import { LevelsStats, round, toObject } from '@deadlock/game';
+import { EntityManager } from '@deadlock/persistence';
 
-export async function getStats(em: EntityManager) {
-  const map = new MapSet<string, SqlSession>();
+type CountResult = Array<{
+  level_id: string;
+  count: string;
+}>;
 
-  for (const session of await em.find(SqlSession, {})) {
-    map.add(session.level.id, session);
-  }
+type SessionsResult = Array<{
+  level_id: string;
+  tries_min: number;
+  tries_max: number;
+  tries_avg: number;
+  time_min: number;
+  time_max: number;
+  time_avg: number;
+}>;
 
-  const stats: LevelsStats = {};
+export async function getStats(em: EntityManager): Promise<LevelsStats> {
+  const count: CountResult = await em.execute('select level_id, count(*) from session group by level_id');
+  const countMap = new Map(count.map(({ level_id, count }) => [level_id, Number(count)]));
 
-  for (const [levelId, session] of map) {
-    stats[levelId] = formatLevelStats(Array.from(session));
-  }
+  const sessions: SessionsResult = await em.execute('select * from sessions');
 
-  return stats;
+  return toObject(
+    sessions,
+    (session) => session.level_id,
+    (session) => ({
+      played: countMap.get(session.level_id) as number,
+      tries: {
+        min: session.tries_min,
+        max: session.tries_max,
+        mean: round(session.tries_avg),
+      },
+      playTime: {
+        min: session.time_min,
+        max: session.time_max,
+        mean: round(session.time_avg),
+      },
+    })
+  );
 }
-
-const formatLevelStats = (sessions: SqlSession[]) => ({
-  played: sessions.length,
-  completed: sessions.filter(({ completed }) => completed).length,
-  skipped: sessions.filter(({ completed }) => !completed).length,
-  tries: {
-    mean: round(mean(sessions.map(({ tries }) => tries)), 3),
-    min: min(sessions.map(({ tries }) => tries)),
-    max: max(sessions.map(({ tries }) => tries)),
-  },
-  playTime: {
-    mean: round(mean(sessions.map(({ time }) => time)), 0),
-    min: min(sessions.map(({ time }) => time)),
-    max: max(sessions.map(({ time }) => time)),
-  },
-});
