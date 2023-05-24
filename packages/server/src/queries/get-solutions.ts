@@ -1,4 +1,4 @@
-import { assert, defined, LevelsSolutions, MapSet, Path, toObject } from '@deadlock/game';
+import { assert, LevelsSolutions, MapSet, Path, toObject } from '@deadlock/game';
 import { EntityManager, SqlLevel, SqlSolution } from '@deadlock/persistence';
 
 type DifficultiesResult = Array<{
