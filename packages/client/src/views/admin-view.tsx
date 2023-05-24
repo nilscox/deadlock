@@ -2,8 +2,6 @@ import {
   defined,
   Direction,
   Game as GameClass,
-  Level,
-  LevelDefinition,
   LevelFlag,
   LevelsSolutions,
   LevelsStats,
@@ -17,6 +15,7 @@ import { Link } from 'wouter';
 import { api } from '../api';
 import { Game } from '../game/game';
 import { useLevels } from '../game/levels-api';
+import { useLevelDefinition, useLevelInstance, useLevelNumber, useLevelsIds } from '../game/levels-context';
 import { toSearchParams, useSearchParam } from '../hooks/use-search-params';
 import { copy } from '../utils';
 
@@ -43,7 +42,7 @@ const useFilter = (name: string, predicate: (value: string, id: string) => boole
 };
 
 export const AdminView = () => {
-  const levelsIds = useAllLevelsIds();
+  const levelsIds = useLevelsIds();
   const levels = useLevels();
   const solutions = useSolutions();
 
@@ -427,49 +426,12 @@ const Actions = ({ levelId }: ActionsProps) => {
   );
 };
 
-const useAllLevelsIds = () => {
-  const allLevels = useAllLevels();
-  return useMemo(() => allLevels.map(({ id }) => id), [allLevels]);
-};
-
-const useLevelNumber = (levelId: string) => {
-  const allLevelsIds = useAllLevelsIds();
-  return useMemo(() => allLevelsIds.indexOf(levelId) + 1, [levelId, allLevelsIds]);
-};
-
-const useLevelDefinition = (levelId: string) => {
-  const allLevels = useAllLevels();
-
-  const definition = useMemo(
-    () => defined(allLevels.find(({ id }) => id === levelId)?.definition),
-    [levelId, allLevels]
-  );
-
-  return definition;
-};
-
-const useLevelInstance = (levelId: string) => {
-  return new Level(useLevelDefinition(levelId));
-};
-
 const useRefetchLevels = () => {
   const queryClient = useQueryClient();
 
   return useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ['levels'] });
   }, [queryClient]);
-};
-
-const useAllLevels = () => {
-  const { data } = useQuery({
-    queryKey: ['levels', 'all'],
-    queryFn: async () => {
-      const result = await api.get<Record<string, LevelDefinition>>('/levels');
-      return Object.entries(result).map(([id, definition]) => ({ id, definition }));
-    },
-  });
-
-  return defined(data);
 };
 
 const useLevelStats = (levelId: string) => {
