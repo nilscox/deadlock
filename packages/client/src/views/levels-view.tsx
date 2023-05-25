@@ -7,6 +7,13 @@ import { MobileView } from '../mobile-view';
 export const LevelsView = () => {
   const levelsIds = useLevelsIds();
 
+  const clearProgress = () => {
+    if (window.confirm("You sure dude? You'll lose all your progress!")) {
+      localStorage.setItem('levels', '{}');
+      window.location.reload();
+    }
+  };
+
   return (
     <MobileView>
       <div className="pt-8 text-lg text-center">Levels</div>
@@ -17,7 +24,11 @@ export const LevelsView = () => {
         ))}
       </div>
 
-      <Link to="/level-editor" className="py-12 text-center">
+      <button className="py-6 text-center" onClick={clearProgress}>
+        Reset
+      </button>
+
+      <Link to="/level-editor" className="py-6 text-center">
         Level editor
       </Link>
     </MobileView>

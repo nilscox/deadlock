@@ -118,7 +118,7 @@ export const AdminView = () => {
           onChange={(e) => setEffectiveDifficulty(e.target.value)}
         >
           <option value="">Effective difficulty</option>
-          {[0, 1, 2, 3, 4].map((flag) => (
+          {[0, 1, 2, 3, 4, 5, 6].map((flag) => (
             <option key={flag} value={flag}>
               {flag}
             </option>
@@ -307,7 +307,7 @@ const Score = ({ levelId }: ScoreProps) => {
 
   const { evaluatedDifficulty, effectiveDifficulty } = solutions;
 
-  const r = 255 * Math.min(1, effectiveDifficulty / 4);
+  const r = 255 * Math.min(1, effectiveDifficulty / 6);
   const g = 255 - r;
   const b = 0;
 
