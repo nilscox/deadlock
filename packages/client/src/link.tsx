@@ -1,8 +1,12 @@
-import { LinkProps, Link as WLink } from 'wouter';
+import { Link as WLink } from 'wouter';
 
-export const Link = ({ children, ...props }: LinkProps) => (
-  <WLink {...props}>
-    <a>{children}</a>
+type LinkProps = Omit<React.HTMLAttributes<HTMLAnchorElement>, 'href'> & {
+  href: string;
+};
+
+export const Link = ({ href, ...props }: LinkProps) => (
+  <WLink href={href}>
+    <a {...props} />
   </WLink>
 );
 

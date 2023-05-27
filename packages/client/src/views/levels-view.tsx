@@ -28,7 +28,7 @@ export const LevelsView = () => {
         Reset
       </button>
 
-      <Link to="/level-editor" className="py-6 text-center">
+      <Link href="/level-editor" className="py-6 text-center">
         Level editor
       </Link>
     </MobileView>

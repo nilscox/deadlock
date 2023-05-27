@@ -43,7 +43,7 @@ export const LevelEditorView = () => {
   return (
     <MobileView>
       <div className="row">
-        <Link to={`/levels`} className="row items-center gap-2">
+        <Link href="/levels" className="row items-center gap-2">
           <div className="text-muted flip-horizontal">➜</div> Levels
         </Link>
 
@@ -52,7 +52,7 @@ export const LevelEditorView = () => {
         </button>
 
         <Link
-          to={`/test?${toSearchParams({ levelId, definition: definitionParam })}`}
+          href={`/test?${toSearchParams({ levelId, definition: definitionParam })}`}
           className="row items-center gap-2"
         >
           Test <div className="text-muted">➜</div>
