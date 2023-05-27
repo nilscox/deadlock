@@ -9,10 +9,11 @@ export type OnGameLoaded = (game: GameClass, renderer: GameRenderer) => void;
 type GameProps = {
   definition: LevelDefinition;
   onLoaded?: OnGameLoaded;
+  className?: string;
   styles?: CSSProperties;
 };
 
-export const Game = ({ definition, onLoaded, styles }: GameProps) => {
+export const Game = ({ definition, onLoaded, className, styles }: GameProps) => {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>();
 
   const controlsRef = useRef<PlayerControls>();
@@ -46,5 +47,5 @@ export const Game = ({ definition, onLoaded, styles }: GameProps) => {
     return () => controlsRef.current?.cleanup();
   }, []);
 
-  return <canvas ref={setCanvas} style={{ margin: 'auto', width: 300, height: 300, ...styles }} />;
+  return <canvas ref={setCanvas} className={className} style={{ width: 300, height: 300, ...styles }} />;
 };

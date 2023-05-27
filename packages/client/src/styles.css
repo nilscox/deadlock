@@ -22,6 +22,10 @@
 }
 
 html {
+  font-size: 12px;
+}
+
+html.mobile {
   font-size: 16px;
 }
 

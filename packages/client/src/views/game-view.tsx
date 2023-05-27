@@ -3,7 +3,6 @@ import { useMutation } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Link } from 'wouter';
 
 import { api } from '../api';
 import { Game } from '../game/game';
@@ -16,6 +15,7 @@ import {
 } from '../game/levels-context';
 import { useBoolean } from '../hooks/use-boolean';
 import { useNavigate } from '../hooks/use-navigate';
+import { Link } from '../link';
 import { MobileView } from '../mobile-view';
 
 type GameViewProps = {
@@ -112,7 +112,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
         <div className="text-muted">{levelId}</div>
       </div>
 
-      <Game definition={definition} onLoaded={setGame} />
+      <Game definition={definition} onLoaded={setGame} className="mx-auto" />
 
       <div className="flex-1">
         <Help game={game} levelNumber={levelNumber} />

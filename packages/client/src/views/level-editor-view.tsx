@@ -1,11 +1,11 @@
 import { LevelDefinition } from '@deadlock/game';
 import { useMutation } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { Link } from 'wouter';
 
 import { api } from '../api';
 import { toSearchParams, useSearchParam } from '../hooks/use-search-params';
 import { LevelEditor } from '../level-editor/level-editor';
+import { Link } from '../link';
 import { MobileView } from '../mobile-view';
 
 const defaultDefinition: LevelDefinition = {

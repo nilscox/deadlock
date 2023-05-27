@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
-import { Link } from 'wouter';
 
 import { useIsLevelCompleted, useLevelNumber, useLevelsIds } from '../game/levels-context';
+import { Link } from '../link';
 import { MobileView } from '../mobile-view';
 
 export const LevelsView = () => {
