@@ -387,7 +387,7 @@ const Actions = ({ levelId }: ActionsProps) => {
   const setLevelNumber = useSetLevelNumber(levelId);
   const deleteLevel = useDeleteLevel(levelId);
 
-  const handleeSetLevelNumber = () => {
+  const handleSetLevelNumber = () => {
     const input = window.prompt('Position:');
 
     if (!input) {
@@ -402,6 +402,14 @@ const Actions = ({ levelId }: ActionsProps) => {
     }
 
     setLevelNumber(value);
+  };
+
+  const handleUnvalidate = () => {
+    if (!window.confirm('You sure?')) {
+      return;
+    }
+
+    setLevelNumber(null);
   };
 
   const handleDeleteLevel = () => {
@@ -419,7 +427,11 @@ const Actions = ({ levelId }: ActionsProps) => {
       </li>
 
       <li>
-        <button onClick={handleeSetLevelNumber}>Set position</button>
+        <button onClick={handleSetLevelNumber}>Set position</button>
+      </li>
+
+      <li>
+        <button onClick={handleUnvalidate}>Unvalidate</button>
       </li>
 
       <li>
@@ -467,7 +479,7 @@ const useSetLevelNumber = (levelId: string) => {
 
   const { mutate } = useMutation({
     onSuccess: refetchLevels,
-    mutationFn: (levelNumber: number) => api.patch(`/level/${levelId}`, { position: levelNumber }),
+    mutationFn: (levelNumber: number | null) => api.patch(`/level/${levelId}`, { position: levelNumber }),
   });
 
   return mutate;

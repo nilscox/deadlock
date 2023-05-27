@@ -28,6 +28,13 @@ export function api(em: EntityManager) {
     res.json(levels);
   });
 
+  router.get('/levels/unvalidated', async (req, res) => {
+    const levels = await getLevels(em, false);
+
+    res.status(200);
+    res.json(levels);
+  });
+
   router.post('/session', async (req, res) => {
     const ip = String(req.headers['x-forwarded-for'] ?? req.socket.remoteAddress);
     const body = await sessionBodySchema.validate(req.body);
@@ -119,7 +126,7 @@ const admin: RequestHandler = (req, res, next) => {
 };
 
 const updateLevelSchema = yup.object({
-  position: yup.number().min(0).optional(),
+  position: yup.number().min(0).nullable().optional(),
 });
 
 const sessionBodySchema = yup.object({
