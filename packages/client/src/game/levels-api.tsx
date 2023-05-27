@@ -1,4 +1,4 @@
-import { LevelDefinition } from '@deadlock/game';
+import { LevelDefinition, toObject } from '@deadlock/game';
 import { defined } from '@deadlock/game/src/utils/assert';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
@@ -7,10 +7,17 @@ import { api } from '../api';
 export const useLevels = () => {
   const { data } = useQuery({
     queryKey: ['levels'],
-    queryFn: () => api.get<Record<string, LevelDefinition>>('/levels'),
+    queryFn: async () => {
+      const levels = await api.get<Record<string, LevelDefinition>>('/levels');
+      return Object.entries(levels).map(([id, level]) => ({ id, level }));
+    },
   });
 
-  return defined(data);
+  return toObject(
+    defined(data),
+    ({ id }) => id,
+    ({ level }) => level
+  );
 };
 
 type LevelSession = {

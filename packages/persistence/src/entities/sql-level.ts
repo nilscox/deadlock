@@ -27,7 +27,7 @@ export class SqlLevel extends SqlEntity implements LevelDefinition {
 
   @Property()
   @Unique()
-  position!: number;
+  position!: number | null;
 
   @Property({ type: 'real' })
   difficulty!: number;

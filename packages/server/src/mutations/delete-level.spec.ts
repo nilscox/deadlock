@@ -1,4 +1,4 @@
-import { SqlLevel } from '@deadlock/persistence';
+import { SqlLevel, serialize } from '@deadlock/persistence';
 
 import { setupTest } from '../setup-test';
 
@@ -14,5 +14,15 @@ describe('deleteLevel', () => {
     await deleteLevel(em, level.id);
 
     expect(await em.findOne(SqlLevel, { id: level.id })).toBeNull();
+  });
+
+  it("removes the level's position", async () => {
+    const em = getEntityManager();
+    const level = await create.level({ position: 1 });
+
+    await deleteLevel(em, level.id);
+    await em.refresh(level, { filters: { 'not-deleted': false } });
+
+    expect(serialize(level)).toHaveProperty('position', null);
   });
 });

@@ -1,5 +1,5 @@
-import { Level, array } from '@deadlock/game';
-import { SqlLevel, serialize } from '@deadlock/persistence';
+import { Level, array, toObject } from '@deadlock/game';
+import { EntityManager, SqlLevel } from '@deadlock/persistence';
 
 import { setupTest } from '../setup-test';
 
@@ -20,37 +20,75 @@ describe('updateLevel', () => {
     expect(updatedLevel.start).toEqual({ x: 1, y: 0 });
   });
 
-  it("set a level's position", async () => {
-    const em = getEntityManager();
-    const level = await create.level();
+  describe('set position', () => {
+    const getLevels = async (em: EntityManager) => {
+      const levels = await em.find(SqlLevel, {}, { orderBy: { position: 'asc' } });
 
-    await updateLevel(em, level.id, { position: 1 });
-    await em.refresh(level);
+      return toObject(
+        levels,
+        ({ id }) => id,
+        ({ position }) => position
+      );
+    };
 
-    expect(serialize(level)).toHaveProperty('position', 1);
-  });
+    it("set a level's position", async () => {
+      const em = getEntityManager();
+      const level = await create.level({ id: 'new' });
+      await Promise.all(array(2, (i) => create.level({ id: String(i + 1), position: i + 1 })));
 
-  it('moves a level to a lower position', async () => {
-    const em = getEntityManager();
-    const [, , , d] = await Promise.all(
-      array(5, (i) => create.level({ id: String(i + 1), position: i + 1 }))
-    );
+      await updateLevel(em, level.id, { position: 2 });
 
-    await updateLevel(em, d.id, { position: 2 });
+      expect(await getLevels(em)).toEqual({
+        1: 1,
+        new: 2,
+        2: 3,
+      });
+    });
 
-    const newLevels = await em.find(SqlLevel, {}, { orderBy: { position: 'asc' } });
+    it("removes a level's position", async () => {
+      const em = getEntityManager();
+      const [, b] = await Promise.all(array(4, (i) => create.level({ id: String(i + 1), position: i + 1 })));
 
-    expect(newLevels.map((level) => level.id)).toEqual(['1', '4', '2', '3', '5']);
-  });
+      await updateLevel(em, b.id, { position: null });
 
-  it('moves a level to an upper position', async () => {
-    const em = getEntityManager();
-    const [, b] = await Promise.all(array(5, (i) => create.level({ id: String(i + 1), position: i + 1 })));
+      expect(await getLevels(em)).toEqual({
+        1: 1,
+        3: 2,
+        4: 3,
+        2: null,
+      });
+    });
 
-    await updateLevel(em, b.id, { position: 4 });
+    it('moves a level to a lower position', async () => {
+      const em = getEntityManager();
+      const [, , , d] = await Promise.all(
+        array(5, (i) => create.level({ id: String(i + 1), position: i + 1 }))
+      );
 
-    const newLevels = await em.find(SqlLevel, {}, { orderBy: { position: 'asc' } });
+      await updateLevel(em, d.id, { position: 2 });
 
-    expect(newLevels.map((level) => level.id)).toEqual(['1', '3', '4', '2', '5']);
+      expect(await getLevels(em)).toEqual({
+        1: 1,
+        4: 2,
+        2: 3,
+        3: 4,
+        5: 5,
+      });
+    });
+
+    it('moves a level to an upper position', async () => {
+      const em = getEntityManager();
+      const [, b] = await Promise.all(array(5, (i) => create.level({ id: String(i + 1), position: i + 1 })));
+
+      await updateLevel(em, b.id, { position: 4 });
+
+      expect(await getLevels(em)).toEqual({
+        1: 1,
+        3: 2,
+        4: 3,
+        2: 4,
+        5: 5,
+      });
+    });
   });
 });

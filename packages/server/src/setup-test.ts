@@ -26,7 +26,6 @@ export const createLevel = createFactory<LevelDefinition>(() => ({
   ...createLevelDefinition(),
   id: createId(),
   fingerprint: randomId(),
-  position: 0,
   difficulty: 0,
   numberOfSolutionsScore: 0,
   easiestSolutionScore: 0,
