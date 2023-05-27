@@ -115,8 +115,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
       <Game definition={definition} onLoaded={setGame} />
 
       <div className="flex-1">
-        {Number(levelNumber) === 1 && <HelpSwipe />}
-        {Number(levelNumber) > 1 && Number(levelNumber) <= 4 && <HelpRestart />}
+        <Help game={game} levelNumber={Number(levelNumber)} />
       </div>
 
       <div className="row justify-between">
@@ -135,45 +134,61 @@ export const GameView = ({ levelId }: GameViewProps) => {
   );
 };
 
-const animateProps: React.SVGProps<SVGAnimateElement> = {
-  dur: '1s',
-  repeatCount: 'indefinite',
-  keySplines: '0.1 0.8 0.2 1;0.1 0.8 0.2 1;0.1 0.8 0.2 1;0.1 0.8 0.2 1;0.1 0.8 0.2 1;0.1 0.8 0.2 1',
-  keyTimes: '0;0.22;0.33;0.55;0.66;0.88;1',
-  calcMode: 'spline',
+type HelpProps = {
+  game: GameClass | undefined;
+  levelNumber: number;
+};
+
+const Help = ({ game, levelNumber }: HelpProps) => {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    setShow(false);
+  }, [levelNumber]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setShow(true), 4000);
+    return () => clearTimeout(timeout);
+  }, [levelNumber]);
+
+  const [restarted, setRestarted] = useState(false);
+
+  useEffect(() => {
+    const onRestarted = () => setRestarted(true);
+
+    game?.level.addListener(LevelEvent.restarted, onRestarted);
+    return () => game?.level.removeListener(LevelEvent.restarted, onRestarted);
+  }, [game]);
+
+  if (!show) {
+    return null;
+  }
+
+  if (levelNumber === 1) {
+    return <HelpSwipe />;
+  }
+
+  if ([3, 4, 5, 6, 7].includes(levelNumber) && !restarted) {
+    return <HelpRestart />;
+  }
+
+  return null;
 };
 
 const HelpSwipe = () => (
-  <div className="animate-fade-in col gap-4 justify-center items-center">
-    <svg
-      className="w-[120px]"
-      viewBox="0 0 10 4"
-      strokeLinecap="round"
-      stroke="currentColor"
-      strokeWidth="0.2"
-    >
-      <line x1="1" x2="7" y1="2" y2="2">
-        <animate attributeName="x2" from="7" to="9" {...animateProps} />
-      </line>
-      <line x1="5" x2="7" y1="1" y2="2" stroke="currentColor">
-        <animate attributeName="x1" from="5" to="7" {...animateProps} />
-        <animate attributeName="x2" from="7" to="9" {...animateProps} />
-      </line>
-      <line x1="5" x2="7" y1="3" y2="2" stroke="currentColor">
-        <animate attributeName="x1" from="5" to="7" {...animateProps} />
-        <animate attributeName="x2" from="7" to="9" {...animateProps} />
-      </line>
+  <div className="animate-fade-in col gap-4 justify-center items-center text-muted">
+    <svg className="w-[6rem] animate-swipe" viewBox="0 0 10 4" stroke="currentColor">
+      <line x1="1" x2="9" y1="2" y2="2" strokeWidth="1" strokeLinecap="round" />
+      <path d="M 7.5 1 L 9 2 L 7.5 3 Z" strokeLinejoin="round" fill="currentColor" />
     </svg>
     <div className="text-lg text-center">Swipe anywhere</div>
   </div>
 );
 
 const HelpRestart = () => (
-  <div className="animate-fade-in col gap-4 justify-center items-center">
-    <svg className="w-[40px]" viewBox="0 0 4 4" fill="currentColor">
-      <circle cx="2" cy="2" r="1.75">
-        <animate attributeName="opacity" values="0;1;0;1;0;0;0;0;0;0;0;0" dur="2s" repeatCount="indefinite" />
-      </circle>
+  <div className="animate-fade-in col gap-4 justify-center items-center text-muted">
+    <svg className="w-[2rem] animate-tap-twice" viewBox="0 0 4 4" fill="currentColor">
+      <circle cx="2" cy="2" r="1.75" />
     </svg>
     <div className="text-lg text-center">Tap twice to restart</div>
   </div>
