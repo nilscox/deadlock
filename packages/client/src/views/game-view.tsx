@@ -1,4 +1,4 @@
-import { Game as GameClass, Level, LevelEvent, assert, LevelFlag } from '@deadlock/game';
+import { Game as GameClass, Level, LevelEvent, LevelFlag, assert } from '@deadlock/game';
 import { useMutation } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
@@ -25,8 +25,8 @@ type GameViewProps = {
 export const GameView = ({ levelId }: GameViewProps) => {
   const navigate = useNavigate();
 
-  const definition = useLevelDefinition(levelId);
   const levelNumber = useLevelNumber(levelId);
+  const definition = useLevelDefinition(levelId);
   const completed = useIsLevelCompleted(levelId);
 
   const onSessionTerminated = useOnSessionTerminated(levelId);
@@ -85,7 +85,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
   return (
     <MobileView>
       <Helmet>
-        <title>{`Deadlock - Level ${String(levelNumber)}`}</title>
+        <title>{`Deadlock - Level ${levelNumber ?? '?'}`}</title>
       </Helmet>
 
       <div className="row items-end justify-between">
@@ -115,7 +115,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
       <Game definition={definition} onLoaded={setGame} />
 
       <div className="flex-1">
-        <Help game={game} levelNumber={Number(levelNumber)} />
+        <Help game={game} levelNumber={levelNumber} />
       </div>
 
       <div className="row justify-between">
@@ -136,7 +136,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
 
 type HelpProps = {
   game: GameClass | undefined;
-  levelNumber: number;
+  levelNumber?: number;
 };
 
 const Help = ({ game, levelNumber }: HelpProps) => {
@@ -168,7 +168,7 @@ const Help = ({ game, levelNumber }: HelpProps) => {
     return <HelpSwipe />;
   }
 
-  if ([3, 4, 5, 6, 7].includes(levelNumber) && !restarted) {
+  if ([3, 4, 5, 6, 7].includes(levelNumber as number) && !restarted) {
     return <HelpRestart />;
   }
 

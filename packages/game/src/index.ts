@@ -4,9 +4,14 @@ export { ControlEvent, Controls, Game } from './game';
 export { generateLevels, type GenerateLevelsOptions } from './generate';
 export { CellType, Level, LevelEvent, type Cell, type LevelDefinition, LevelFlag } from './level';
 export { Player, PlayerEvent } from './player';
-export { type LevelSolutions, type LevelsSolutions } from './solutions';
+export {
+  type LevelData,
+  type LevelSolutions,
+  type LevelsSolutions,
+  type LevelStats,
+  type LevelsStats,
+} from './types';
 export { solve } from './solve';
-export { type LevelStats, type LevelsStats } from './stats';
 export { assert, defined } from './utils/assert';
 export { Direction, isDirection, type Path } from './utils/direction';
 export * from './utils/inspect';

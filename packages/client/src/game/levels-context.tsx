@@ -1,11 +1,16 @@
-import { Game, Level, LevelDefinition, assert } from '@deadlock/game';
+import { Game, Level, LevelData, assert } from '@deadlock/game';
 import { useCallback, useMemo } from 'react';
 
 import { useLevels, usePostLevelSession } from './levels-api';
 import { LevelUserData, useLevelUserData, useSaveLevelUserData, useUserData } from './levels-user-data';
 
-export const useLevelExists = (levelId: string) => {
-  return levelId in useLevels();
+export const useLevel = (levelId: string) => {
+  const levels = useLevels();
+  return useMemo(() => levels[levelId], [levels, levelId]);
+};
+
+export const useLevelNumber = (levelId: string) => {
+  return useLevel(levelId).number;
 };
 
 export const useIsLevelCompleted = (levelId: string) => {
@@ -18,21 +23,14 @@ export const useLevelsIds = () => {
   return useMemo(() => Object.keys(levels), [levels]);
 };
 
-export const useLevelNumber = (levelId: string) => {
-  const levelsIds = useLevelsIds();
-  return levelsIds.indexOf(levelId) + 1 || undefined;
-};
-
 export const useLevelsMatching = (
-  predicate: (level: LevelDefinition, userLevelData: LevelUserData | undefined) => boolean
+  predicate: (level: LevelData, userLevelData: LevelUserData | undefined) => boolean
 ) => {
   const levels = useLevels();
   const userData = useUserData();
 
   return useMemo(() => {
-    return Object.entries(levels)
-      .filter(([levelId, level]) => predicate(level, userData[levelId]))
-      .map(([levelId]) => levelId);
+    return Object.values(levels).filter((level) => predicate(level, userData[level.id]));
   }, [levels, userData, predicate]);
 };
 
@@ -40,9 +38,9 @@ export const useLevelDefinition = (levelId: string) => {
   const levels = useLevels();
   const level = levels[levelId];
 
-  assert(level, `level ${levelId} not found`);
+  assert(level, `level "${levelId}" not found`);
 
-  return level;
+  return level.definition;
 };
 
 export const useLevelInstance = (levelId: string) => {

@@ -4,6 +4,14 @@ export const identity = <T>(value: T) => {
   return value;
 };
 
+export const getId = (obj: { id: string }) => {
+  return obj.id;
+};
+
+export const getIds = (array: Array<{ id: string }>) => {
+  return array.map(getId);
+};
+
 export const randomId = () => {
   return Math.random().toString(36).slice(-6);
 };

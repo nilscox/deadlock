@@ -15,7 +15,13 @@ import { Link } from 'wouter';
 import { api } from '../api';
 import { Game } from '../game/game';
 import { useLevels } from '../game/levels-api';
-import { useLevelDefinition, useLevelInstance, useLevelNumber, useLevelsIds } from '../game/levels-context';
+import {
+  useLevel,
+  useLevelDefinition,
+  useLevelInstance,
+  useLevelNumber,
+  useLevelsIds,
+} from '../game/levels-context';
 import { toSearchParams, useSearchParam } from '../hooks/use-search-params';
 import { copy } from '../utils';
 
@@ -66,8 +72,7 @@ export const AdminView = () => {
   });
 
   const [flag, setFlag, flagFilter] = useFilter('flag', (flag, id) => {
-    const level = levels[id] as unknown as { flags: LevelFlag[] };
-    return level.flags.includes(flag as LevelFlag);
+    return levels[id].flags.includes(flag as LevelFlag);
   });
 
   const [effectiveDifficulty, setEffectiveDifficulty, effectiveDifficultyFilter] = useFilter(
@@ -177,9 +182,9 @@ type LevelRowProps = {
 };
 
 const LevelRow = ({ levelId }: LevelRowProps) => {
+  const number = useLevelNumber(levelId);
   const definition = useLevelDefinition(levelId);
   const level = useLevelInstance(levelId);
-  const levelNumber = useLevelNumber(levelId);
 
   const [enableControls, setEnableControl] = useState(false);
 
@@ -191,7 +196,7 @@ const LevelRow = ({ levelId }: LevelRowProps) => {
     >
       <div className="px-4">
         <div className="row gap-2 items-center">
-          {levelNumber && <Link href={`/level/${levelId}`}>#{levelNumber}</Link>}
+          <Link href={`/level/${levelId}`}>#{number}</Link>
 
           <button onClick={() => copy(levelId)} className="text-muted">
             {levelId}
@@ -299,7 +304,7 @@ type ScoreProps = {
 
 const Score = ({ levelId }: ScoreProps) => {
   const solutions = useLevelSolutions(levelId);
-  const level = useLevelDefinition(levelId) as unknown as { flags: LevelFlag[] };
+  const level = useLevel(levelId);
 
   if (!solutions) {
     return null;
