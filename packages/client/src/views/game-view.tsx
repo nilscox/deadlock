@@ -164,11 +164,11 @@ const Help = ({ game, levelNumber }: HelpProps) => {
     return null;
   }
 
-  if (levelNumber === 1) {
+  if (Number(levelNumber) === 1) {
     return <HelpSwipe />;
   }
 
-  if ([3, 4, 5, 6, 7].includes(levelNumber as number) && !restarted) {
+  if (Number(levelNumber) <= 7 && !restarted) {
     return <HelpRestart />;
   }
 

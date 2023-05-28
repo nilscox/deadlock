@@ -7,15 +7,14 @@ import { MobileView } from '../mobile-view';
 export const LevelsView = () => {
   const levelsIds = useLevelsIds();
 
-  const clearProgress = () => {
-    if (window.confirm("You sure dude? You'll lose all your progress!")) {
-      localStorage.setItem('levels', '{}');
-      window.location.reload();
-    }
-  };
-
   return (
     <MobileView>
+      <div className="row items-end justify-between">
+        <Link href="/" className="row gap-2 items-center">
+          <div className="text-muted flip-horizontal">➜</div> Home
+        </Link>
+      </div>
+
       <div className="pt-8 text-lg text-center">Levels</div>
 
       <div className="grid grid-cols-3 gap-4 p-4">
@@ -23,14 +22,6 @@ export const LevelsView = () => {
           <Level key={levelId} levelId={levelId} />
         ))}
       </div>
-
-      <button className="py-6 text-center" onClick={clearProgress}>
-        Reset
-      </button>
-
-      <Link href="/level-editor" className="py-6 text-center">
-        Level editor
-      </Link>
     </MobileView>
   );
 };

@@ -1,14 +1,17 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { Redirect, Route, Router, Switch } from 'wouter';
+import { Route, Router, Switch } from 'wouter';
 
-import { useLevel, useLevelsIds, useLevelsMatching } from './game/levels-context';
+import { useLevel, useLevelsIds } from './game/levels-context';
 import { useNavigate } from './hooks/use-navigate';
 import { AdminView } from './views/admin-view';
 import { GameView } from './views/game-view';
+import { HomeView } from './views/home-view';
+import { LabView } from './views/lab-view';
 import { LevelEditorView } from './views/level-editor-view';
 import { LevelsView } from './views/levels-view';
 import { NotFoundView } from './views/not-found-view';
+import { OptionsView } from './views/options-view';
 import { TestView } from './views/test-view';
 
 export const App = () => (
@@ -22,7 +25,7 @@ export const App = () => (
     <Router>
       <Switch>
         <Route path="/">
-          <RedirectToNextLevel />
+          <HomeView />
         </Route>
 
         <Route path="/admin">
@@ -35,6 +38,14 @@ export const App = () => (
 
         <Route<{ levelId: string }> path="/level/:levelId">
           {(params) => <GameViewUnsafe levelId={params.levelId} />}
+        </Route>
+
+        <Route path="/options">
+          <OptionsView />
+        </Route>
+
+        <Route path="/lab">
+          <LabView />
         </Route>
 
         <Route path="/level-editor">
@@ -66,16 +77,6 @@ const GoToFirstLevel = () => {
   }, [levels, navigate]);
 
   return null;
-};
-
-const RedirectToNextLevel = () => {
-  const [nextLevel] = useLevelsMatching(useCallback((level, userData) => !userData?.completed, []));
-
-  if (!nextLevel) {
-    return <Redirect replace href="/levels" />;
-  }
-
-  return <Redirect replace href={`/level/${nextLevel.id}`} />;
 };
 
 type GameViewUnsafeProps = {

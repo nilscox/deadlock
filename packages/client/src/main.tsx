@@ -29,5 +29,3 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 if ('serviceWorker' in navigator) {
   void navigator.serviceWorker.register('/service-worker.js');
 }
-
-void document.querySelector('audio')?.play();
