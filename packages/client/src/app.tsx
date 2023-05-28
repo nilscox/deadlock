@@ -14,6 +14,7 @@ import { LevelsView } from './views/levels-view';
 import { NotFoundView } from './views/not-found-view';
 import { OptionsView } from './views/options-view';
 import { TestView } from './views/test-view';
+import { LabLevels } from './views/lab-level';
 
 export const App = () => (
   <>
@@ -49,6 +50,10 @@ export const App = () => (
 
         <Route path="/lab">
           <LabView />
+        </Route>
+
+        <Route path="/lab/level">
+          <LabLevels />
         </Route>
 
         <Route path="/level-editor">

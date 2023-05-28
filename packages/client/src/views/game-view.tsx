@@ -1,10 +1,9 @@
-import { Game as GameClass, Level, LevelEvent, LevelFlag, assert } from '@deadlock/game';
-import { useMutation } from '@tanstack/react-query';
+import { Game as GameClass, Level, LevelEvent, assert } from '@deadlock/game';
 import { clsx } from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 
-import { api } from '~/api';
+import { Link } from '~/components/link';
 import { Game } from '~/game/game';
 import {
   useIsLevelCompleted,
@@ -13,9 +12,7 @@ import {
   useLevelsIds,
   useOnSessionTerminated,
 } from '~/game/levels-context';
-import { useBoolean } from '~/hooks/use-boolean';
 import { useNavigate } from '~/hooks/use-navigate';
-import { Link } from '~/components/link';
 import { MobileView } from '~/mobile-view';
 
 type GameViewProps = {
@@ -34,14 +31,6 @@ export const GameView = ({ levelId }: GameViewProps) => {
   const nextLevel = useGoToNextLevel(levelId);
 
   const [game, setGame] = useState<GameClass>();
-
-  const [flagged, flag, unFlag] = useBoolean(false);
-  useEffect(() => unFlag(), [levelId, unFlag]);
-
-  const { mutate: flagLevel } = useMutation({
-    mutationFn: (flag: LevelFlag) => api.post(`/level/${levelId}/flag`, { flag }),
-    onSuccess: flag,
-  });
 
   const onCompleted = useCallback(() => {
     assert(game);
@@ -116,19 +105,6 @@ export const GameView = ({ levelId }: GameViewProps) => {
 
       <div className="flex-1">
         <Help game={game} levelNumber={levelNumber} />
-      </div>
-
-      <div className="row justify-between">
-        {Object.values(LevelFlag).map((value) => (
-          <button
-            key={value}
-            onClick={() => flagLevel(value)}
-            className="disabled:text-muted"
-            disabled={flagged}
-          >
-            {value.replaceAll('_', ' ')}
-          </button>
-        ))}
       </div>
     </MobileView>
   );

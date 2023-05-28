@@ -10,13 +10,13 @@ export const LabView = () => (
     </div>
 
     <div className="flex-1 col justify-center">
-      <h1 className="font-extrabold text-xl">Options</h1>
+      <h1 className="font-extrabold text-xl">Lab</h1>
     </div>
 
     <div className="flex-1">
       <ul className="col gap-4">
         <li>
-          <button onClick={() => alert("I'm working on it!!")}>Try players levels</button>
+          <Link href="/lab/level">Try players levels</Link>
         </li>
 
         <li>
