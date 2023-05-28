@@ -35,7 +35,7 @@ export const TableBody = <Row,>({ table, renderExpanded }: TableBodyProps<Row>) 
   <tbody className="divide-y">
     {table.getRowModel().rows.map((row) => (
       <Fragment key={row.id}>
-        <tr>
+        <tr className="hover:bg-muted/50">
           {row.getVisibleCells().map((cell) => (
             <td key={cell.id} className="py-1 px-2">
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
