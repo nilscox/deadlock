@@ -47,5 +47,12 @@ export const Game = ({ definition, onLoaded, className, styles }: GameProps) => 
     return () => controlsRef.current?.cleanup();
   }, []);
 
-  return <canvas ref={setCanvas} className={className} style={{ width: 300, height: 300, ...styles }} />;
+  return (
+    <canvas
+      key={JSON.stringify(definition)}
+      ref={setCanvas}
+      className={className}
+      style={{ width: 300, height: 300, ...styles }}
+    />
+  );
 };
