@@ -4,9 +4,9 @@ import { getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/r
 import { useMemo } from 'react';
 
 import { api } from '~/api';
+import { Table, TableBody, TableHeader } from '~/components/table';
 import { useLevels } from '~/game/levels-api';
 
-import { Table, TableBody, TableHeader } from '~/components/table';
 import { levelsColumns } from './level-columns';
 import { LevelDetails } from './level-details';
 

@@ -19,7 +19,7 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <QueryClientProvider client={queryClient}>
-    {/* <ReactQueryDevtools /> */}
+    {import.meta.env.DEV && <ReactQueryDevtools />}
     <Suspense fallback={null}>
       <App />
     </Suspense>

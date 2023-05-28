@@ -33,6 +33,7 @@ export const OptionsView = () => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useClearProgress = () => {
   return () => {
     if (window.confirm("You sure dude? You'll lose all your progress!")) {
@@ -60,7 +61,7 @@ const playMusic = () => {
     other.pause();
     other.currentTime = 0;
 
-    player.play();
+    void player.play();
     setTimeout(loop, 585169);
   }
 

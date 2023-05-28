@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
 
-import { useIsLevelCompleted, useLevelNumber, useLevelsIds } from '~/game/levels-context';
 import { Link } from '~/components/link';
+import { useIsLevelCompleted, useLevelNumber, useLevelsIds } from '~/game/levels-context';
 import { MobileView } from '~/mobile-view';
 
 export const LevelsView = () => {

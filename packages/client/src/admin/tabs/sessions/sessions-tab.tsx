@@ -38,7 +38,7 @@ const useSessions = () => {
 
 const columnHelper = createColumnHelper<LevelSession>();
 
-export const sessionsColumns = [
+const sessionsColumns = [
   columnHelper.accessor('id', {
     cell: ({ getValue }) => getValue(),
   }),

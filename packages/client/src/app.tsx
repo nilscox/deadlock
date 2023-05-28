@@ -8,13 +8,13 @@ import { useLevel, useLevelsIds } from './game/levels-context';
 import { useNavigate } from './hooks/use-navigate';
 import { GameView } from './views/game-view';
 import { HomeView } from './views/home-view';
+import { LabLevels } from './views/lab-level';
 import { LabView } from './views/lab-view';
 import { LevelEditorView } from './views/level-editor-view';
 import { LevelsView } from './views/levels-view';
 import { NotFoundView } from './views/not-found-view';
 import { OptionsView } from './views/options-view';
 import { TestView } from './views/test-view';
-import { LabLevels } from './views/lab-level';
 
 export const App = () => (
   <>
