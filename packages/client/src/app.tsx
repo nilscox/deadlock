@@ -4,7 +4,7 @@ import { Route, Router, Switch } from 'wouter';
 
 import { useLevel, useLevelsIds } from './game/levels-context';
 import { useNavigate } from './hooks/use-navigate';
-import { AdminView } from './views/admin-view';
+import { AdminView } from './admin/admin-view';
 import { GameView } from './views/game-view';
 import { HomeView } from './views/home-view';
 import { LabView } from './views/lab-view';
