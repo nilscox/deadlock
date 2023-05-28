@@ -19,7 +19,7 @@ export const OptionsView = () => {
       <div className="flex-1">
         <ul className="col gap-4">
           <li>
-            <button onClick={() => void document.querySelector('audio')?.play()}>Play music</button>
+            <button onClick={playMusic}>Play music</button>
           </li>
 
           <li>
@@ -40,4 +40,29 @@ export const useClearProgress = () => {
       window.location.href = '/';
     }
   };
+};
+
+const playMusic = () => {
+  const player1 = document.querySelector('audio') as HTMLAudioElement;
+  const player2 = document.createElement('audio');
+
+  player2.src = player1.src;
+
+  let current = 0;
+
+  function loop() {
+    const player = current === 0 ? player1 : player2;
+    const other = current === 0 ? player2 : player1;
+
+    current++;
+    current %= 2;
+
+    other.pause();
+    other.currentTime = 0;
+
+    player.play();
+    setTimeout(loop, 585169);
+  }
+
+  loop();
 };
