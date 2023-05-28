@@ -7,9 +7,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { api } from '~/api';
+import { Link } from '~/components/link';
 import { useLevelDefinition } from '~/game/levels-context';
 import { toSearchParams } from '~/hooks/use-search-params';
-import { Link } from '~/link';
 
 type ActionsProps = {
   levelId: string;

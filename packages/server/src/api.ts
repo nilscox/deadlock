@@ -83,8 +83,8 @@ export function api(em: EntityManager) {
     res.end();
   });
 
-  router.get('/level/:levelId/sessions', admin, async (req, res) => {
-    const sessions = await getSessions(em, req.params.levelId);
+  router.get('/sessions', admin, async (req, res) => {
+    const sessions = await getSessions(em, req.query.levelId as string | undefined);
 
     res.status(200);
     res.json(sessions);

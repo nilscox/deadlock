@@ -2,9 +2,10 @@ import { useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Route, Router, Switch } from 'wouter';
 
+import { AdminView } from './admin/admin-view';
+import { NestedRoutes } from './components/nested-routes';
 import { useLevel, useLevelsIds } from './game/levels-context';
 import { useNavigate } from './hooks/use-navigate';
-import { AdminView } from './admin/admin-view';
 import { GameView } from './views/game-view';
 import { HomeView } from './views/home-view';
 import { LabView } from './views/lab-view';
@@ -28,8 +29,10 @@ export const App = () => (
           <HomeView />
         </Route>
 
-        <Route path="/admin">
-          <AdminView />
+        <Route path="/admin/:all*">
+          <NestedRoutes base="/admin">
+            <AdminView />
+          </NestedRoutes>
         </Route>
 
         <Route path="/levels">

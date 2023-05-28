@@ -8,6 +8,15 @@ export type LevelData = {
   definition: LevelDefinition;
 };
 
+export type LevelSession = {
+  id: string;
+  levelId: string;
+  date: string;
+  completed: boolean;
+  time: number;
+  tries: number;
+};
+
 export type LevelsSolutions = Record<string, LevelSolutions>;
 
 export type LevelSolutions = {

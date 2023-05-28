@@ -3,10 +3,10 @@ import { useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { Redirect } from 'wouter';
 
-import { Game } from '../game/game';
-import { useNavigateBack } from '../hooks/use-navigate';
-import { useSearchParam } from '../hooks/use-search-params';
-import { MobileView } from '../mobile-view';
+import { Game } from '~/game/game';
+import { useNavigateBack } from '~/hooks/use-navigate';
+import { useSearchParam } from '~/hooks/use-search-params';
+import { MobileView } from '~/mobile-view';
 
 export const TestView = () => {
   const navigateBack = useNavigateBack();

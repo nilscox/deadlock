@@ -4,19 +4,19 @@ import { clsx } from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 
-import { api } from '../api';
-import { Game } from '../game/game';
+import { api } from '~/api';
+import { Game } from '~/game/game';
 import {
   useIsLevelCompleted,
   useLevelDefinition,
   useLevelNumber,
   useLevelsIds,
   useOnSessionTerminated,
-} from '../game/levels-context';
-import { useBoolean } from '../hooks/use-boolean';
-import { useNavigate } from '../hooks/use-navigate';
-import { Link } from '../link';
-import { MobileView } from '../mobile-view';
+} from '~/game/levels-context';
+import { useBoolean } from '~/hooks/use-boolean';
+import { useNavigate } from '~/hooks/use-navigate';
+import { Link } from '~/components/link';
+import { MobileView } from '~/mobile-view';
 
 type GameViewProps = {
   levelId: string;

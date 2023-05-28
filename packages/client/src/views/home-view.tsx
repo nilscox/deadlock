@@ -1,10 +1,10 @@
 import { animated, config, useChain, useSpring, useSpringRef, useTrail } from '@react-spring/web';
 import { useCallback } from 'react';
 
-import { useLevels } from '../game/levels-api';
-import { useLevelsMatching } from '../game/levels-context';
-import { Link } from '../link';
-import { MobileView } from '../mobile-view';
+import { useLevels } from '~/game/levels-api';
+import { useLevelsMatching } from '~/game/levels-context';
+import { Link } from '~/components/link';
+import { MobileView } from '~/mobile-view';
 
 import { useClearProgress } from './options-view';
 

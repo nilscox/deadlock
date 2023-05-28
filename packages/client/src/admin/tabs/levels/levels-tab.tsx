@@ -1,17 +1,12 @@
 import { defined, LevelData, LevelSolutions, LevelsSolutions, LevelsStats, LevelStats } from '@deadlock/game';
 import { useQuery } from '@tanstack/react-query';
-import {
-  flexRender,
-  getCoreRowModel,
-  getExpandedRowModel,
-  Table,
-  useReactTable,
-} from '@tanstack/react-table';
-import { Fragment, useMemo } from 'react';
+import { getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table';
+import { useMemo } from 'react';
 
 import { api } from '~/api';
 import { useLevels } from '~/game/levels-api';
 
+import { Table, TableBody, TableHeader } from '~/components/table';
 import { levelsColumns } from './level-columns';
 import { LevelDetails } from './level-details';
 
@@ -39,15 +34,14 @@ export const LevelsTab = () => {
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getRowCanExpand: () => true,
-    defaultColumn: { size: NaN },
   });
 
   return (
     <div className="border rounded overflow-auto h-full">
-      <table className="border-collapse table-fixed w-full">
-        <TableHeaders table={table} />
-        <TableBody table={table} />
-      </table>
+      <Table>
+        <TableHeader table={table} />
+        <TableBody table={table} renderExpanded={(level) => <LevelDetails level={level} />} />
+      </Table>
     </div>
   );
 };
@@ -70,49 +64,3 @@ const useLevelsSolutions = () => {
 
   return defined(data);
 };
-
-type TableHeadersProps = {
-  table: Table<LevelRow>;
-};
-
-const TableHeaders = ({ table }: TableHeadersProps) => (
-  <thead className="sticky z-10 top-0">
-    {table.getHeaderGroups().map((headerGroup) => (
-      <tr key={headerGroup.id}>
-        {headerGroup.headers.map((header) => (
-          <th key={header.id} className="py-2 px-2 bg-muted text-left" style={{ width: header.getSize() }}>
-            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-          </th>
-        ))}
-      </tr>
-    ))}
-  </thead>
-);
-
-type TableBodyProps = {
-  table: Table<LevelRow>;
-};
-
-const TableBody = ({ table }: TableBodyProps) => (
-  <tbody className="divide-y">
-    {table.getRowModel().rows.map((row) => (
-      <Fragment key={row.id}>
-        <tr>
-          {row.getVisibleCells().map((cell) => (
-            <td key={cell.id} className="py-1 px-2">
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </td>
-          ))}
-        </tr>
-
-        {row.getIsExpanded() && (
-          <tr>
-            <td colSpan={row.getVisibleCells().length}>
-              <LevelDetails level={row.original} />
-            </td>
-          </tr>
-        )}
-      </Fragment>
-    ))}
-  </tbody>
-);

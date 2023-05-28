@@ -1,5 +1,5 @@
-import { Link } from '../link';
-import { MobileView } from '../mobile-view';
+import { Link } from '~/components/link';
+import { MobileView } from '~/mobile-view';
 
 export const OptionsView = () => {
   const clearProgress = useClearProgress();
