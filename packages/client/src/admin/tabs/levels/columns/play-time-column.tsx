@@ -1,3 +1,5 @@
+import { Duration } from '~/components/duration';
+
 type PlayTimeColumnProps = {
   mean: number;
   min: number;
@@ -6,9 +8,9 @@ type PlayTimeColumnProps = {
 
 export const PlayTimeColumn = ({ mean, min, max }: PlayTimeColumnProps) => (
   <>
-    {mean}s
+    <Duration value={mean} />
     <span className="ml-2 text-muted text-sm">
-      (min: {min}s, max; {max}s)
+      (min: <Duration value={min} />, max; <Duration value={max} />)
     </span>
   </>
 );

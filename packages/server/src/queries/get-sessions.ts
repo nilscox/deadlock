@@ -1,3 +1,4 @@
+import { round } from '@deadlock/game';
 import { LevelSession } from '@deadlock/game/src/types';
 import { EntityManager, SqlSession } from '@deadlock/persistence';
 
@@ -14,6 +15,6 @@ const formatSession = (session: SqlSession): LevelSession => ({
   levelId: session.level.id,
   date: session.date.toISOString(),
   completed: session.completed,
-  time: session.time,
+  time: round(session.time / 1000),
   tries: session.tries,
 });

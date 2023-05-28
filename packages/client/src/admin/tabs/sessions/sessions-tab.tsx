@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
 import { api } from '~/api';
+import { Duration } from '~/components/duration';
 import { Table, TableBody, TableHeader } from '~/components/table';
 
 export const SessionsTab = () => {
@@ -51,7 +52,7 @@ export const sessionsColumns = [
   }),
 
   columnHelper.accessor('time', {
-    cell: ({ getValue }) => `${Math.ceil(getValue() / 1000)}s`,
+    cell: ({ getValue }) => <Duration value={getValue()} />,
   }),
 
   columnHelper.accessor('tries', {
