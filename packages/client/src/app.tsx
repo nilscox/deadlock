@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet';
 import { Route, Router, Switch } from 'wouter';
 
 import { AdminView } from './admin/admin-view';
-import { NestedRoutes } from './components/nested-routes';
 import { useLevel, useLevelsIds } from './game/levels-context';
 import { useNavigate } from './hooks/use-navigate';
 import { GameView } from './views/game-view';
@@ -31,9 +30,7 @@ export const App = () => (
         </Route>
 
         <Route path="/admin/:all*">
-          <NestedRoutes base="/admin">
-            <AdminView />
-          </NestedRoutes>
+          <AdminView />
         </Route>
 
         <Route path="/levels">

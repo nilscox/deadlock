@@ -8,22 +8,22 @@ import { SessionsTab } from './tabs/sessions/sessions-tab';
 export const AdminView = () => (
   <div className="h-full col">
     <Tabs>
-      <Tab href="/levels">Levels</Tab>
-      <Tab href="/sessions">Sessions</Tab>
+      <Tab href="/admin/levels">Levels</Tab>
+      <Tab href="/admin/sessions">Sessions</Tab>
     </Tabs>
 
     <div className="p-4 flex-1 overflow-hidden">
       <Switch>
-        <Route path="/levels">
+        <Route path="/admin/levels">
           <LevelsTab />
         </Route>
 
-        <Route path="/sessions">
+        <Route path="/admin/sessions">
           <SessionsTab />
         </Route>
 
         <Route>
-          <Redirect href="/levels" />
+          <Redirect href="/admin/levels" />
         </Route>
       </Switch>
     </div>
