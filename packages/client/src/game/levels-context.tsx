@@ -63,10 +63,6 @@ export const useOnSessionTerminated = (levelId: string) => {
 
       const alreadyCompleted = userLevelData?.completed;
 
-      if (alreadyCompleted && !completed) {
-        return;
-      }
-
       const time = game.stopwatch.elapsed;
       const tries = game.tries;
 
@@ -74,8 +70,11 @@ export const useOnSessionTerminated = (levelId: string) => {
         return;
       }
 
-      saveUserLevelData(levelId, { completed, tries, time });
       postLevelSession({ levelId, completed, tries, time });
+
+      if (!alreadyCompleted) {
+        saveUserLevelData(levelId, { completed, tries, time });
+      }
     },
     [levelId, userLevelData, saveUserLevelData, postLevelSession]
   );
