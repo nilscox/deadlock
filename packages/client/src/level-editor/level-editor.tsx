@@ -1,4 +1,4 @@
-import { CellType, Level, LevelDefinition, Cell as TCell, array, solve } from '@deadlock/game';
+import { CellType, Level, LevelDefinition, Cell as TCell, array } from '@deadlock/game';
 import {
   DndContext,
   DragEndEvent,
@@ -23,7 +23,6 @@ type LevelEditorProps = {
 
 export const LevelEditor = ({ definition, onChange }: LevelEditorProps) => {
   const level = useMemo(() => new Level(definition), [definition]);
-  const solutions = useMemo(() => solve(new Level(clone(definition)), 500), [definition]);
 
   const handleChangeSize = useSizeChangeHandler(level, onChange);
   const [dragging, handleDragStart, handleDragEnd] = useDragHandlers(level, onChange);
@@ -46,7 +45,6 @@ export const LevelEditor = ({ definition, onChange }: LevelEditorProps) => {
         </div>
       </div>
 
-      <div>Solutions: {solutions === undefined ? '> 500' : solutions.length}</div>
       <DragOverlay dropAnimation={null}>{dragging && <Cell type={dragging.type} />}</DragOverlay>
     </DndContext>
   );

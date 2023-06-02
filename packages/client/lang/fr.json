@@ -44,7 +44,7 @@
     },
     "lab": {
       "title": "Lab",
-      "levels": "Tester les niveaux expérimentaux",
+      "levels": "Niveaux expérimentaux",
       "createLevel": "Créer un niveau"
     },
     "labLevel": {
@@ -65,7 +65,9 @@
     "levelEditor": {
       "title": "Éditeur de niveau",
       "save": "Enregistrer",
-      "test": "Tester"
+      "test": "Tester",
+      "solutionsCount": "Solutions : {count}",
+      "moreThan500": "> 500"
     },
     "testLevel": {
       "title": "Test du niveau"

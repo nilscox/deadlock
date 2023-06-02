@@ -28,7 +28,7 @@ type RemovePrefix<T extends string, P extends string> = T extends `${P}${infer R
 
 type TProps<Keys extends string> = {
   id: Keys;
-  values?: Record<string, string | number>;
+  values?: Record<string, React.ReactNode>;
 };
 
 export const Translate = ({ id, values }: TProps<Leaves<Translations>>) => {

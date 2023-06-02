@@ -33,7 +33,7 @@
     "game": {
       "levelNumber": "Level {levelNumber}",
       "navigation": {
-        "prev": "Back",
+        "prev": "Previous",
         "levels": "Levels",
         "skip": "Skip"
       },
@@ -65,7 +65,9 @@
     "levelEditor": {
       "title": "Level editor",
       "save": "Save",
-      "test": "Test"
+      "test": "Test",
+      "solutionsCount": "Solutions: {count}",
+      "moreThan500": "> 500"
     },
     "testLevel": {
       "title": "Experimental level"

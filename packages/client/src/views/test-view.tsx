@@ -2,11 +2,12 @@ import { Level, LevelDefinition } from '@deadlock/game';
 import { useMemo } from 'react';
 import { Redirect } from 'wouter';
 
+import { ArrowLeft } from '~/components/arrows';
 import { Translate } from '~/components/translate';
 import { Game } from '~/game/game';
 import { useNavigateBack } from '~/hooks/use-navigate';
 import { useSearchParam } from '~/hooks/use-search-params';
-import { MobileView } from '~/mobile-view';
+import { MobileNavigation, MobileView } from '~/mobile-view';
 
 const T = Translate.prefix('views.testLevel');
 
@@ -27,13 +28,18 @@ export const TestView = () => {
   }
 
   return (
-    <MobileView>
-      <div className="row">
-        <button onClick={navigateBack} className="row items-center gap-2">
-          <span className="text-muted flip-horizontal">➜</span> <Translate id="navigation.home" />
-        </button>
-      </div>
-
+    <MobileView
+      header={
+        <MobileNavigation
+          left={
+            <button onClick={navigateBack} className="row items-center gap-2">
+              <ArrowLeft />
+              <Translate id="navigation.home" />
+            </button>
+          }
+        />
+      }
+    >
       <div className="flex-1 col items-center justify-center">
         <div className="text-xl">
           <T id="title" />

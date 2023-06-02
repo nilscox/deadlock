@@ -13,6 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Redirect } from 'wouter';
 
 import { api } from '~/api';
+import { ArrowLeft, ArrowRight } from '~/components/arrows';
 import { Link } from '~/components/link';
 import { Translate } from '~/components/translate';
 import { Game } from '~/game/game';
@@ -20,7 +21,7 @@ import { useIsLevelCompleted, useOnSessionTerminated } from '~/game/levels-conte
 import { useUserData } from '~/game/levels-user-data';
 import { useBoolean } from '~/hooks/use-boolean';
 import { useNavigate } from '~/hooks/use-navigate';
-import { MobileView } from '~/mobile-view';
+import { MobileNavigation, MobileView } from '~/mobile-view';
 
 const T = Translate.prefix('views.labLevel');
 
@@ -94,13 +95,18 @@ const LabLevel = ({ level, onNext }: LabLevelProps) => {
   }, [game]);
 
   return (
-    <MobileView>
-      <div className="row items-end justify-between">
-        <Link href="/lab" className="row gap-2 items-center">
-          <div className="text-muted flip-horizontal">➜</div> <Translate id="navigation.lab" />
-        </Link>
-      </div>
-
+    <MobileView
+      header={
+        <MobileNavigation
+          left={
+            <Link href="/lab" className="row gap-2 items-center">
+              <ArrowLeft />
+              <Translate id="navigation.lab" />
+            </Link>
+          }
+        />
+      }
+    >
       <div className="flex-1 col justify-center text-center">
         <div
           className={clsx('transition-colors text-xl font-semibold', completed && 'text-green')}
@@ -111,9 +117,9 @@ const LabLevel = ({ level, onNext }: LabLevelProps) => {
         <div className="text-muted">{level.id}</div>
       </div>
 
-      <Game definition={definition} onLoaded={setGame} className="mx-auto" />
-
-      <div className="flex-1"></div>
+      <div className="flex-3">
+        <Game definition={definition} onLoaded={setGame} className="mx-auto" />
+      </div>
 
       <FeedbackModal levelId={level.id} open={feedbackModalOpen} onNext={handleNext} />
     </MobileView>
@@ -178,63 +184,65 @@ const FeedbackModal = ({ levelId, open, onNext }: FeedbackModalProps) => {
   };
 
   return (
-    <dialog ref={setRef} className="border rounded-lg w-full max-w-md shadow-lg">
-      <h2 className="text-lg mb-8">
-        <T id="feedbackDialog.title" />
-      </h2>
+    <dialog ref={setRef} className="px-4 min-w-full bg-transparent">
+      <div className="border rounded-lg w-full max-w-md shadow-lg bg-body p-4">
+        <h2 className="text-lg mb-8">
+          <T id="feedbackDialog.title" />
+        </h2>
 
-      <form className="col gap-8" onSubmit={handleSubmit}>
-        <div className="col gap-4">
-          <p>
-            <T id="feedbackDialog.difficultyQuestion" />
-          </p>
+        <form className="col gap-8" onSubmit={handleSubmit}>
+          <div className="col gap-4">
+            <p>
+              <T id="feedbackDialog.difficultyQuestion" />
+            </p>
 
-          <ButtonsGroup>
-            <GroupButton
-              selected={difficulty === LevelFlag.easy}
-              onClick={() => setDifficulty(LevelFlag.easy)}
-            >
-              <T id="feedbackDialog.easy" />
-            </GroupButton>
+            <ButtonsGroup>
+              <GroupButton
+                selected={difficulty === LevelFlag.easy}
+                onClick={() => setDifficulty(LevelFlag.easy)}
+              >
+                <T id="feedbackDialog.easy" />
+              </GroupButton>
 
-            <GroupButton selected={difficulty === undefined} onClick={() => setDifficulty(undefined)}>
-              <T id="feedbackDialog.neither" />
-            </GroupButton>
+              <GroupButton selected={difficulty === undefined} onClick={() => setDifficulty(undefined)}>
+                <T id="feedbackDialog.neither" />
+              </GroupButton>
 
-            <GroupButton
-              selected={difficulty === LevelFlag.hard}
-              onClick={() => setDifficulty(LevelFlag.hard)}
-            >
-              <T id="feedbackDialog.hard" />
-            </GroupButton>
-          </ButtonsGroup>
-        </div>
+              <GroupButton
+                selected={difficulty === LevelFlag.hard}
+                onClick={() => setDifficulty(LevelFlag.hard)}
+              >
+                <T id="feedbackDialog.hard" />
+              </GroupButton>
+            </ButtonsGroup>
+          </div>
 
-        <div className="col gap-4">
-          <p>
-            <T id="feedbackDialog.validateQuestion" />
-          </p>
+          <div className="col gap-4">
+            <p>
+              <T id="feedbackDialog.validateQuestion" />
+            </p>
 
-          <ButtonsGroup>
-            <GroupButton selected={addIt === false} onClick={() => setAddIt(false)}>
-              <T id="feedbackDialog.no" />
-            </GroupButton>
+            <ButtonsGroup>
+              <GroupButton selected={addIt === false} onClick={() => setAddIt(false)}>
+                <T id="feedbackDialog.no" />
+              </GroupButton>
 
-            <GroupButton selected={addIt === undefined} onClick={() => setAddIt(undefined)}>
-              <T id="feedbackDialog.noOpinion" />
-            </GroupButton>
+              <GroupButton selected={addIt === undefined} onClick={() => setAddIt(undefined)}>
+                <T id="feedbackDialog.noOpinion" />
+              </GroupButton>
 
-            <GroupButton selected={addIt === true} onClick={() => setAddIt(true)}>
-              <T id="feedbackDialog.yes" />
-            </GroupButton>
-          </ButtonsGroup>
-        </div>
+              <GroupButton selected={addIt === true} onClick={() => setAddIt(true)}>
+                <T id="feedbackDialog.yes" />
+              </GroupButton>
+            </ButtonsGroup>
+          </div>
 
-        <button type="submit" className="self-end row items-center gap-2">
-          <T id="feedbackDialog.nextLevel" />
-          <div className="text-muted">➜</div>
-        </button>
-      </form>
+          <button type="submit" className="self-end row items-center gap-2">
+            <T id="feedbackDialog.nextLevel" />
+            <ArrowRight />
+          </button>
+        </form>
+      </div>
     </dialog>
   );
 };

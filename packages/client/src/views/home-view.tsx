@@ -15,16 +15,14 @@ export const HomeView = () => {
   const t = useTranslation();
 
   return (
-    <MobileView>
-      <div className="flex-1 col justify-center px-4">
+    <MobileView className="px-8">
+      <div className="flex-1 col justify-center">
         <Title title={t('title')} />
       </div>
 
-      <div className="flex-1 col justify-center px-4">
+      <div className="flex-2 overflow-hidden">
         <Menu />
       </div>
-
-      <div className="flex-1 col justify-center"></div>
     </MobileView>
   );
 };

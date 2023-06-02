@@ -1,13 +1,14 @@
-import { LevelDefinition } from '@deadlock/game';
+import { Level, LevelDefinition, solve } from '@deadlock/game';
 import { useMutation } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { api } from '~/api';
+import { ArrowLeft, ArrowRight } from '~/components/arrows';
 import { Link } from '~/components/link';
 import { Translate } from '~/components/translate';
 import { toSearchParams, useSearchParam } from '~/hooks/use-search-params';
 import { LevelEditor } from '~/level-editor/level-editor';
-import { MobileView } from '~/mobile-view';
+import { MobileNavigation, MobileView } from '~/mobile-view';
 
 const T = Translate.prefix('views.levelEditor');
 
@@ -43,25 +44,45 @@ export const LevelEditorView = () => {
     },
   });
 
+  const solutions = useMemo(() => {
+    return solve(new Level(definition), 500);
+  }, [definition]);
+
   return (
-    <MobileView>
-      <div className="row">
-        <Link href="/" className="row items-center gap-2">
-          <div className="text-muted flip-horizontal">➜</div> <Translate id="navigation.home" />
-        </Link>
-
-        <button className="mx-auto" onClick={() => onSave()}>
-          <T id="save" />
-        </button>
-
-        <Link
-          href={`/test?${toSearchParams({ levelId, definition: definitionParam })}`}
-          className="row items-center gap-2"
-        >
-          <T id="test" /> <div className="text-muted">➜</div>
-        </Link>
-      </div>
-
+    <MobileView
+      header={
+        <MobileNavigation
+          left={
+            <Link href="/lab" className="row items-center gap-2">
+              <ArrowLeft />
+              <Translate id="navigation.lab" />
+            </Link>
+          }
+          center={
+            <button className="mx-auto" onClick={() => onSave()}>
+              <T id="save" />
+            </button>
+          }
+          right={
+            <Link
+              href={`/test?${toSearchParams({ levelId, definition: definitionParam })}`}
+              className="row items-center gap-2"
+            >
+              <T id="test" />
+              <ArrowRight />
+            </Link>
+          }
+        />
+      }
+      footer={
+        <div>
+          <T
+            id="solutionsCount"
+            values={{ count: solutions === undefined ? <T id="moreThan500" /> : solutions.length }}
+          />
+        </div>
+      }
+    >
       <LevelEditor definition={definition} onChange={setDefinition} />
     </MobileView>
   );

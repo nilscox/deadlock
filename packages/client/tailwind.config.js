@@ -6,11 +6,15 @@ export default {
   theme: {
     textColor: {
       muted: colors.neutral[500],
+      inverted: colors.white,
       green: colors.emerald[600],
       red: colors.orange[700],
     },
     backgroundColor: {
+      transparent: 'transparent',
+      body: colors.white,
       muted: colors.slate[100],
+      header: '#99F',
     },
     fontSize: {
       base: ['1rem', '1.5rem'],

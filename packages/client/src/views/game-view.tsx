@@ -3,6 +3,7 @@ import { clsx } from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 
+import { ArrowLeft, ArrowRight } from '~/components/arrows';
 import { Link } from '~/components/link';
 import { Translate } from '~/components/translate';
 import { Game } from '~/game/game';
@@ -14,7 +15,7 @@ import {
   useOnSessionTerminated,
 } from '~/game/levels-context';
 import { useNavigate } from '~/hooks/use-navigate';
-import { MobileView } from '~/mobile-view';
+import { MobileNavigation, MobileView } from '~/mobile-view';
 
 const T = Translate.prefix('views.game');
 
@@ -75,24 +76,32 @@ export const GameView = ({ levelId }: GameViewProps) => {
   }, [game]);
 
   return (
-    <MobileView>
+    <MobileView
+      header={
+        <MobileNavigation
+          left={
+            <button onClick={prevLevel} className="row gap-2 items-center">
+              <ArrowLeft />
+              <T id="navigation.prev" />
+            </button>
+          }
+          center={
+            <Link href="/levels" onClick={onSkip} className="row gap-2 items-center">
+              <T id="navigation.levels" />
+            </Link>
+          }
+          right={
+            <button onClick={onSkip} className="row gap-2 items-center">
+              <T id="navigation.skip" />
+              <ArrowRight />
+            </button>
+          }
+        />
+      }
+    >
       <Helmet>
         <title>{`Deadlock - Level ${levelNumber ?? '?'}`}</title>
       </Helmet>
-
-      <div className="row items-end justify-between">
-        <button onClick={prevLevel} className="row gap-2 items-center">
-          <div className="text-muted flip-horizontal">➜</div> <T id="navigation.prev" />
-        </button>
-
-        <Link href="/levels" onClick={onSkip} className="row gap-2 items-center">
-          <T id="navigation.levels" />
-        </Link>
-
-        <button onClick={onSkip} className="row gap-2 items-center">
-          <T id="navigation.skip" /> <div className="text-muted">➜</div>
-        </button>
-      </div>
 
       <div className="flex-1 col justify-center text-center">
         <div

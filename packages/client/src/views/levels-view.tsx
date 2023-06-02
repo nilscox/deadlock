@@ -1,9 +1,10 @@
 import { clsx } from 'clsx';
 
+import { ArrowLeft } from '~/components/arrows';
 import { Link } from '~/components/link';
 import { Translate } from '~/components/translate';
 import { useIsLevelCompleted, useLevelNumber, useLevelsIds } from '~/game/levels-context';
-import { MobileView } from '~/mobile-view';
+import { MobileNavigation, MobileView } from '~/mobile-view';
 
 const T = Translate.prefix('views.levels');
 
@@ -11,18 +12,23 @@ export const LevelsView = () => {
   const levelsIds = useLevelsIds();
 
   return (
-    <MobileView>
-      <div className="row items-end justify-between">
-        <Link href="/" className="row gap-2 items-center">
-          <div className="text-muted flip-horizontal">➜</div> <Translate id="navigation.home" />
-        </Link>
-      </div>
-
-      <div className="pt-8 text-lg text-center">
+    <MobileView
+      header={
+        <MobileNavigation
+          left={
+            <Link href="/" className="row gap-2 items-center">
+              <ArrowLeft />
+              <Translate id="navigation.home" />
+            </Link>
+          }
+        />
+      }
+    >
+      <div className="py-8 text-lg text-center">
         <T id="title" />
       </div>
 
-      <div className="grid grid-cols-3 gap-4 p-4">
+      <div className="grid grid-cols-3 gap-4">
         {levelsIds.map((levelId) => (
           <Level key={levelId} levelId={levelId} />
         ))}
