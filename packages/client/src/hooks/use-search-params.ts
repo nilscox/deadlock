@@ -42,6 +42,10 @@ export const useSearchParam = (key: string) => {
 
 export const toSearchParams = (params: Record<string, unknown>) => {
   return new URLSearchParams(
-    toObject(Object.keys(params), identity, (key) => String(params[key]))
+    toObject(
+      Object.keys(params).filter((key) => params[key] !== undefined),
+      identity,
+      (key) => String(params[key])
+    )
   ).toString();
 };

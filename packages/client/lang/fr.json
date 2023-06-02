@@ -66,6 +66,8 @@
       "title": "Éditeur de niveau",
       "save": "Enregistrer",
       "test": "Tester",
+      "levelSaved": "Niveau sauvegardé.",
+      "levelCreated": "Niveau créé, il est maintenant disponible parmi les niveaux expérimentaux",
       "solutionsCount": "Solutions : {count}",
       "moreThan500": "> 500"
     },

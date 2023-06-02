@@ -66,6 +66,8 @@
       "title": "Level editor",
       "save": "Save",
       "test": "Test",
+      "levelSaved": "Level saved.",
+      "levelCreated": "Level created, it is now available as part of the experimental levels.",
       "solutionsCount": "Solutions: {count}",
       "moreThan500": "> 500"
     },
