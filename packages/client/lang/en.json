@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "title": "Deadlock"
+  },
+  "navigation": {
+    "home": "Home",
+    "lab": "Lab"
+  },
+  "views": {
+    "home": {
+      "title": "Deadlock",
+      "start": "Start",
+      "continue": "Continue",
+      "restart": "Restart",
+      "levels": "Levels",
+      "options": "Options",
+      "lab": "Lab"
+    },
+    "options": {
+      "title": "Options",
+      "language": {
+        "changeLanguage": "Change language",
+        "english": "English",
+        "french": "Français"
+      },
+      "playMusic": "Play music",
+      "restartGame": "Restart the game",
+      "restartWarning": "You sure dude? You'll lose all your progress!"
+    },
+    "levels": {
+      "title": "Choose a level"
+    },
+    "game": {
+      "levelNumber": "Level {levelNumber}",
+      "navigation": {
+        "prev": "Back",
+        "levels": "Levels",
+        "skip": "Skip"
+      },
+      "help": {
+        "swipe": "Swipe anywhere",
+        "tapTwice": "Tap twice to restart"
+      }
+    },
+    "lab": {
+      "title": "Lab",
+      "levels": "Try players levels",
+      "createLevel": "Create level"
+    },
+    "labLevel": {
+      "title": "Test Level",
+      "feedbackDialog": {
+        "title": "Congrats!",
+        "difficultyQuestion": "How was this level?",
+        "easy": "Easy",
+        "neither": "Neither",
+        "hard": "Hard",
+        "no": "No",
+        "validateQuestion": "Should we add it to the game?",
+        "noOpinion": "No opinion",
+        "yes": "Yes",
+        "nextLevel": "Next level"
+      }
+    },
+    "levelEditor": {
+      "title": "Level editor",
+      "save": "Save",
+      "test": "Test"
+    },
+    "testLevel": {
+      "title": "Experimental level"
+    },
+    "404": {
+      "notFound": "Not found.",
+      "404": "404"
+    }
+  }
+}

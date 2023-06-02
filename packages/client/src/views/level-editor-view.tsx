@@ -4,9 +4,12 @@ import { useMemo } from 'react';
 
 import { api } from '~/api';
 import { Link } from '~/components/link';
+import { Translate } from '~/components/translate';
 import { toSearchParams, useSearchParam } from '~/hooks/use-search-params';
 import { LevelEditor } from '~/level-editor/level-editor';
 import { MobileView } from '~/mobile-view';
+
+const T = Translate.prefix('views.levelEditor');
 
 const defaultDefinition: LevelDefinition = {
   width: 4,
@@ -43,19 +46,19 @@ export const LevelEditorView = () => {
   return (
     <MobileView>
       <div className="row">
-        <Link href="/levels" className="row items-center gap-2">
-          <div className="text-muted flip-horizontal">➜</div> Levels
+        <Link href="/" className="row items-center gap-2">
+          <div className="text-muted flip-horizontal">➜</div> <Translate id="navigation.home" />
         </Link>
 
         <button className="mx-auto" onClick={() => onSave()}>
-          Save
+          <T id="save" />
         </button>
 
         <Link
           href={`/test?${toSearchParams({ levelId, definition: definitionParam })}`}
           className="row items-center gap-2"
         >
-          Test <div className="text-muted">➜</div>
+          <T id="test" /> <div className="text-muted">➜</div>
         </Link>
       </div>
 

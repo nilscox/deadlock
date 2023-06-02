@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 
 import { Link } from '~/components/link';
+import { Translate } from '~/components/translate';
 import { Game } from '~/game/game';
 import {
   useIsLevelCompleted,
@@ -14,6 +15,8 @@ import {
 } from '~/game/levels-context';
 import { useNavigate } from '~/hooks/use-navigate';
 import { MobileView } from '~/mobile-view';
+
+const T = Translate.prefix('views.game');
 
 type GameViewProps = {
   levelId: string;
@@ -79,15 +82,15 @@ export const GameView = ({ levelId }: GameViewProps) => {
 
       <div className="row items-end justify-between">
         <button onClick={prevLevel} className="row gap-2 items-center">
-          <div className="text-muted flip-horizontal">➜</div> Back
+          <div className="text-muted flip-horizontal">➜</div> <T id="navigation.prev" />
         </button>
 
         <Link href="/levels" onClick={onSkip} className="row gap-2 items-center">
-          Levels
+          <T id="navigation.levels" />
         </Link>
 
         <button onClick={onSkip} className="row gap-2 items-center">
-          Skip <div className="text-muted">➜</div>
+          <T id="navigation.skip" /> <div className="text-muted">➜</div>
         </button>
       </div>
 
@@ -96,7 +99,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
           className={clsx('transition-colors text-xl font-semibold', completed && 'text-green')}
           onDoubleClick={() => navigate(`/level-editor?hash=${new Level(definition).hash}`)}
         >
-          Level {levelNumber}
+          <T id="levelNumber" values={{ levelNumber: Number(levelNumber) }} />
         </div>
         <div className="text-muted">{levelId}</div>
       </div>
@@ -157,7 +160,9 @@ const HelpSwipe = () => (
       <line x1="1" x2="9" y1="2" y2="2" strokeWidth="1" strokeLinecap="round" />
       <path d="M 7.5 1 L 9 2 L 7.5 3 Z" strokeLinejoin="round" fill="currentColor" />
     </svg>
-    <div className="text-lg text-center">Swipe anywhere</div>
+    <div className="text-lg text-center">
+      <T id="help.swipe" />
+    </div>
   </div>
 );
 
@@ -166,7 +171,9 @@ const HelpRestart = () => (
     <svg className="w-[2rem] animate-tap-twice" viewBox="0 0 4 4" fill="currentColor">
       <circle cx="2" cy="2" r="1.75" />
     </svg>
-    <div className="text-lg text-center">Tap twice to restart</div>
+    <div className="text-lg text-center">
+      <T id="help.tapTwice" />
+    </div>
   </div>
 );
 

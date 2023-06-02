@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "title": "Deadlock"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "lab": "Lab"
+  },
+  "views": {
+    "home": {
+      "title": "Deadlock",
+      "start": "Commencer",
+      "continue": "Reprendre",
+      "restart": "Recommencer",
+      "levels": "Niveaux",
+      "options": "Paramètres",
+      "lab": "Lab"
+    },
+    "options": {
+      "title": "Paramètres",
+      "language": {
+        "changeLanguage": "Changer la langue",
+        "english": "English",
+        "french": "Français"
+      },
+      "playMusic": "Jouer de la musique",
+      "restartGame": "Recommencer le jeu",
+      "restartWarning": "Oula, vous-êtes sûr? Vous allez perdre toute votre progression !"
+    },
+    "levels": {
+      "title": "Sélection du niveau"
+    },
+    "game": {
+      "levelNumber": "Niveau {levelNumber}",
+      "navigation": {
+        "prev": "Précédent",
+        "levels": "Niveaux",
+        "skip": "Passer"
+      },
+      "help": {
+        "swipe": "Glissez n'importe où",
+        "tapTwice": "Tapez deux fois pour recommencer"
+      }
+    },
+    "lab": {
+      "title": "Lab",
+      "levels": "Tester les niveaux expérimentaux",
+      "createLevel": "Créer un niveau"
+    },
+    "labLevel": {
+      "title": "Niveau expérimental",
+      "feedbackDialog": {
+        "title": "Bien joué !",
+        "difficultyQuestion": "Comment était ce niveau ?",
+        "easy": "Facile",
+        "neither": "Normal",
+        "hard": "Difficile",
+        "validateQuestion": "Devrait-on l'ajouter au jeu?",
+        "no": "Non",
+        "noOpinion": "Pas d'avis",
+        "yes": "Oui",
+        "nextLevel": "Niveau suivant"
+      }
+    },
+    "levelEditor": {
+      "title": "Éditeur de niveau",
+      "save": "Enregistrer",
+      "test": "Tester"
+    },
+    "testLevel": {
+      "title": "Test du niveau"
+    },
+    "404": {
+      "notFound": "Nôte phound.",
+      "404": "404"
+    }
+  }
+}

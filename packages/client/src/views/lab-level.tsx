@@ -14,12 +14,15 @@ import { Redirect } from 'wouter';
 
 import { api } from '~/api';
 import { Link } from '~/components/link';
+import { Translate } from '~/components/translate';
 import { Game } from '~/game/game';
 import { useIsLevelCompleted, useOnSessionTerminated } from '~/game/levels-context';
 import { useUserData } from '~/game/levels-user-data';
 import { useBoolean } from '~/hooks/use-boolean';
 import { useNavigate } from '~/hooks/use-navigate';
 import { MobileView } from '~/mobile-view';
+
+const T = Translate.prefix('views.labLevel');
 
 export const LabLevels = () => {
   const userData = useUserData();
@@ -94,7 +97,7 @@ const LabLevel = ({ level, onNext }: LabLevelProps) => {
     <MobileView>
       <div className="row items-end justify-between">
         <Link href="/lab" className="row gap-2 items-center">
-          <div className="text-muted flip-horizontal">➜</div> Back
+          <div className="text-muted flip-horizontal">➜</div> <Translate id="navigation.lab" />
         </Link>
       </div>
 
@@ -103,7 +106,7 @@ const LabLevel = ({ level, onNext }: LabLevelProps) => {
           className={clsx('transition-colors text-xl font-semibold', completed && 'text-green')}
           onDoubleClick={() => navigate(`/level-editor?hash=${new Level(definition).hash}`)}
         >
-          Test Level
+          <T id="title" />
         </div>
         <div className="text-muted">{level.id}</div>
       </div>
@@ -176,53 +179,60 @@ const FeedbackModal = ({ levelId, open, onNext }: FeedbackModalProps) => {
 
   return (
     <dialog ref={setRef} className="border rounded-lg w-full max-w-md shadow-lg">
-      <h2 className="text-lg mb-8">Congrats!</h2>
+      <h2 className="text-lg mb-8">
+        <T id="feedbackDialog.title" />
+      </h2>
 
       <form className="col gap-8" onSubmit={handleSubmit}>
         <div className="col gap-4">
-          <p>How was this level?</p>
+          <p>
+            <T id="feedbackDialog.difficultyQuestion" />
+          </p>
 
           <ButtonsGroup>
             <GroupButton
               selected={difficulty === LevelFlag.easy}
               onClick={() => setDifficulty(LevelFlag.easy)}
             >
-              Easy
+              <T id="feedbackDialog.easy" />
             </GroupButton>
 
             <GroupButton selected={difficulty === undefined} onClick={() => setDifficulty(undefined)}>
-              Neither
+              <T id="feedbackDialog.neither" />
             </GroupButton>
 
             <GroupButton
               selected={difficulty === LevelFlag.hard}
               onClick={() => setDifficulty(LevelFlag.hard)}
             >
-              Hard
+              <T id="feedbackDialog.hard" />
             </GroupButton>
           </ButtonsGroup>
         </div>
 
         <div className="col gap-4">
-          <p>Should we add it to the game?</p>
+          <p>
+            <T id="feedbackDialog.validateQuestion" />
+          </p>
 
           <ButtonsGroup>
             <GroupButton selected={addIt === false} onClick={() => setAddIt(false)}>
-              No
+              <T id="feedbackDialog.no" />
             </GroupButton>
 
             <GroupButton selected={addIt === undefined} onClick={() => setAddIt(undefined)}>
-              No opinion
+              <T id="feedbackDialog.noOpinion" />
             </GroupButton>
 
             <GroupButton selected={addIt === true} onClick={() => setAddIt(true)}>
-              Yes
+              <T id="feedbackDialog.yes" />
             </GroupButton>
           </ButtonsGroup>
         </div>
 
         <button type="submit" className="self-end row items-center gap-2">
-          Next level <div className="text-muted">➜</div>
+          <T id="feedbackDialog.nextLevel" />
+          <div className="text-muted">➜</div>
         </button>
       </form>
     </dialog>

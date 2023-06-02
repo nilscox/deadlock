@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { Route, Router, Switch } from 'wouter';
 
 import { AdminView } from './admin/admin-view';
+import { useTranslation } from './components/translate';
 import { useLevel, useLevelsIds } from './game/levels-context';
 import { useNavigate } from './hooks/use-navigate';
 import { GameView } from './views/game-view';
@@ -18,7 +19,7 @@ import { TestView } from './views/test-view';
 export const App = () => (
   <>
     <Helmet>
-      <title>Deadlock</title>
+      <title>{useTranslation()('meta.title')}</title>
     </Helmet>
 
     <GoToFirstLevel />

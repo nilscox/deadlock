@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import * as ReactDOM from 'react-dom/client';
 
 import { App } from './app';
+import { IntlProvider } from './intl/intl-provider';
 
 import './styles.css';
 
@@ -21,7 +22,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <QueryClientProvider client={queryClient}>
     {import.meta.env.DEV && <ReactQueryDevtools />}
     <Suspense fallback={null}>
-      <App />
+      <IntlProvider>
+        <App />
+      </IntlProvider>
     </Suspense>
   </QueryClientProvider>
 );

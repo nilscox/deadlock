@@ -25,7 +25,7 @@ export default {
     animation: {
       'fade-in': '2s ease-out both fade-in',
       swipe: '2s ease swipe infinite',
-      'tap-twice': '2s ease tap-twice infinite',
+      'tap-twice': '2s ease 1s both tap-twice infinite',
     },
     keyframes: {
       'fade-in': {

@@ -1,5 +1,14 @@
+import { animated, useSpring } from '@react-spring/web';
+import { clsx } from 'clsx';
+import { useEffect, useRef } from 'react';
+
 import { Link } from '~/components/link';
+import { Translate } from '~/components/translate';
+import { useBoolean } from '~/hooks/use-boolean';
+import { useSetLocale } from '~/intl';
 import { MobileView } from '~/mobile-view';
+
+const T = Translate.prefix('views.options');
 
 export const OptionsView = () => {
   const clearProgress = useClearProgress();
@@ -8,22 +17,30 @@ export const OptionsView = () => {
     <MobileView>
       <div className="row items-end justify-between">
         <Link href="/" className="row gap-2 items-center">
-          <div className="text-muted flip-horizontal">➜</div> Home
+          <div className="text-muted flip-horizontal">➜</div> <Translate id="navigation.home" />
         </Link>
       </div>
 
       <div className="flex-1 col justify-center">
-        <h1 className="font-extrabold text-xl">Options</h1>
+        <h1 className="font-extrabold text-xl">
+          <T id="title" />
+        </h1>
       </div>
 
       <div className="flex-1">
         <ul className="col gap-4">
+          <ChangeLanguage />
+
           <li>
-            <button onClick={playMusic}>Play music</button>
+            <button onClick={playMusic}>
+              <T id="playMusic" />
+            </button>
           </li>
 
           <li>
-            <button onClick={clearProgress}>Restart the game</button>
+            <button onClick={clearProgress}>
+              <T id="restartGame" />
+            </button>
           </li>
         </ul>
       </div>
@@ -33,10 +50,57 @@ export const OptionsView = () => {
   );
 };
 
+const ChangeLanguage = () => {
+  const setLocale = useSetLocale();
+
+  const [open, , , toggle] = useBoolean(false);
+  const [spring, animate] = useSpring(() => ({
+    height: 0,
+  }));
+
+  useEffect(() => {
+    if (open) {
+      animate({ height: ref.current?.offsetHeight });
+    } else {
+      animate({ height: 0 });
+    }
+  }, [open, animate]);
+
+  const ref = useRef<HTMLUListElement>(null);
+
+  return (
+    <>
+      <li>
+        <button onClick={toggle}>
+          <T id="language.changeLanguage" />
+        </button>
+      </li>
+
+      <animated.li style={spring} className={clsx('overflow-hidden', !open && '-mb-4')}>
+        <ul ref={ref} className="col gap-4 pl-4 pb-4">
+          <li>
+            <button onClick={() => setLocale('en')}>
+              <T id="language.english" />
+            </button>
+          </li>
+
+          <li>
+            <button onClick={() => setLocale('fr')}>
+              <T id="language.french" />
+            </button>
+          </li>
+        </ul>
+      </animated.li>
+    </>
+  );
+};
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const useClearProgress = () => {
+  const t = T.useTranslation();
+
   return () => {
-    if (window.confirm("You sure dude? You'll lose all your progress!")) {
+    if (window.confirm(t('restartWarning'))) {
       localStorage.setItem('levels', '{}');
       window.location.href = '/';
     }

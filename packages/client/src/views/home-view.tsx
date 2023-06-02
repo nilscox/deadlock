@@ -2,25 +2,32 @@ import { animated, config, useChain, useSpring, useSpringRef, useTrail } from '@
 import { useCallback } from 'react';
 
 import { Link } from '~/components/link';
+import { Translate } from '~/components/translate';
 import { useLevels } from '~/game/levels-api';
 import { useLevelsMatching } from '~/game/levels-context';
 import { MobileView } from '~/mobile-view';
 
 import { useClearProgress } from './options-view';
 
-export const HomeView = () => (
-  <MobileView>
-    <div className="flex-1 col justify-center px-4">
-      <Title title="Deadlock" />
-    </div>
+const { useTranslation } = Translate.prefix('views.home');
 
-    <div className="flex-1 col justify-center px-4">
-      <Menu />
-    </div>
+export const HomeView = () => {
+  const t = useTranslation();
 
-    <div className="flex-1 col justify-center"></div>
-  </MobileView>
-);
+  return (
+    <MobileView>
+      <div className="flex-1 col justify-center px-4">
+        <Title title={t('title')} />
+      </div>
+
+      <div className="flex-1 col justify-center px-4">
+        <Menu />
+      </div>
+
+      <div className="flex-1 col justify-center"></div>
+    </MobileView>
+  );
+};
 
 type TitleProps = {
   title: string;
@@ -60,22 +67,23 @@ const Title = ({ title }: TitleProps) => {
 const Menu = () => {
   const [nextLevel] = useLevelsMatching(useCallback((level, userData) => !userData?.completed, []));
   const firstLevel = Object.values(useLevels())[0];
+  const t = useTranslation();
 
   const clearProgress = useClearProgress();
 
   const items: JSX.Element[] = [];
 
   if (!nextLevel) {
-    items.push(<button onClick={clearProgress}>Restart</button>);
+    items.push(<button onClick={clearProgress}>{t('restart')}</button>);
   } else if (nextLevel === firstLevel) {
-    items.push(<Link href={`/level/${firstLevel.id}`}>Start</Link>);
+    items.push(<Link href={`/level/${firstLevel.id}`}>{t('start')}</Link>);
   } else {
-    items.push(<Link href={`/level/${nextLevel.id}`}>Continue</Link>);
+    items.push(<Link href={`/level/${nextLevel.id}`}>{t('continue')}</Link>);
   }
 
-  items.push(<Link href="/levels">Levels</Link>);
-  items.push(<Link href="/options">Options</Link>);
-  items.push(<Link href="/lab">Lab</Link>);
+  items.push(<Link href="/levels">{t('levels')}</Link>);
+  items.push(<Link href="/options">{t('options')}</Link>);
+  items.push(<Link href="/lab">{t('lab')}</Link>);
 
   const trail = useTrail(items.length, {
     from: { x: 20, opacity: 0 },
