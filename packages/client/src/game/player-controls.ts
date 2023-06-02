@@ -4,7 +4,7 @@ export class PlayerControls extends Controls {
   constructor() {
     super();
 
-    document.body.style.touchAction = 'none';
+    document.documentElement.classList.add('no-touch');
 
     document.addEventListener('keydown', this.handleKeyDown);
     document.addEventListener('touchstart', this.handleTouchStart);
@@ -13,7 +13,7 @@ export class PlayerControls extends Controls {
   }
 
   cleanup() {
-    document.body.style.touchAction = '';
+    document.documentElement.classList.remove('no-touch');
 
     document.removeEventListener('keydown', this.handleKeyDown);
     document.removeEventListener('touchstart', this.handleTouchStart);

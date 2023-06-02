@@ -17,19 +17,19 @@ export const MobileView = ({ header, footer, className, children }: MobileViewPr
   return (
     <div className="h-full col">
       {header && (
-        <div className="bg-header py-4">
+        <header className="bg-header py-4">
           <div className="max-w-[600px] mx-auto">{header}</div>
-        </div>
+        </header>
       )}
 
-      <div className={clsx('flex-1 overflow-auto col items-center', className)}>
+      <main className={clsx('flex-1 overflow-auto col items-center', className)}>
         <div className="w-full max-w-[600px] mx-auto flex-1 col p-4">{children}</div>
-      </div>
+      </main>
 
       {footer && (
-        <div className="p-4">
+        <footer className="p-4">
           <div className="max-w-[600px] mx-auto">{footer}</div>
-        </div>
+        </footer>
       )}
     </div>
   );

@@ -33,6 +33,10 @@ html.mobile {
   font-size: 16px;
 }
 
+html.no-touch main {
+  touch-action: none;
+}
+
 html,
 body,
 #root {
