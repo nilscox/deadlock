@@ -61,12 +61,25 @@ export const LevelEditorView = () => {
         navigate('/lab');
       }
     },
+    async onError(error) {
+      try {
+        if (!(error instanceof Response)) {
+          throw error;
+        }
+
+        const body = (await error.json()) as { error: string };
+        alert(t('error', { error: body.error }));
+      } catch (error) {
+        alert(t('unknownError'));
+      }
+    },
   });
 
   const solutions = useMemo(() => {
     const level = new Level(definition);
+    const teleports = level.cells(CellType.teleport);
 
-    if (level.cells(CellType.teleport).length !== 2) {
+    if (teleports.length !== 0 && teleports.length !== 2) {
       return undefined;
     }
 
@@ -91,6 +104,7 @@ export const LevelEditorView = () => {
           right={
             <Link
               href={`/test?${toSearchParams({ levelId, definition: definitionParam })}`}
+              disabled={solutions === undefined || solutions.length === 0}
               className="row items-center gap-2"
             >
               <T id="test" />
@@ -100,7 +114,7 @@ export const LevelEditorView = () => {
         />
       }
       footer={
-        <div>
+        <div className="row justify-center">
           <T
             id="solutionsCount"
             values={{ count: solutions === undefined ? <T id="moreThan500" /> : solutions.length }}

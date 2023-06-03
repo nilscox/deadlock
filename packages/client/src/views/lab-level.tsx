@@ -185,7 +185,7 @@ const FeedbackModal = ({ levelId, open, onNext }: FeedbackModalProps) => {
 
   return (
     <dialog ref={setRef} className="px-4 min-w-full bg-transparent">
-      <div className="border rounded-lg w-full max-w-md shadow-lg bg-body p-4">
+      <div className="mx-auto border rounded-lg w-full max-w-md shadow-lg bg-body p-4">
         <h2 className="text-lg mb-8">
           <T id="feedbackDialog.title" />
         </h2>

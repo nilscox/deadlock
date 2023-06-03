@@ -8,7 +8,11 @@ import {
   useDroppable,
 } from '@dnd-kit/core';
 import { clsx } from 'clsx';
-import { forwardRef, useCallback, useMemo, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
+
+import { Translate } from '~/components/translate';
+
+const { useTranslation } = Translate.prefix('levelEditor');
 
 const clone = <T,>(value: T): T => {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -22,72 +26,61 @@ type LevelEditorProps = {
 };
 
 export const LevelEditor = ({ definition, onChange }: LevelEditorProps) => {
+  const t = useTranslation();
   const level = useMemo(() => new Level(definition), [definition]);
 
   const handleChangeSize = useSizeChangeHandler(level, onChange);
   const [dragging, handleDragStart, handleDragEnd] = useDragHandlers(level, onChange);
 
+  useEffect(() => {
+    document.documentElement.classList.add('no-touch');
+    return () => document.documentElement.classList.remove('no-touch');
+  });
+
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex-1 justify-center col gap-4 p-4 max-w-lg md:max-w-2xl">
-        <div className="row">
-          <HeightSlider height={definition.height} onChange={(height) => handleChangeSize({ height })} />
-
-          <div className="flex-1 col">
-            <div className="flex-1 col items-center justify-center">
-              <CellsGrid level={level} />
-            </div>
-
-            <WidthSlider width={definition.width} onChange={(width) => handleChangeSize({ width })} />
-          </div>
-
-          <NewCells />
-        </div>
+      <div className="col gap-8 flex-1 justify-center items-center">
+        <CellsGrid level={level} />
+        <NewCells />
       </div>
 
       <DragOverlay dropAnimation={null}>{dragging && <Cell type={dragging.type} />}</DragOverlay>
+
+      <div className="col gap-4 py-8">
+        <Slider
+          label={t('width')}
+          value={definition.width}
+          onChange={(width) => handleChangeSize({ width })}
+        />
+        <Slider
+          label={t('height')}
+          value={definition.height}
+          onChange={(height) => handleChangeSize({ height })}
+        />
+      </div>
     </DndContext>
   );
 };
 
-type WidthSliderProps = {
-  width: number;
-  onChange: (width: number) => void;
+type SliderProps = {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
 };
 
-const WidthSlider = ({ width, onChange }: WidthSliderProps) => (
-  <div className="col items-center">
+const Slider = ({ label, value, onChange }: SliderProps) => (
+  <div className="row items-center">
+    <label className="w-20">{label}</label>
     <input
-      className="w-full"
+      className="flex-1 mx-4"
       type="range"
       min={0}
       max={6}
       step={1}
-      value={width}
+      value={value}
       onChange={(event) => onChange(event.target.valueAsNumber)}
     />
-    {width}
-  </div>
-);
-
-type HeightSliderProps = {
-  height: number;
-  onChange: (height: number) => void;
-};
-
-const HeightSlider = ({ height, onChange }: HeightSliderProps) => (
-  <div className="row items-center h-[300px] md:h-[480px] gap-1 pb-10">
-    {height}
-    <input
-      type="range"
-      min={0}
-      max={6}
-      step={1}
-      className="w-4 h-full"
-      style={{ WebkitAppearance: 'slider-vertical' }}
-      value={height}
-      onChange={(event) => onChange(event.target.valueAsNumber)}
-    />
+    <div>{value}</div>
   </div>
 );
 
@@ -200,7 +193,7 @@ const gridArea = (x: number, y: number) => {
 };
 
 const NewCells = () => (
-  <div className="col gap-4 justify-center w-[40px] md:w-[80px] ml-4">
+  <div className="row gap-4 justify-center">
     <DraggableCellNew type={CellType.block} />
     <DraggableCellNew type={CellType.teleport} />
   </div>

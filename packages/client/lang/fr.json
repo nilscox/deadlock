@@ -6,6 +6,10 @@
     "home": "Accueil",
     "lab": "Lab"
   },
+  "levelEditor": {
+    "width": "Largeur",
+    "height": "Hauteur"
+  },
   "views": {
     "home": {
       "title": "Deadlock",
@@ -69,7 +73,9 @@
       "levelSaved": "Niveau sauvegardé.",
       "levelCreated": "Niveau créé, il est maintenant disponible parmi les niveaux expérimentaux",
       "solutionsCount": "Solutions : {count}",
-      "moreThan500": "> 500"
+      "moreThan500": "> 500",
+      "error": "Erreur : {error}",
+      "unknownError": "Quelque chose s'est mal passé"
     },
     "testLevel": {
       "title": "Test du niveau"

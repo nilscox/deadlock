@@ -35,13 +35,20 @@ export const Translate = ({ id, values }: TProps<Leaves<Translations>>) => {
   return <FormattedMessage id={id} values={values} />;
 };
 
+interface TranslateFunction<Keys> {
+  (id: Keys): string;
+  (id: Keys, values: Record<string, React.ReactNode>): React.ReactNode;
+}
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const useTranslation = () => {
   const intl = useIntl();
 
-  return (id: Leaves<Translations>) => {
-    return intl.formatMessage({ id });
+  const translate = (id: Leaves<Translations>, values?: Record<string, React.ReactNode>) => {
+    return intl.formatMessage({ id }, values);
   };
+
+  return translate as TranslateFunction<Leaves<Translations>>;
 };
 
 Translate.prefix = <Prefix extends Paths<Translations>>(prefix?: Prefix) => {
@@ -58,9 +65,11 @@ Translate.prefix = <Prefix extends Paths<Translations>>(prefix?: Prefix) => {
   T.useTranslation = () => {
     const t = useTranslation();
 
-    return (id: Props['id']) => {
-      return t(getId(id));
+    const translate = (id: Props['id'], values: Record<string, React.ReactNode>) => {
+      return t(getId(id), values);
     };
+
+    return translate as TranslateFunction<Props['id']>;
   };
 
   return T;

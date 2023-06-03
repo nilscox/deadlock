@@ -6,6 +6,10 @@
     "home": "Home",
     "lab": "Lab"
   },
+  "levelEditor": {
+    "width": "Width",
+    "height": "Height"
+  },
   "views": {
     "home": {
       "title": "Deadlock",
@@ -69,7 +73,9 @@
       "levelSaved": "Level saved.",
       "levelCreated": "Level created, it is now available as part of the experimental levels.",
       "solutionsCount": "Solutions: {count}",
-      "moreThan500": "> 500"
+      "moreThan500": "> 500",
+      "error": "Error: {error}",
+      "unknownError": "Something wrong happened"
     },
     "testLevel": {
       "title": "Experimental level"

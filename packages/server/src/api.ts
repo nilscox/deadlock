@@ -1,6 +1,6 @@
 import { LevelDefinition, LevelFlag } from '@deadlock/game';
 import { EntityManager, ormMiddleware } from '@deadlock/persistence';
-import { RequestHandler, Router } from 'express';
+import { NextFunction, Request, RequestHandler, Response, Router } from 'express';
 import * as yup from 'yup';
 
 import { createLevel } from './mutations/create-level';
@@ -32,7 +32,7 @@ export function api(em: EntityManager) {
     const levels = await getLevels(em, false);
 
     res.status(200);
-    res.json(levels);
+    res.json(levels.reverse());
   });
 
   router.post('/session', async (req, res) => {
@@ -109,6 +109,11 @@ export function api(em: EntityManager) {
 
     res.status(200);
     res.json(stats);
+  });
+
+  router.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+    res.status(500);
+    res.json({ error: err.message });
   });
 
   return router;
