@@ -55,7 +55,7 @@ export function api(em: EntityManager) {
     res.end();
   });
 
-  router.post('/level', admin, async (req, res) => {
+  router.post('/level', async (req, res) => {
     const body = await createLevelBodySchema.validate(req.body);
 
     await createLevel(em, body.definition as LevelDefinition);
