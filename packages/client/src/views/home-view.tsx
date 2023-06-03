@@ -86,7 +86,7 @@ const Menu = () => {
   const trail = useTrail(items.length, {
     from: { x: 20, opacity: 0 },
     to: { x: 0, opacity: 1 },
-    delay: 1500,
+    delay: 1000,
   });
 
   return (

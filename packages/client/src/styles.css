@@ -26,6 +26,7 @@
 }
 
 html {
+  @apply font-mono;
   font-size: 12px;
 }
 
@@ -35,14 +36,4 @@ html.mobile {
 
 html.no-touch main {
   touch-action: none;
-}
-
-html,
-body,
-#root {
-  @apply h-full font-mono;
-}
-
-body {
-  @apply m-0;
 }

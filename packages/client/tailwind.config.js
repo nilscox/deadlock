@@ -14,7 +14,6 @@ export default {
       transparent: 'transparent',
       body: colors.white,
       muted: colors.slate[100],
-      header: '#99F',
     },
     fontSize: {
       base: ['1rem', '1.5rem'],
