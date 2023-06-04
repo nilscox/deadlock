@@ -29,7 +29,7 @@ export const useThemeMode = () => {
       return storedTheme;
     }
 
-    if (window.matchMedia('prefers-color-scheme: dark')) {
+    if (window.matchMedia('prefers-color-scheme: dark').matches) {
       return ThemeMode.dark;
     }
 

@@ -7,6 +7,12 @@ import { IntlProvider as ReactIntlProvider } from 'react-intl';
 import { getLocale } from './get-locale';
 import { Locale, locales } from './locales';
 
+declare global {
+  interface Window {
+    setLocale(locale: Locale): void;
+  }
+}
+
 type LocaleContext = [locale: Locale, setLocale: (locale: Locale) => void];
 const localeContext = createContext<LocaleContext>(null as never);
 
@@ -20,6 +26,10 @@ export const IntlProvider = ({ children }: I18nProps) => {
   useEffect(() => {
     localStorage.setItem('locale', locale);
   }, [locale]);
+
+  useEffect(() => {
+    window.setLocale = setLocale;
+  }, []);
 
   return (
     <ReactIntlProvider locale={locale} messages={locales[locale]}>
