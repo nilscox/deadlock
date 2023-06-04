@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import * as ReactDOM from 'react-dom/client';
 
 import { App } from './app';
+import { InitThemeMode } from './hooks/use-theme-mode';
 import { IntlProvider } from './intl/intl-provider';
 
 import './styles.css';
@@ -23,6 +24,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     {import.meta.env.DEV && <ReactQueryDevtools />}
     <Suspense fallback={null}>
       <IntlProvider>
+        <InitThemeMode />
         <App />
       </IntlProvider>
     </Suspense>

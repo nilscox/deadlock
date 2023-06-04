@@ -6,6 +6,7 @@ import { ArrowLeft } from '~/components/arrows';
 import { Link } from '~/components/link';
 import { Translate } from '~/components/translate';
 import { useBoolean } from '~/hooks/use-boolean';
+import { ThemeMode, useSetThemeMode, useThemeMode } from '~/hooks/use-theme-mode';
 import { useSetLocale } from '~/intl';
 import { MobileNavigation, MobileView } from '~/mobile-view';
 
@@ -13,6 +14,9 @@ const T = Translate.prefix('views.options');
 
 export const OptionsView = () => {
   const clearProgress = useClearProgress();
+
+  const theme = useThemeMode();
+  const setTheme = useSetThemeMode();
 
   return (
     <MobileView
@@ -37,6 +41,20 @@ export const OptionsView = () => {
       <div className="flex-2">
         <ul className="col gap-4">
           <ChangeLanguage />
+
+          <li>
+            {theme === ThemeMode.light && (
+              <button onClick={() => setTheme(ThemeMode.dark)}>
+                <T id="themeMode.setThemeDark" />
+              </button>
+            )}
+
+            {theme === ThemeMode.dark && (
+              <button onClick={() => setTheme(ThemeMode.light)}>
+                <T id="themeMode.setThemeLight" />
+              </button>
+            )}
+          </li>
 
           <li>
             <button onClick={playMusic}>

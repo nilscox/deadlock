@@ -27,6 +27,10 @@
         "english": "English",
         "french": "Français"
       },
+      "themeMode": {
+        "setThemeLight": "Light theme",
+        "setThemeDark": "Dark theme"
+      },
       "playMusic": "Play music",
       "restartGame": "Restart the game",
       "restartWarning": "You sure dude? You'll lose all your progress!"

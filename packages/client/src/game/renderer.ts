@@ -1,6 +1,8 @@
 import { CellType, Game, Level, LevelEvent, Player, PlayerEvent, assert } from '@deadlock/game';
 import paper from 'paper';
 
+import { ThemeMode } from '~/hooks/use-theme-mode';
+
 import { AnimationEvent, ColorAnimation, PositionAnimation, ScaleAnimation } from './animations';
 import { getLevelBoundaries } from './get-level-boundaries';
 
@@ -54,12 +56,25 @@ export class GameRenderer {
   }
 }
 
-const colors: Record<CellType, paper.Color> = {
+const colorsLight: Record<string, paper.Color> = {
   [CellType.empty]: new paper.Color('#FFF'),
   [CellType.path]: new paper.Color('#EEE'),
   [CellType.block]: new paper.Color('#CCC'),
   [CellType.player]: new paper.Color('#FFF'),
   [CellType.teleport]: new paper.Color('#CFF'),
+  boundaries: new paper.Color('#CCC'),
+  levelCompleted: new paper.Color('#CFC'),
+  levelCompletedBoundaries: new paper.Color('#9C9'),
+};
+
+const colorsDark: Record<string, paper.Color> = {
+  [CellType.empty]: new paper.Color('#111'),
+  [CellType.path]: new paper.Color('#333'),
+  [CellType.block]: new paper.Color('#666'),
+  [CellType.player]: new paper.Color('#111'),
+  boundaries: new paper.Color('#666'),
+  levelCompleted: new paper.Color('#363'),
+  levelCompletedBoundaries: new paper.Color('#6C6'),
 };
 
 export class LevelRenderer {
@@ -67,6 +82,8 @@ export class LevelRenderer {
 
   private cells = new Map<string, { rect: paper.Shape; animation: ColorAnimation }>();
   private boundaries = new paper.CompoundPath([]);
+
+  public colors = document.documentElement.classList.contains(ThemeMode.dark) ? colorsDark : colorsLight;
 
   constructor(private level: Level) {
     this.layer.name = 'level';
@@ -85,7 +102,7 @@ export class LevelRenderer {
 
         if (cell) {
           cell.animation.duration = 150;
-          cell.animation.target = colors[type];
+          cell.animation.target = this.colors[type];
 
           cell.animation.once(AnimationEvent.ended, () => {
             cell.animation.duration = 0;
@@ -93,14 +110,14 @@ export class LevelRenderer {
         }
       }
 
-      this.boundaries.strokeColor = new paper.Color('#CCC');
+      this.boundaries.strokeColor = this.colors.boundaries;
     });
 
     level.addListener(LevelEvent.cellChanged, ({ x, y, type }) => {
       const cell = this.cells.get(`${x},${y}`);
 
       if (cell) {
-        cell.animation.target = colors[type];
+        cell.animation.target = this.colors[type];
       }
     });
 
@@ -112,7 +129,7 @@ export class LevelRenderer {
     this.layer.activate();
 
     this.boundaries = new paper.CompoundPath([]);
-    this.boundaries.strokeColor = new paper.Color('#CCC');
+    this.boundaries.strokeColor = this.colors.boundaries;
     this.boundaries.strokeWidth = 2;
     this.boundaries.strokeCap = 'round';
 
@@ -126,7 +143,7 @@ export class LevelRenderer {
         height: cellSize,
       });
 
-      rect.fillColor = colors[type];
+      rect.fillColor = this.colors[type];
 
       this.cells.set(`${x},${y}`, {
         rect,
@@ -143,6 +160,7 @@ export class LevelRenderer {
     }
 
     this.boundaries.closePath();
+    this.boundaries.bringToFront();
   }
 
   onFrame() {
@@ -158,10 +176,10 @@ export class LevelRenderer {
       const rect = this.cells.get(`${x},${y}`);
 
       assert(rect);
-      rect.animation.target = new paper.Color('#CFC');
+      rect.animation.target = this.colors.levelCompleted;
     }
 
-    this.boundaries.strokeColor = new paper.Color('#9C9');
+    this.boundaries.strokeColor = this.colors.levelCompletedBoundaries;
   }
 }
 
@@ -172,6 +190,8 @@ export class PlayerRenderer {
 
   private translation: PositionAnimation;
   private scale: ScaleAnimation;
+
+  public color = new paper.Color('#99F');
 
   constructor(player: Player) {
     this.layer.activate();
@@ -189,7 +209,7 @@ export class PlayerRenderer {
 
     this.cell.bounds.center.set(player.position.x * cellSize, player.position.y * cellSize);
     this.cell.translate([cellSize / 2, cellSize / 2]);
-    this.cell.fillColor = new paper.Color('#99F');
+    this.cell.fillColor = this.color;
 
     player.addListener(PlayerEvent.moved, ({ x, y }) => {
       this.translation.target = {

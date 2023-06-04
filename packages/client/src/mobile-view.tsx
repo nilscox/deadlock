@@ -17,7 +17,7 @@ export const MobileView = ({ header, footer, className, children }: MobileViewPr
   return (
     <div className="h-screen col overflow-hidden">
       {header && (
-        <header className="p-4 border-b shadow-md z-10">
+        <header className="p-4 border-b shadow-md shadow-neutral z-10">
           <div className="w-full max-w-[640px] mx-auto">{header}</div>
         </header>
       )}

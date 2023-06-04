@@ -1,19 +1,25 @@
-import colors from 'tailwindcss/colors';
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['src/**/*.tsx'],
+  darkMode: 'class',
   theme: {
-    textColor: {
-      muted: colors.neutral[500],
-      inverted: colors.white,
-      green: colors.emerald[600],
-      red: colors.orange[700],
-    },
     backgroundColor: {
       transparent: 'transparent',
-      body: colors.white,
-      muted: colors.slate[100],
+      body: 'rgb(var(--color-bg-body) / <alpha-value>)',
+      muted: 'rgb(var(--color-bg-muted) / <alpha-value>)',
+    },
+    boxShadowColor: {
+      neutral: 'rgb(var(--color-shadow) / <alpha-value>)',
+    },
+    borderColor: {
+      DEFAULT: 'rgb(var(--color-border) / <alpha-value>)',
+    },
+    textColor: {
+      body: 'rgb(var(--color-text-body) / <alpha-value>)',
+      inverted: 'rgb(var(--color-text-inverted) / <alpha-value>)',
+      muted: 'rgb(var(--color-text-muted) / <alpha-value>)',
+      green: 'rgb(var(--color-text-green) / <alpha-value>)',
+      red: 'rgb(var(--color-text-red) / <alpha-value>)',
     },
     fontSize: {
       base: ['1rem', '1.5rem'],

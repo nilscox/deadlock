@@ -27,6 +27,10 @@
         "english": "English",
         "french": "Français"
       },
+      "themeMode": {
+        "setThemeLight": "Mode clair",
+        "setThemeDark": "Mode sombre"
+      },
       "playMusic": "Démarrer la musique",
       "restartGame": "Recommencer le jeu",
       "restartWarning": "Oula, vous-êtes sûr? Vous allez perdre toute votre progression !"
