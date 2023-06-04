@@ -1,4 +1,4 @@
-import { identity, toObject } from '@deadlock/game';
+import { toObject } from '@deadlock/game';
 import { useCallback, useMemo } from 'react';
 import { useLocationProperty } from 'wouter/use-location';
 
@@ -43,9 +43,9 @@ export const useSearchParam = (key: string) => {
 export const toSearchParams = (params: Record<string, unknown>) => {
   return new URLSearchParams(
     toObject(
-      Object.keys(params).filter((key) => params[key] !== undefined),
-      identity,
-      (key) => String(params[key])
+      Object.entries(params).filter((key, value) => value !== undefined),
+      ([key]) => key,
+      ([, value]) => (typeof value === 'object' ? JSON.stringify(value) : String(value))
     )
   ).toString();
 };

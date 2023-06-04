@@ -54,13 +54,13 @@ export const Actions = ({ levelId }: ActionsProps) => {
   return (
     <ul className="row gap-6 text-muted items-center">
       <li title="Test level">
-        <Link href={`/test?${toSearchParams({ levelId, definition: JSON.stringify(definition) })}`}>
+        <Link href={`/test?${toSearchParams({ levelId, definition })}`}>
           <IconPlay className="h-5 w-5" />
         </Link>
       </li>
 
       <li title="Edit level">
-        <Link href={`/level-editor?${toSearchParams({ levelId, definition: JSON.stringify(definition) })}`}>
+        <Link href={`/level-editor?${toSearchParams({ levelId, definition })}`}>
           <IconEdit className="h-5 w-5" />
         </Link>
       </li>

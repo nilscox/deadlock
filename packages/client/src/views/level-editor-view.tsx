@@ -103,7 +103,7 @@ export const LevelEditorView = () => {
           }
           right={
             <Link
-              href={`/test?${toSearchParams({ levelId, definition: definitionParam })}`}
+              href={`/test?${toSearchParams({ levelId, definition })}`}
               disabled={solutions === undefined || solutions.length === 0}
               className="row items-center gap-2"
             >

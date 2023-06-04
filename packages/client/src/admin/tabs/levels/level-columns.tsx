@@ -49,10 +49,21 @@ export const levelsColumns = [
     cell: ({ getValue }) => <TriesColumn {...getValue()} />,
   }),
 
-  columnHelper.accessor('solutions', {
+  columnHelper.display({
+    id: 'specs',
     size: 90,
-    header: 'Solutions',
-    cell: ({ getValue }) => <>{getValue().total}</>,
+    header: 'Specs',
+    cell: ({ row }) => {
+      const level = row.original;
+
+      return (
+        <>
+          {level.definition.width}×{level.definition.height}×{level.definition.blocks.length}
+          {level.definition.teleports.length > 0 && '+T'}{' '}
+          <span className="text-muted text-sm">({level.solutions.items.length})</span>
+        </>
+      );
+    },
   }),
 
   columnHelper.accessor('solutions', {

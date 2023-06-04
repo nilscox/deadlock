@@ -1,4 +1,4 @@
-import { Game as GameClass, Level, LevelEvent, assert } from '@deadlock/game';
+import { Game as GameClass, LevelEvent, assert } from '@deadlock/game';
 import { clsx } from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
@@ -16,6 +16,7 @@ import {
 } from '~/game/levels-context';
 import { useLevelUserData } from '~/game/levels-user-data';
 import { useNavigate } from '~/hooks/use-navigate';
+import { toSearchParams } from '~/hooks/use-search-params';
 import { MobileNavigation, MobileView } from '~/mobile-view';
 
 const T = Translate.prefix('views.game');
@@ -107,7 +108,7 @@ export const GameView = ({ levelId }: GameViewProps) => {
       <div className="flex-1 col justify-center text-center">
         <div
           className={clsx('transition-colors text-xl font-semibold', completed && 'text-green')}
-          onDoubleClick={() => navigate(`/level-editor?hash=${new Level(definition).hash}`)}
+          onDoubleClick={() => navigate(`/level-editor?${toSearchParams({ definition })}`)}
         >
           <T id="levelNumber" values={{ levelNumber: Number(levelNumber) }} />
         </div>
