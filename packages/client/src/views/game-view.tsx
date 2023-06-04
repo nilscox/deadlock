@@ -14,6 +14,7 @@ import {
   useLevelsIds,
   useOnSessionTerminated,
 } from '~/game/levels-context';
+import { useLevelUserData } from '~/game/levels-user-data';
 import { useNavigate } from '~/hooks/use-navigate';
 import { MobileNavigation, MobileView } from '~/mobile-view';
 
@@ -116,18 +117,21 @@ export const GameView = ({ levelId }: GameViewProps) => {
       <Game definition={definition} onLoaded={setGame} className="mx-auto" />
 
       <div className="flex-1">
-        <Help game={game} levelNumber={levelNumber} />
+        <Help levelId={levelId} game={game} />
       </div>
     </MobileView>
   );
 };
 
 type HelpProps = {
+  levelId: string;
   game: GameClass | undefined;
-  levelNumber?: number;
 };
 
-const Help = ({ game, levelNumber }: HelpProps) => {
+const Help = ({ levelId, game }: HelpProps) => {
+  const levelNumber = useLevelNumber(levelId);
+  const data = useLevelUserData(levelId);
+
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -148,7 +152,7 @@ const Help = ({ game, levelNumber }: HelpProps) => {
     return () => game?.level.removeListener(LevelEvent.restarted, onRestarted);
   }, [game]);
 
-  if (!show) {
+  if (!show || data?.completed) {
     return null;
   }
 
