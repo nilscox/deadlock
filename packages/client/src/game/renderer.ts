@@ -72,6 +72,7 @@ const colorsDark: Record<string, paper.Color> = {
   [CellType.path]: new paper.Color('#333'),
   [CellType.block]: new paper.Color('#666'),
   [CellType.player]: new paper.Color('#111'),
+  [CellType.teleport]: new paper.Color('#6CC'),
   boundaries: new paper.Color('#666'),
   levelCompleted: new paper.Color('#363'),
   levelCompletedBoundaries: new paper.Color('#6C6'),
