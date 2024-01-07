@@ -5,11 +5,12 @@ import {
   LevelEvent,
   LevelFlag,
   defined,
+  randItem,
   toObject,
 } from '@deadlock/game';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Redirect } from 'wouter';
 
 import { api } from '~/api';
@@ -150,6 +151,8 @@ type FeedbackModalProps = {
 };
 
 const FeedbackModal = ({ levelId, open, onNext }: FeedbackModalProps) => {
+  const [submitted, onSubmitted] = useBoolean(false);
+
   const { mutate: flagLevel } = useMutation({
     mutationFn: (flag: LevelFlag) => api.post(`/level/${levelId}/flag`, { flag }),
   });
@@ -180,8 +183,11 @@ const FeedbackModal = ({ levelId, open, onNext }: FeedbackModalProps) => {
       flagLevel(LevelFlag.cool);
     }
 
-    onNext();
+    onSubmitted();
+    setTimeout(() => onNext(), 1500);
   };
+
+  const emoji = useMemo(() => randItem(emojis), []);
 
   return (
     <dialog ref={setRef} className="px-4 min-w-full bg-transparent">
@@ -190,7 +196,7 @@ const FeedbackModal = ({ levelId, open, onNext }: FeedbackModalProps) => {
           <T id="feedbackDialog.title" />
         </h2>
 
-        <form className="col gap-8" onSubmit={handleSubmit}>
+        <form className={clsx('col gap-8', submitted && '!hidden')} onSubmit={handleSubmit}>
           <div className="col gap-4">
             <p>
               <T id="feedbackDialog.difficultyQuestion" />
@@ -242,6 +248,10 @@ const FeedbackModal = ({ levelId, open, onNext }: FeedbackModalProps) => {
             <ArrowRight />
           </button>
         </form>
+
+        <div className={clsx('text-lg', !submitted && 'hidden')}>
+          <T id="feedbackDialog.thanks" /> {emoji}
+        </div>
       </div>
     </dialog>
   );
@@ -267,3 +277,37 @@ const GroupButton = ({ className, selected, onClick, children }: GroupButtonProp
     {children}
   </button>
 );
+
+const emojis = [
+  '😀',
+  '😉',
+  '😊',
+  '😁',
+  '😚',
+  '🤗',
+  '🤗',
+  '☺️',
+  '😎',
+  '🥳',
+  '😸',
+  '😺',
+  '🙌',
+  '❤️',
+  '🎉',
+  '💪',
+  '👌',
+  '👍',
+  '✌️',
+  '🖖',
+  '🤘',
+  '👏',
+  '✅',
+  '🔥',
+  '✨',
+  '🌟',
+  '💯',
+  '💥',
+  '💃',
+  '🕺',
+  '🦸',
+];

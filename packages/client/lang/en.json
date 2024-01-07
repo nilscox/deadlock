@@ -67,7 +67,8 @@
         "validateQuestion": "Should we add it to the game?",
         "noOpinion": "No opinion",
         "yes": "Yes",
-        "nextLevel": "Next level"
+        "nextLevel": "Next level",
+        "thanks": "Thanks for your feedback!"
       }
     },
     "levelEditor": {

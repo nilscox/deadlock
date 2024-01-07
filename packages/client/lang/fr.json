@@ -67,7 +67,8 @@
         "no": "Non",
         "noOpinion": "Pas d'avis",
         "yes": "Oui",
-        "nextLevel": "Niveau suivant"
+        "nextLevel": "Niveau suivant",
+        "thanks": "Merci pour votre retour !"
       }
     },
     "levelEditor": {
