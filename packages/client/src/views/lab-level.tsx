@@ -151,7 +151,11 @@ type FeedbackModalProps = {
 };
 
 const FeedbackModal = ({ levelId, open, onNext }: FeedbackModalProps) => {
-  const [submitted, onSubmitted] = useBoolean(false);
+  const [submitted, onSubmitted, resetSubmitted] = useBoolean(false);
+
+  useEffect(() => {
+    resetSubmitted();
+  }, [levelId]);
 
   const { mutate: flagLevel } = useMutation({
     mutationFn: (flag: LevelFlag) => api.post(`/level/${levelId}/flag`, { flag }),
@@ -187,7 +191,7 @@ const FeedbackModal = ({ levelId, open, onNext }: FeedbackModalProps) => {
     setTimeout(() => onNext(), 1500);
   };
 
-  const emoji = useMemo(() => randItem(emojis), []);
+  const emoji = useMemo(() => randItem(emojis), [levelId]);
 
   return (
     <dialog ref={setRef} className="px-4 min-w-full bg-transparent">
