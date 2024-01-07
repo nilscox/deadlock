@@ -36,7 +36,7 @@ export const randInt = (min: number, max: number) => {
 };
 
 export const randItem = <T>(array: T[]) => {
-  return array[randInt(0, array.length - 1)];
+  return array[randInt(0, array.length)];
 };
 
 export const randItems = <T>(array: T[], count: number) => {
