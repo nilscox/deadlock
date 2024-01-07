@@ -16,14 +16,14 @@ type SessionsResult = Array<{
   time_avg: number;
 }>;
 
-export async function getStats(em: EntityManager): Promise<LevelsStats> {
+export async function getStats(em: EntityManager, levelIds?: string[]): Promise<LevelsStats> {
   const count: CountResult = await em.execute('select level_id, count(*) from session group by level_id');
   const countMap = new Map(count.map(({ level_id, count }) => [level_id, Number(count)]));
 
   const sessions: SessionsResult = await em.execute('select * from sessions');
 
   return toObject(
-    sessions,
+    sessions.filter((session) => !levelIds || levelIds.includes(session.level_id)),
     (session) => session.level_id,
     (session) => ({
       played: countMap.get(session.level_id) as number,

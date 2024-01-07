@@ -84,7 +84,7 @@ export function api(em: EntityManager) {
   });
 
   router.get('/sessions', admin, async (req, res) => {
-    const sessions = await getSessions(em, req.query.levelId as string | undefined);
+    const sessions = await getSessions(em, getLevelIds(req.query.levelId));
 
     res.status(200);
     res.json(sessions);
@@ -98,7 +98,7 @@ export function api(em: EntityManager) {
   });
 
   router.get('/stats', admin, async (req, res) => {
-    const stats = await getStats(em);
+    const stats = await getStats(em, getLevelIds(req.query.levelId));
 
     res.status(200);
     res.json(stats);
@@ -118,6 +118,18 @@ export function api(em: EntityManager) {
 
   return router;
 }
+
+const getLevelIds = (levelId: unknown) => {
+  if (typeof levelId === 'string') {
+    return [levelId];
+  }
+
+  if (Array.isArray(levelId)) {
+    return levelId as string[];
+  }
+
+  return undefined;
+};
 
 const admin: RequestHandler = (req, res, next) => {
   const token = req.headers['authorization'] ?? '';

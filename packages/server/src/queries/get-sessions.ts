@@ -2,8 +2,8 @@ import { round } from '@deadlock/game';
 import { LevelSession } from '@deadlock/game/src/types';
 import { EntityManager, SqlSession } from '@deadlock/persistence';
 
-export async function getSessions(em: EntityManager, levelId?: string): Promise<LevelSession[]> {
-  const sessions = await em.find(SqlSession, levelId ? { level: levelId } : {}, {
+export async function getSessions(em: EntityManager, levelIds?: string[]): Promise<LevelSession[]> {
+  const sessions = await em.find(SqlSession, levelIds ? { level: { $in: levelIds } } : {}, {
     orderBy: { createdAt: 'desc' },
   });
 

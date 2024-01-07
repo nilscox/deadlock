@@ -17,8 +17,8 @@ export type LevelRow = LevelData & {
 
 export const LevelsTab = () => {
   const levels = useLevels();
-  const stats = useLevelsStats();
-  const solutions = useLevelsSolutions();
+  const stats = useLevelsStats(Object.keys(levels));
+  const solutions = useLevelsSolutions(Object.keys(levels));
 
   const data = useMemo<LevelRow[]>(() => {
     return Object.keys(levels).map((levelId) => ({
@@ -46,21 +46,29 @@ export const LevelsTab = () => {
   );
 };
 
-const useLevelsStats = () => {
+const useLevelsStats = (levelIds: string[]) => {
   const { data } = useQuery({
-    queryKey: ['stats'],
+    queryKey: ['stats', levelIds],
     refetchInterval: 5 * 1000,
-    queryFn: () => api.get<LevelsStats>('/stats'),
+    queryFn: () => api.get<LevelsStats>(`/stats?${params(levelIds)}`),
   });
 
   return defined(data);
 };
 
-const useLevelsSolutions = () => {
+const useLevelsSolutions = (levelIds: string[]) => {
   const { data } = useQuery({
-    queryKey: ['solutions'],
-    queryFn: () => api.get<LevelsSolutions>('/solutions'),
+    queryKey: ['solutions', levelIds],
+    queryFn: () => api.get<LevelsSolutions>(`/solutions/?${params(levelIds)}`),
   });
 
   return defined(data);
+};
+
+const params = (levelIds: string[]) => {
+  const search = new URLSearchParams();
+
+  levelIds.forEach((levelId) => search.append('levelId', levelId));
+
+  return search.toString();
 };
