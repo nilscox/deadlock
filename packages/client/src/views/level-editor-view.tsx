@@ -76,8 +76,8 @@ export const LevelEditorView = () => {
   });
 
   const solutions = useMemo(() => {
-    const level = new Level(definition);
-    const teleports = level.cells(CellType.teleport);
+    const level = Level.load(definition);
+    const teleports = level.map.cells(CellType.teleport);
 
     if (teleports.length !== 0 && teleports.length !== 2) {
       return undefined;

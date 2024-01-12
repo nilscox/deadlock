@@ -29,7 +29,7 @@ export const generateLevels = async (
     const hasSolutions = Boolean(paths?.length);
 
     if (level.blocks.length !== options.blocks) {
-      throw new Error(`invalid level generated: ${Level.computeFingerprint(level)}`);
+      throw new Error(`invalid level generated: ${Level.load(level).fingerprint}`);
     }
 
     await onProgress(levels, levels.indexOf(level), hasSolutions);
@@ -61,13 +61,13 @@ const generateAllLevels = (options: GenerateLevelsOptions): LevelDefinition[] =>
   const levels: LevelDefinition[] = [];
 
   if (startHash) {
-    const level = Level.fromHash(Level.fromHash(startHash).fingerprint);
+    const level = Level.load(Level.load(startHash).fingerprint);
 
-    for (const cell of level.cells(CellType.block)) {
+    for (const cell of level.map.cells(CellType.block)) {
       cells[pointToIndex(cell.x, cell.y, height)] = CellType.block;
     }
 
-    for (const cell of level.cells(CellType.teleport)) {
+    for (const cell of level.map.cells(CellType.teleport)) {
       cells[pointToIndex(cell.x, cell.y, height)] = CellType.teleport;
     }
   } else {
@@ -96,8 +96,8 @@ const generateAllLevels = (options: GenerateLevelsOptions): LevelDefinition[] =>
         teleports,
       };
 
-      const hash = Level.computeHash(definition);
-      const fp = Level.computeFingerprint(definition);
+      const hash = Level.load(definition).hash;
+      const fp = Level.load(definition).fingerprint;
 
       if (hash !== fp) {
         return;

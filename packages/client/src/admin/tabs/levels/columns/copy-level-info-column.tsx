@@ -14,11 +14,11 @@ export const Copy = ({ level }: CopyProps) => {
   };
 
   const getHash = () => {
-    return new Level(level.definition).hash;
+    return Level.load(level.definition).hash;
   };
 
   const getFingerprint = () => {
-    return new Level(level.definition).fingerprint;
+    return Level.load(level.definition).fingerprint;
   };
 
   return (

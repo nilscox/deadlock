@@ -41,7 +41,7 @@ function randomLevel(width: number, height: number, blocksCount: number) {
     array(width * height, (i) => ({ x: i % width, y: Math.floor(i / width) }))
   );
 
-  return new Level({
+  return Level.load({
     width,
     height,
     start,
@@ -57,7 +57,7 @@ async function onProgress(levels: LevelDefinition[], index: number, hasSolutions
     [
       //
       progress(levels.length, index),
-      Level.computeFingerprint(level),
+      Level.load(level).fingerprint,
       !hasSolutions && '(no solution)',
     ]
       .filter(Boolean)

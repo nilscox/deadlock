@@ -16,7 +16,7 @@ describe('createLevel', () => {
 
     const created = await em.findOneOrFail(SqlLevel, levelId);
 
-    expect(new Level(created).definition).toEqual(definition);
+    expect(Level.load(created).definition).toEqual(definition);
   });
 
   it("saves the new level's solutions", async () => {

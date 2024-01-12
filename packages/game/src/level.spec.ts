@@ -4,7 +4,7 @@ import { Direction } from './utils/direction';
 import { Point } from './utils/point';
 
 const setup = (definition?: Partial<LevelDefinition>) => {
-  const level = new Level({
+  const level = Level.load({
     width: 1,
     height: 1,
     blocks: [],
@@ -13,7 +13,7 @@ const setup = (definition?: Partial<LevelDefinition>) => {
     ...definition,
   });
 
-  const player = new Player(level.start);
+  const player = new Player(level.definition.start);
 
   return {
     level,
@@ -23,7 +23,7 @@ const setup = (definition?: Partial<LevelDefinition>) => {
 
 describe('Level', () => {
   it('loads a level', () => {
-    const level = new Level({
+    const level = Level.load({
       width: 3,
       height: 1,
       blocks: [{ x: 0, y: 0 }],
@@ -31,10 +31,10 @@ describe('Level', () => {
       teleports: [],
     });
 
-    expect(level.at(0, 0)).toBe(CellType.block);
-    expect(level.at(1, 0)).toBe(CellType.player);
-    expect(level.at(2, 0)).toBe(CellType.empty);
-    expect(level.atUnsafe(3, 0)).toBeUndefined();
+    expect(level.map.at(0, 0)).toBe(CellType.block);
+    expect(level.map.at(1, 0)).toBe(CellType.player);
+    expect(level.map.at(2, 0)).toBe(CellType.empty);
+    expect(level.map.atUnsafe(3, 0)).toBeUndefined();
   });
 
   it('loads a new level', () => {
@@ -44,7 +44,7 @@ describe('Level', () => {
     level.addListener(LevelEvent.loaded, fn);
     level.load({ width: 2, height: 1, blocks: [], start: { x: 0, y: 0 }, teleports: [] });
 
-    expect(level.at(1, 0)).toBe(CellType.empty);
+    expect(level.map.at(1, 0)).toBe(CellType.empty);
     expect(fn).toHaveBeenCalled();
   });
 
@@ -59,7 +59,7 @@ describe('Level', () => {
     level.movePlayer(player, Direction.right);
     level.restart();
 
-    expect(level.at(1, 0)).toBe(CellType.empty);
+    expect(level.map.at(1, 0)).toBe(CellType.empty);
     expect(fn).toHaveBeenCalled();
   });
 
@@ -72,8 +72,8 @@ describe('Level', () => {
 
     expect(player.position).toEqual(new Point(1, 0));
 
-    expect(level.at(0, 0)).toBe(CellType.path);
-    expect(level.at(1, 0)).toBe(CellType.player);
+    expect(level.map.at(0, 0)).toBe(CellType.path);
+    expect(level.map.at(1, 0)).toBe(CellType.player);
   });
 
   it('emits events when a cell changes', () => {
@@ -100,8 +100,8 @@ describe('Level', () => {
 
     expect(player.position).toEqual(new Point(0, 0));
 
-    expect(level.at(0, 0)).toBe(CellType.player);
-    expect(level.at(1, 0)).toBe(CellType.empty);
+    expect(level.map.at(0, 0)).toBe(CellType.player);
+    expect(level.map.at(1, 0)).toBe(CellType.empty);
   });
 
   it("jumps over the player's path", () => {
@@ -115,9 +115,9 @@ describe('Level', () => {
 
     expect(player.position).toEqual(new Point(2, 0));
 
-    expect(level.at(0, 0)).toBe(CellType.path);
-    expect(level.at(1, 0)).toBe(CellType.path);
-    expect(level.at(2, 0)).toBe(CellType.player);
+    expect(level.map.at(0, 0)).toBe(CellType.path);
+    expect(level.map.at(1, 0)).toBe(CellType.path);
+    expect(level.map.at(2, 0)).toBe(CellType.player);
   });
 
   it('does not move when there is no cell', () => {
@@ -153,7 +153,7 @@ describe('Level', () => {
 
     expect(player.position).toEqual(new Point(2, 0));
 
-    expect(level.at(0, 0)).toEqual(CellType.path);
+    expect(level.map.at(0, 0)).toEqual(CellType.path);
   });
 
   it('teleports the player backwards', () => {
@@ -171,9 +171,9 @@ describe('Level', () => {
 
     expect(player.position).toEqual(new Point(0, 0));
 
-    expect(level.at(0, 0)).toEqual(CellType.player);
-    expect(level.at(1, 0)).toEqual(CellType.teleport);
-    expect(level.at(1, 0)).toEqual(CellType.teleport);
+    expect(level.map.at(0, 0)).toEqual(CellType.player);
+    expect(level.map.at(1, 0)).toEqual(CellType.teleport);
+    expect(level.map.at(1, 0)).toEqual(CellType.teleport);
   });
 
   it('emits an event when the level is completed', () => {
@@ -192,7 +192,7 @@ describe('Level', () => {
   });
 
   it("computes a level's hash", () => {
-    const level = new Level({
+    const level = Level.load({
       width: 2,
       height: 3,
       blocks: [
@@ -210,7 +210,7 @@ describe('Level', () => {
   });
 
   it('loads a level from its hash', () => {
-    const level = Level.fromHash('2,3B0,0;1,0T0,1;1,1S0,2');
+    const level = Level.load('2,3B0,0;1,0T0,1;1,1S0,2');
 
     expect(level.definition).toEqual({
       width: 2,
@@ -228,7 +228,7 @@ describe('Level', () => {
   });
 
   it("computes a level's fingerprint", () => {
-    const level1 = new Level({
+    const level1 = Level.load({
       width: 3,
       height: 1,
       blocks: [{ x: 0, y: 0 }],
@@ -236,7 +236,7 @@ describe('Level', () => {
       teleports: [],
     });
 
-    const level2 = new Level({
+    const level2 = Level.load({
       width: 3,
       height: 1,
       blocks: [{ x: 2, y: 0 }],
@@ -248,8 +248,8 @@ describe('Level', () => {
   });
 
   it("computes a level's fingerprint 2", () => {
-    const level1 = Level.fromHash('3,3B1,0S0,0');
-    const level2 = Level.fromHash(level1.fingerprint);
+    const level1 = Level.load('3,3B1,0S0,0');
+    const level2 = Level.load(level1.fingerprint);
 
     expect(level1.fingerprint).toEqual(level2.fingerprint);
   });

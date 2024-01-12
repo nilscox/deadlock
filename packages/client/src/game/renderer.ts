@@ -98,7 +98,7 @@ export class LevelRenderer {
     });
 
     level.addListener(LevelEvent.restarted, () => {
-      for (const { x, y, type } of level.cells()) {
+      for (const { x, y, type } of level.map.cells()) {
         const cell = this.cells.get(`${x},${y}`);
 
         if (cell) {
@@ -134,7 +134,7 @@ export class LevelRenderer {
     this.boundaries.strokeWidth = 2;
     this.boundaries.strokeCap = 'round';
 
-    const cells = this.level.cells().filter((cell) => !this.level.isEdgeBlock(cell.x, cell.y));
+    const cells = this.level.map.cells().filter((cell) => !this.isEdgeBlock(cell.x, cell.y));
 
     for (const { x, y, type } of cells) {
       const rect = new paper.Shape.Rectangle({
@@ -164,6 +164,36 @@ export class LevelRenderer {
     this.boundaries.bringToFront();
   }
 
+  private isEdge(x: number, y: number) {
+    return [
+      x === 0,
+      y === 0,
+      x === this.level.definition.width - 1,
+      y === this.level.definition.height - 1,
+    ].some(Boolean);
+  }
+
+  private isEdgeBlock(x: number, y: number, visited = new Set<string>()): boolean {
+    const type = this.level.map.atUnsafe(x, y);
+    const key = `${x},${y}`;
+
+    if (type !== CellType.block || visited.has(key)) {
+      return false;
+    }
+
+    visited.add(key);
+
+    if (this.isEdge(x, y)) {
+      return true;
+    }
+
+    if (this.level.map.neighbors(x, y).some(({ x, y }) => this.isEdgeBlock(x, y, visited))) {
+      return true;
+    }
+
+    return false;
+  }
+
   onFrame() {
     for (const { animation } of this.cells.values()) {
       animation.frame();
@@ -171,7 +201,7 @@ export class LevelRenderer {
   }
 
   private onLevelCompleted() {
-    const path = this.level.cells(CellType.path);
+    const path = this.level.map.cells(CellType.path);
 
     for (const { x, y } of path) {
       const rect = this.cells.get(`${x},${y}`);

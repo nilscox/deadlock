@@ -4,7 +4,7 @@ import { Direction, Path, directions } from './utils/direction';
 import { abs, max, min, round } from './utils/math';
 
 export const evaluateLevelDifficulty = (input: Level | LevelDefinition, solutions: Path[]) => {
-  const level = input instanceof Level ? input : new Level(input);
+  const level = input instanceof Level ? input : Level.load(input);
 
   if (!solutions || solutions.length === 0) {
     return { difficulty: Infinity };

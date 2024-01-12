@@ -18,8 +18,8 @@ export const TestView = () => {
   const [hash] = useSearchParam('hash');
 
   const level = useMemo(() => {
-    if (definition) return new Level(JSON.parse(definition) as LevelDefinition);
-    if (hash) return Level.fromHash(hash);
+    if (definition) return Level.load(JSON.parse(definition) as LevelDefinition);
+    if (hash) return Level.load(hash);
     throw new Error('missing definition or hash query parameter');
   }, [definition, hash]);
 

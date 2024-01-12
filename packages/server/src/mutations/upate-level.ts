@@ -30,7 +30,7 @@ async function updateLevelDefinition(em: EntityManager, level: SqlLevel, definit
     start: definition.start,
     blocks: definition.blocks,
     teleports: definition.teleports,
-    fingerprint: new Level(level).fingerprint,
+    fingerprint: Level.load(level).fingerprint,
   });
 
   await em.flush();

@@ -1,3 +1,4 @@
+import { assert } from './utils/assert';
 import { Emitter } from './utils/emitter';
 import { IPoint, Point } from './utils/point';
 
@@ -13,13 +14,15 @@ export type PlayerEventsMap = {
 };
 
 export class Player extends Emitter<PlayerEvent, PlayerEventsMap> {
+  private _start: Point;
   private _position: Point;
   private _path: Point[];
 
-  constructor(private _start: Point) {
+  constructor(start: IPoint) {
     super();
 
-    this._position = _start.clone();
+    this._start = new Point(start);
+    this._position = this._start.clone();
     this._path = [];
   }
 
@@ -27,7 +30,7 @@ export class Player extends Emitter<PlayerEvent, PlayerEventsMap> {
     return this._position.clone();
   }
 
-  reset(start?: Point) {
+  reset(start?: IPoint) {
     if (start) {
       this._start.set(start);
     }
@@ -38,30 +41,25 @@ export class Player extends Emitter<PlayerEvent, PlayerEventsMap> {
     this.emit(PlayerEvent.reset);
   }
 
-  move(point: Point) {
+  move(x: number, y: number) {
     this._path.push(this.position);
-    this._position.set(point);
+    this._position.set(x, y);
 
     this.emit(PlayerEvent.moved, this._position);
   }
 
-  moveBack(): boolean {
+  moveBack() {
     const lastPosition = this._path.pop();
 
-    if (!lastPosition) {
-      return false;
-    }
-
+    assert(lastPosition);
     this._position.set(lastPosition);
 
     this.emit(PlayerEvent.moved, this._position);
-
-    return true;
   }
 
-  teleport(point: Point) {
+  teleport(x: number, y: number) {
     this._path.push(this.position);
-    this._position.set(point);
+    this._position.set(x, y);
 
     this.emit(PlayerEvent.teleported, this._position);
   }

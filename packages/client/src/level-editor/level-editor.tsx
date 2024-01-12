@@ -27,7 +27,7 @@ type LevelEditorProps = {
 
 export const LevelEditor = ({ definition, onChange }: LevelEditorProps) => {
   const t = useTranslation();
-  const level = useMemo(() => new Level(definition), [definition]);
+  const level = useMemo(() => Level.load(definition), [definition]);
 
   const handleChangeSize = useSizeChangeHandler(level, onChange);
   const [dragging, handleDragStart, handleDragEnd] = useDragHandlers(level, onChange);
@@ -169,11 +169,11 @@ const CellsGrid = ({ level }: CellsGridProps) => {
         gridTemplateColumns: `repeat(${level.definition.width}, 1fr)`,
       }}
     >
-      {level.cells(CellType.empty).map((cell) => (
+      {level.map.cells(CellType.empty).map((cell) => (
         <DroppableCell key={cellId(cell)} cell={cell} />
       ))}
 
-      {level
+      {level.map
         .cells()
         .filter(({ type }) => type !== CellType.empty)
         .map((cell) => (

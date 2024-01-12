@@ -11,7 +11,7 @@ describe('updateLevel', () => {
   it("updates a level's definition", async () => {
     const em = getEntityManager();
     const level = await create.level({ width: 2, height: 1, start: { x: 0, y: 0 } });
-    const { definition } = new Level(level);
+    const { definition } = Level.load(level);
 
     await updateLevel(em, level.id, { definition: { ...definition, start: { x: 1, y: 0 } } });
 

@@ -9,7 +9,7 @@ const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
 
 export async function insertLevel(definition: LevelDefinition, paths: Path[]) {
   const em = getEntityManager();
-  const level = new Level(definition);
+  const level = Level.load(definition);
 
   const {
     //

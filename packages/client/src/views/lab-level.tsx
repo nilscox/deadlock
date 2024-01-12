@@ -111,7 +111,7 @@ const LabLevel = ({ level, onNext }: LabLevelProps) => {
       <div className="flex-1 col justify-center text-center">
         <div
           className={clsx('transition-colors text-xl font-semibold', completed && 'text-green')}
-          onDoubleClick={() => navigate(`/level-editor?hash=${new Level(definition).hash}`)}
+          onDoubleClick={() => navigate(`/level-editor?hash=${Level.load(definition).hash}`)}
         >
           <T id="title" />
         </div>

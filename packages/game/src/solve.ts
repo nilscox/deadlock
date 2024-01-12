@@ -3,7 +3,7 @@ import { Player } from './player';
 import { Path, directions } from './utils/direction';
 
 export const solve = (lvl: Level | LevelDefinition, max = Infinity) => {
-  const level = lvl instanceof Level ? lvl : new Level(lvl);
+  const level = lvl instanceof Level ? lvl : Level.load(lvl);
   const player = new Player(level.start);
 
   const path: Path = [];

@@ -28,7 +28,7 @@ export class Game {
   constructor(controls: Controls, levelDefinition: LevelDefinition) {
     this.controls = controls.cloneEmitter();
 
-    this.level = new Level(levelDefinition);
+    this.level = Level.load(levelDefinition);
     this.player = new Player(this.level.start);
 
     this.enableControls();

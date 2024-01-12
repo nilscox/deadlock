@@ -7,7 +7,7 @@ import { storeSolutions } from './store-solutions';
 const nanoidShort = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 8);
 
 export async function createLevel(em: EntityManager, definition: LevelDefinition) {
-  const fingerprint = new Level(definition).fingerprint;
+  const fingerprint = Level.load(definition).fingerprint;
 
   const sqlLevel = em.assign(new SqlLevel(), {
     id: nanoidShort(),

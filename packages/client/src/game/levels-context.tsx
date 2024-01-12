@@ -47,7 +47,7 @@ export const useLevelInstance = (levelId: string) => {
   const definition = useLevelDefinition(levelId);
 
   return useMemo(() => {
-    return new Level(definition);
+    return Level.load(definition);
   }, [definition]);
 };
 
