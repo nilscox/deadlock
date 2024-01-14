@@ -32,12 +32,6 @@ export class SqlLevel extends SqlEntity implements LevelDefinition {
   @Property({ type: 'real' })
   difficulty!: number;
 
-  @Property({ type: 'real' })
-  numberOfSolutionsScore!: number;
-
-  @Property({ type: 'real' })
-  easiestSolutionScore!: number;
-
   @Property({ type: 'json', default: [] })
   flags!: Array<LevelFlag>;
 

@@ -60,13 +60,12 @@ export const levelsColumns = [
         <>
           {level.definition.width}×{level.definition.height}×{level.definition.blocks.length}
           {level.definition.teleports.length > 0 && '+T'}{' '}
-          <span className="text-muted text-sm">({level.solutions.items.length})</span>
         </>
       );
     },
   }),
 
-  columnHelper.accessor('solutions', {
+  columnHelper.accessor('difficulty', {
     size: 160,
     id: 'difficulty',
     header: 'Difficulty',

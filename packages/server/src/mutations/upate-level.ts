@@ -1,7 +1,5 @@
 import { Level, LevelDefinition } from '@deadlock/game';
-import { EntityManager, FilterQuery, SqlLevel, SqlSolution } from '@deadlock/persistence';
-
-import { storeSolutions } from './store-solutions';
+import { EntityManager, FilterQuery, SqlLevel } from '@deadlock/persistence';
 
 type Fields = {
   definition?: LevelDefinition;
@@ -34,9 +32,6 @@ async function updateLevelDefinition(em: EntityManager, level: SqlLevel, definit
   });
 
   await em.flush();
-
-  await em.nativeDelete(SqlSolution, { level });
-  await storeSolutions(em, level);
 }
 
 async function updateLevelPosition(em: EntityManager, level: SqlLevel, position: number | null) {

@@ -4,12 +4,12 @@ import { getEntityManager } from './global';
 import { insertLevel } from './insert-level';
 
 export async function create(level: Level) {
-  const paths = solve(level);
+  const solutions = solve(level);
 
-  if (!paths?.length) {
+  if (!solutions?.length) {
     throw new Error('level has no solutions');
   }
 
-  await insertLevel(level.definition, paths);
+  await insertLevel(level.definition);
   await getEntityManager().flush();
 }

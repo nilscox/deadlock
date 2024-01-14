@@ -1,4 +1,4 @@
-import { defined, LevelData, LevelSolutions, LevelsSolutions, LevelsStats, LevelStats } from '@deadlock/game';
+import { defined, LevelData, LevelsStats, LevelStats } from '@deadlock/game';
 import { useQuery } from '@tanstack/react-query';
 import { getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table';
 import { useMemo } from 'react';
@@ -12,21 +12,18 @@ import { LevelDetails } from './level-details';
 
 export type LevelRow = LevelData & {
   stats: LevelStats;
-  solutions: LevelSolutions;
 };
 
 export const LevelsTab = () => {
   const levels = useLevels();
   const stats = useLevelsStats(Object.keys(levels));
-  const solutions = useLevelsSolutions(Object.keys(levels));
 
   const data = useMemo<LevelRow[]>(() => {
     return Object.keys(levels).map((levelId) => ({
       ...levels[levelId],
-      solutions: solutions[levelId],
       stats: stats[levelId],
     }));
-  }, [levels, stats, solutions]);
+  }, [levels, stats]);
 
   const table = useReactTable({
     data,
@@ -51,15 +48,6 @@ const useLevelsStats = (levelIds: string[]) => {
     queryKey: ['stats', levelIds],
     refetchInterval: 5 * 1000,
     queryFn: () => api.get<LevelsStats>(`/stats?${params(levelIds)}`),
-  });
-
-  return defined(data);
-};
-
-const useLevelsSolutions = (levelIds: string[]) => {
-  const { data } = useQuery({
-    queryKey: ['solutions', levelIds],
-    queryFn: () => api.get<LevelsSolutions>(`/solutions/?${params(levelIds)}`),
   });
 
   return defined(data);

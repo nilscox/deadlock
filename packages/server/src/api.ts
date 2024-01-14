@@ -11,7 +11,6 @@ import { storeSession } from './mutations/store-session';
 import { updateLevel } from './mutations/upate-level';
 import { getLevels } from './queries/get-levels';
 import { getSessions } from './queries/get-sessions';
-import { getSolutions } from './queries/get-solutions';
 import { getStats } from './queries/get-stats';
 
 /* eslint-disable @typescript-eslint/no-misused-promises */
@@ -99,13 +98,6 @@ export function api(em: EntityManager) {
 
   router.get('/stats', admin, async (req, res) => {
     const stats = await getStats(em, getLevelIds(req.query.levelId));
-
-    res.status(200);
-    res.json(stats);
-  });
-
-  router.get('/solutions', admin, async (req, res) => {
-    const stats = await getSolutions(em);
 
     res.status(200);
     res.json(stats);

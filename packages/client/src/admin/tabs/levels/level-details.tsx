@@ -1,5 +1,5 @@
-import { Direction, Game as GameClass, LevelDefinition, LevelSolutions } from '@deadlock/game';
-import { useEffect, useState } from 'react';
+import { Direction, Game as GameClass, LevelDefinition, solve } from '@deadlock/game';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Game } from '~/game/game';
 import { useBoolean } from '~/hooks/use-boolean';
@@ -20,7 +20,7 @@ export const LevelDetails = ({ level }: LevelDetailsProps) => {
       onMouseOut={disableControls}
     >
       <LevelPreview definition={level.definition} enableControls={controlsEnabled} />
-      <Solutions solutions={level.solutions} />
+      <Solutions definition={level.definition} />
     </div>
   );
 };
@@ -55,36 +55,36 @@ const LevelPreview = ({ definition, enableControls }: LevelPreviewProps) => {
 };
 
 type SolutionsProps = {
-  solutions: LevelSolutions;
+  definition: LevelDefinition;
 };
 
-const Solutions = ({ solutions }: SolutionsProps) => {
-  if (!solutions || solutions.total === 0) {
+const Solutions = ({ definition }: SolutionsProps) => {
+  const solutions = useMemo(() => solve(definition), [definition]);
+
+  if (!solutions || solutions.length === 0) {
     return <div className="text-muted">No solution found</div>;
   }
 
   return (
     <div className="col gap-1 h-full">
-      {solutions.items.slice(0, 3).map((solution, index) => (
+      {solutions.slice(0, 3).map((solution, index) => (
         <div key={index} className="row gap-2 items-center">
-          {solution.path.map((direction, index) => (
-            <span key={index}>{directions[direction]}</span>
+          {solution.map((direction, index) => (
+            <span key={index}>{arrows[direction]}</span>
           ))}
-
-          <span className="text-muted text-xs">({solution.complexity})</span>
         </div>
       ))}
 
-      {solutions.total > 3 && <div>...</div>}
+      {solutions.length > 3 && <div>...</div>}
 
-      <div className="text-muted mt-auto">total: {solutions.total}</div>
+      <div className="text-muted mt-auto">total: {solutions.length}</div>
     </div>
   );
 };
 
-const directions: Record<Direction, JSX.Element> = {
-  [Direction.right]: <div className="">➜</div>,
-  [Direction.left]: <div className="flip-horizontal">➜</div>,
-  [Direction.up]: <div className="-rotate-90">➜</div>,
-  [Direction.down]: <div className="rotate-90">➜</div>,
+const arrows: Record<Direction, string> = {
+  [Direction.up]: '🢁',
+  [Direction.down]: '🢃',
+  [Direction.left]: '🢀',
+  [Direction.right]: '🢂',
 };

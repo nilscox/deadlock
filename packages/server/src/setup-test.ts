@@ -1,5 +1,5 @@
 import { LevelDefinition, randomId } from '@deadlock/game';
-import { EntityManager, Orm, SqlLevel, SqlSession, SqlSolution, createOrm } from '@deadlock/persistence';
+import { EntityManager, Orm, SqlLevel, SqlSession, createOrm } from '@deadlock/persistence';
 
 const dbUrl = process.env.DB_URL ?? 'postgresql://postgres@localhost/test';
 assert(dbUrl.endsWith('/test'), `DB_URL must specify a database named "test", got "${dbUrl}"`);
@@ -33,7 +33,7 @@ export const createLevel = createFactory<LevelDefinition>(() => ({
   updatedAt: new Date(),
 }));
 
-type SqlEntity = SqlLevel | SqlSession | SqlSolution;
+type SqlEntity = SqlLevel | SqlSession;
 
 export const setupTest = () => {
   let orm: Orm;

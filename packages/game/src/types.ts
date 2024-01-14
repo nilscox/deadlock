@@ -1,10 +1,10 @@
 import { LevelDefinition, LevelFlag } from './level';
-import { Path } from './utils/direction';
 
 export type LevelData = {
   id: string;
   number?: number;
   flags: LevelFlag[];
+  difficulty: LevelDifficulty;
   definition: LevelDefinition;
 };
 
@@ -17,13 +17,11 @@ export type LevelSession = {
   tries: number;
 };
 
-export type LevelsSolutions = Record<string, LevelSolutions>;
+export type LevelsDifficulty = Record<string, LevelDifficulty>;
 
-export type LevelSolutions = {
-  total: number;
-  items: Array<{ complexity: number; path: Path }>;
-  effectiveDifficulty: number;
-  evaluatedDifficulty: number;
+export type LevelDifficulty = {
+  effective: number;
+  evaluated: number;
 };
 
 export type LevelsStats = Record<string, LevelStats>;
