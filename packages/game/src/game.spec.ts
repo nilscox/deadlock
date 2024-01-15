@@ -9,8 +9,8 @@ describe('Game', () => {
     const game = new Game(controls, {
       width: 2,
       height: 1,
-      blocks: [],
       start: { x: 0, y: 0 },
+      blocks: [],
       teleports: [],
     });
 

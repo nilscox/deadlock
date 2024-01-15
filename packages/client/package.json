@@ -17,6 +17,7 @@
     "@deadlock/game": "workspace:*",
     "@dnd-kit/core": "^6.0.8",
     "@heroicons/react": "^2.0.18",
+    "@nilscox/graphviz-react": "^0.1.0",
     "@react-spring/web": "^9.7.2",
     "@tanstack/react-query": "^4.29.5",
     "@tanstack/react-query-devtools": "^4.29.6",

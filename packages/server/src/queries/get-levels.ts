@@ -1,4 +1,4 @@
-import { LevelData, defined } from '@deadlock/game';
+import { LevelData } from '@deadlock/game';
 import { EntityManager, SqlLevel } from '@deadlock/persistence';
 
 type DifficultiesResult = Array<{
@@ -16,10 +16,10 @@ export async function getLevels(em: EntityManager, validated = true) {
   const difficulties: DifficultiesResult = await em.execute('select * from level_difficulty');
   const difficultiesMap = new Map(difficulties.map(({ level_id, difficulty }) => [level_id, difficulty]));
 
-  return levels.map((level) => formatLevel(level, defined(difficultiesMap.get(level.id))));
+  return levels.map((level) => formatLevel(level, difficultiesMap.get(level.id) ?? null));
 }
 
-const formatLevel = (level: SqlLevel, difficulty: number): LevelData => ({
+const formatLevel = (level: SqlLevel, difficulty: number | null): LevelData => ({
   id: level.id,
   number: level.position ?? undefined,
   flags: level.flags,

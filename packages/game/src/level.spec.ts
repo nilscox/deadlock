@@ -7,8 +7,8 @@ const setup = (definition?: Partial<LevelDefinition>) => {
   const level = Level.load({
     width: 1,
     height: 1,
-    blocks: [],
     start: { x: 0, y: 0 },
+    blocks: [],
     teleports: [],
     ...definition,
   });
@@ -26,8 +26,8 @@ describe('Level', () => {
     const level = Level.load({
       width: 3,
       height: 1,
-      blocks: [{ x: 0, y: 0 }],
       start: { x: 1, y: 0 },
+      blocks: [{ x: 0, y: 0 }],
       teleports: [],
     });
 
@@ -191,10 +191,36 @@ describe('Level', () => {
     expect(fn).toHaveBeenCalled();
   });
 
+  it('restarts a level', () => {
+    const { level, player } = setup({
+      width: 4,
+      height: 1,
+      start: { x: 0, y: 0 },
+      blocks: [],
+      teleports: [
+        { x: 2, y: 0 },
+        { x: 3, y: 0 },
+      ],
+    });
+
+    const fn = vi.fn();
+    const definition = level.map.definition;
+
+    level.addListener(LevelEvent.restarted, fn);
+
+    level.movePlayer(player, Direction.right);
+    level.movePlayer(player, Direction.right);
+    level.restart();
+
+    expect(level.map.definition).toEqual(definition);
+    expect(fn).toHaveBeenCalled();
+  });
+
   it("computes a level's hash", () => {
     const level = Level.load({
       width: 2,
       height: 3,
+      start: { x: 0, y: 2 },
       blocks: [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -203,7 +229,6 @@ describe('Level', () => {
         { x: 0, y: 1 },
         { x: 1, y: 1 },
       ],
-      start: { x: 0, y: 2 },
     });
 
     expect(level.hash).toEqual('2,3B0,0;1,0T0,1;1,1S0,2');
@@ -231,16 +256,16 @@ describe('Level', () => {
     const level1 = Level.load({
       width: 3,
       height: 1,
-      blocks: [{ x: 0, y: 0 }],
       start: { x: 1, y: 0 },
+      blocks: [{ x: 0, y: 0 }],
       teleports: [],
     });
 
     const level2 = Level.load({
       width: 3,
       height: 1,
-      blocks: [{ x: 2, y: 0 }],
       start: { x: 1, y: 0 },
+      blocks: [{ x: 2, y: 0 }],
       teleports: [],
     });
 

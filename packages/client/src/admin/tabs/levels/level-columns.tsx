@@ -40,13 +40,29 @@ export const levelsColumns = [
   columnHelper.accessor('stats.playTime', {
     size: 200,
     header: 'Time',
-    cell: ({ getValue }) => <PlayTimeColumn {...getValue()} />,
+    cell: ({ getValue }) => {
+      const value = getValue();
+
+      if (!value) {
+        return null;
+      }
+
+      return <PlayTimeColumn {...value} />;
+    },
   }),
 
   columnHelper.accessor('stats.tries', {
     size: 160,
     header: 'Tries',
-    cell: ({ getValue }) => <TriesColumn {...getValue()} />,
+    cell: ({ getValue }) => {
+      const value = getValue();
+
+      if (!value) {
+        return null;
+      }
+
+      return <TriesColumn {...value} />;
+    },
   }),
 
   columnHelper.display({

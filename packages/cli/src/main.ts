@@ -1,11 +1,12 @@
 import { Level, LevelDefinition } from '@deadlock/game';
 import { createOrm } from '@deadlock/persistence';
-import { program, InvalidArgumentError } from 'commander';
+import { InvalidArgumentError, program } from 'commander';
 
 import { create } from './create';
 import { generate } from './generate';
 import { getOrm, setOrm } from './global';
 import { info } from './info';
+import { recomputeDifficulties } from './recompute-difficulties';
 
 main().catch(console.error);
 
@@ -21,32 +22,33 @@ program.option('--clear', 'clear the database before execution').hook('preAction
   }
 });
 
-type GenerateOptions = Partial<{
-  limit: number;
+program
+  .command('recompute-difficulties')
+  .description('Recompute evaluated difficulties of every level')
+  .action(recomputeDifficulties);
+
+type GenerateOptions = {
+  difficulty: number;
   maxSolutions: number;
-  start: string;
-  random: boolean;
-}>;
+};
 
 program
   .command('generate')
-  .description('Generate levels')
+  .description('Generate random levels')
+  .argument('<count>', 'number of levels to generate', parseInt)
   .argument('<width>', 'width of the levels to generate', parseInt)
   .argument('<height>', 'height of the levels to generate', parseInt)
   .argument('<blocks>', 'number of blocks per level', parseInt)
-  .option('-l --limit <number>', 'maximum number of levels to generate', parseInt)
+  .option('-d --difficulty <number>', 'minimum difficulty', parseInt)
   .option('-m --max-solutions <number>', 'maximum number of solutions per level', parseInt)
-  .option('-r --random', 'generate random levels')
-  .option('-s --start <hash>', 'start at a given level hash')
-  .action(async (width: number, height: number, blocks: number, options: GenerateOptions) => {
+  .action(async (count: number, width: number, height: number, blocks: number, options: GenerateOptions) => {
     await generate({
+      count,
       width,
       height,
-      blocks,
-      limit: options.limit,
+      nbBlocks: blocks,
       maxSolutions: options.maxSolutions,
-      startHash: options.start,
-      random: options.random,
+      minDifficulty: options.difficulty,
     });
   });
 
@@ -94,8 +96,8 @@ function parseInt(value: string) {
 
 function parseDefinitionOrHash(input: string) {
   try {
-    return new Level(JSON.parse(input) as LevelDefinition);
+    return Level.load(JSON.parse(input) as LevelDefinition);
   } catch {
-    return Level.fromHash(input);
+    return Level.load(input);
   }
 }

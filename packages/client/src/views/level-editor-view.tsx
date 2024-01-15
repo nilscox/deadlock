@@ -80,7 +80,7 @@ export const LevelEditorView = () => {
     const teleports = level.map.cells(CellType.teleport);
 
     if (teleports.length !== 0 && teleports.length !== 2) {
-      return null;
+      return undefined;
     }
 
     return solve(level, 500);
@@ -104,7 +104,7 @@ export const LevelEditorView = () => {
           right={
             <Link
               href={`/test?${toSearchParams({ levelId, definition })}`}
-              disabled={solutions === null || solutions.length === 0}
+              disabled={solutions === undefined || solutions.length === 0}
               className="row items-center gap-2"
             >
               <T id="test" />
@@ -117,7 +117,7 @@ export const LevelEditorView = () => {
         <div className="row justify-center">
           <T
             id="solutionsCount"
-            values={{ count: solutions === null ? <T id="moreThan500" /> : solutions.length }}
+            values={{ count: solutions === undefined ? <T id="moreThan500" /> : solutions.length }}
           />
         </div>
       }

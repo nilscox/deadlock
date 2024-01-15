@@ -1,96 +1,36 @@
+import { Node, getNodes, getWinningPaths, graph } from './graph';
 import { Level, LevelDefinition } from './level';
-import { Player } from './player';
-import { Direction, Path, directions } from './utils/direction';
-import { abs, max, min, round } from './utils/math';
+import { defined } from './utils/assert';
+import { sum } from './utils/math';
 
-export const evaluateLevelDifficulty = (input: Level | LevelDefinition, solutions: Path[]) => {
-  const level = input instanceof Level ? input : Level.load(input);
+export function evaluateLevelDifficulty(def: LevelDefinition) {
+  const node = graph(Level.load(def));
+  const height = Math.max(...getNodes(node).map((node) => node.height));
 
-  if (!solutions || solutions.length === 0) {
-    return { difficulty: Infinity };
-  }
+  const nodesDifficulty = computeNodesDifficulty(node, height);
+  const winningPaths = getWinningPaths(node);
 
-  const solutionsComplexities = new Map(
-    solutions.map((solution) => [solution, evaluateSolutionComplexity(level, solution)])
+  const pathsDifficulty = winningPaths.map((path) =>
+    sum(path.map((node) => defined(nodesDifficulty.get(node))))
   );
 
-  const nbCells = level.definition.width * level.definition.height;
-  const numberOfSolutionsScore = round(max([0, 7 - Math.log2(solutions.length)]), 2);
-  const easiestSolutionScore = round(min(Array.from(solutionsComplexities.values())) / Math.sqrt(nbCells), 2);
-  const difficulty = round(numberOfSolutionsScore + easiestSolutionScore, 2);
+  return Math.min(...pathsDifficulty) / (def.width * def.height);
+}
 
-  return {
-    difficulty,
-    numberOfSolutions: solutions.length,
-    numberOfSolutionsScore,
-    easiestSolutionScore,
-    solutionsComplexities,
-  };
-};
+function computeNodesDifficulty(node: Node, height: number, map = new Map<Node, number>()) {
+  const children = Object.values(node.children);
 
-export const evaluateSolutionComplexity = (level: Level, solution: Direction[]) => {
-  const player = new Player(level.start);
-  let difficulty = 0;
-
-  for (let i = 0; i < solution.length; ++i) {
-    const prevDir = solution[i - 1];
-    const dir = solution[i];
-
-    if (changedDirection(level, player, prevDir, dir)) {
-      difficulty += 3;
-    }
-
-    if (isOnlyOption(level, player, dir)) {
-      difficulty -= 1;
-    }
-
-    if (didJump(level, player, dir)) {
-      difficulty += 1;
-    }
-
-    level.movePlayer(player, dir);
+  for (const child of children) {
+    computeNodesDifficulty(child, height, map);
   }
 
-  level.restart();
-
-  return difficulty;
-};
-
-const changedDirection = (level: Level, player: Player, prevDir: Direction, dir: Direction) => {
-  if (!prevDir || dir == prevDir) {
-    return false;
+  if (children.length <= 1) {
+    map.set(node, 0);
+  } else {
+    const invHeight = height - node.height;
+    const nbChoices = children.length - 1;
+    map.set(node, Math.pow(2, nbChoices) * invHeight);
   }
 
-  if (level.movePlayer(player, prevDir)) {
-    level.movePlayerBack(player);
-    return true;
-  }
-
-  return false;
-};
-
-const isOnlyOption = (level: Level, player: Player, dir: Direction) => {
-  for (const d of directions) {
-    if (d !== dir) {
-      continue;
-    }
-
-    if (level.movePlayer(player, d)) {
-      level.movePlayerBack(player);
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const didJump = (level: Level, player: Player, dir: Direction) => {
-  const last = player.position;
-
-  level.movePlayer(player, dir);
-  level.movePlayerBack(player);
-
-  const [dx, dy] = [abs(last.x - player.position.x), abs(last.y - player.position.y)];
-
-  return dx + dy > 1;
-};
+  return map;
+}

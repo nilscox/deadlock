@@ -20,7 +20,6 @@ export type LevelDefinition = {
   start: IPoint;
   blocks: IPoint[];
   teleports: IPoint[];
-  path?: IPoint[];
 };
 
 export type Cell = {
@@ -37,7 +36,7 @@ export enum CellType {
   teleport = 'teleport',
 }
 
-class LevelMap {
+export class LevelMap {
   private _cells = new Array<Array<CellType>>();
 
   get width(): number {
@@ -60,15 +59,12 @@ class LevelMap {
   get definition(): LevelDefinition {
     const cellToPoint = ({ x, y }: Cell) => ({ x, y });
 
-    const path = this.cells(CellType.path).map(cellToPoint);
-
     return {
       width: this.width,
       height: this.height,
       start: cellToPoint(this.cells(CellType.player)[0]),
       blocks: this.cells(CellType.block).map(cellToPoint),
       teleports: this.cells(CellType.teleport).map(cellToPoint),
-      path: path.length > 0 ? path : undefined,
     };
   }
 
@@ -86,7 +82,6 @@ class LevelMap {
 
     definition.blocks.forEach(set(CellType.block));
     definition.teleports.forEach(set(CellType.teleport));
-    definition.path?.forEach(set(CellType.path));
   }
 
   clone() {
@@ -185,10 +180,12 @@ type LevelEventsMap = {
 
 export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   public map = new LevelMap();
+
   private states = new Array<LevelMap>();
 
-  get definition() {
-    return this.map.definition;
+  private constructor(public definition: LevelDefinition) {
+    super();
+    this.load(definition);
   }
 
   get start() {
@@ -203,22 +200,20 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     return LevelHash.getFingerprint(this.map.definition);
   }
 
-  load(definition: LevelDefinition | string) {
-    if (typeof definition === 'string') {
-      this.map.definition = LevelHash.parse(definition);
-    } else {
-      this.map.definition = definition;
-    }
-
+  load(definition: LevelDefinition) {
+    this.definition = definition;
+    this.map.definition = this.definition;
     this.states = [];
 
     this.emit(LevelEvent.loaded);
   }
 
   static load(definition: LevelDefinition | string) {
-    const level = new Level();
-    level.load(definition);
-    return level;
+    if (typeof definition === 'string') {
+      return new Level(LevelHash.parse(definition));
+    } else {
+      return new Level(definition);
+    }
   }
 
   set(x: number, y: number, type: CellType) {
@@ -227,12 +222,11 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   }
 
   restart() {
-    this.map.cells().forEach(({ x, y, type }) => {
-      if (type === CellType.player || type === CellType.path) {
-        this.set(x, y, CellType.empty);
-      }
-    });
+    if (!this.definition) {
+      return;
+    }
 
+    this.map.definition = this.definition;
     this.states = [];
 
     this.emit(LevelEvent.restarted);
@@ -306,10 +300,18 @@ class LevelHash {
   static getHash(definition: LevelDefinition): string {
     const { width, height, start, blocks, teleports } = definition;
 
+    const pointList = (points: IPoint[]) => {
+      return points
+        .sort(({ x: a }, { x: b }) => a - b)
+        .sort(({ y: a }, { y: b }) => a - b)
+        .map(({ x, y }) => [x, y].join(','))
+        .join(';');
+    };
+
     return [
       [width, height].join(','),
-      blocks.length && 'B' + blocks.map((cell) => [cell.x, cell.y].join(',')).join(';'),
-      teleports.length && 'T' + teleports.map((cell) => [cell.x, cell.y].join(',')).join(';'),
+      blocks.length && 'B' + pointList(blocks),
+      teleports.length && 'T' + pointList(teleports),
       'S' + [start.x, start.y].join(','),
     ]
       .filter(Boolean)

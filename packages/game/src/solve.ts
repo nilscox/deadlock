@@ -1,6 +1,7 @@
+import { getWinningPaths, graph } from './graph';
 import { Level, LevelDefinition } from './level';
 import { Player } from './player';
-import { Path, directions } from './utils/direction';
+import { Direction, Path, directions } from './utils/direction';
 
 export const solve = (lvl: Level | LevelDefinition, max = Infinity) => {
   const level = lvl instanceof Level ? lvl : Level.load(lvl);
@@ -42,3 +43,29 @@ export const solve = (lvl: Level | LevelDefinition, max = Infinity) => {
 
   return solutions;
 };
+
+export function solveGraph(lvl: Level | LevelDefinition, max = Infinity): Path[] | null {
+  const level = lvl instanceof Level ? lvl : Level.load(lvl);
+  const node = graph(level);
+  const paths = getWinningPaths(node);
+
+  if (paths.length > max) {
+    return null;
+  }
+
+  return paths.map((path) => {
+    const solution: Path = [];
+
+    for (let i = 0; i < path.length - 1; ++i) {
+      const parent = path[i];
+      const child = path[i + 1];
+
+      const childIndex = Object.values(parent.children).indexOf(child);
+      const direction = Object.keys(parent.children)[childIndex];
+
+      solution.push(direction as Direction);
+    }
+
+    return solution;
+  });
+}

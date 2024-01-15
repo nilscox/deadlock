@@ -104,6 +104,7 @@ export function api(em: EntityManager) {
   });
 
   router.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+    console.error(err);
     res.status(500);
     res.json({ error: err.message });
   });

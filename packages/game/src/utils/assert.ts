@@ -11,6 +11,6 @@ export function assert(value: unknown, message?: string): asserts value {
 }
 
 export function defined<T>(value: T | undefined, message?: string): T {
-  assert(value, message);
+  assert(value !== undefined, message);
   return value;
 }

@@ -20,7 +20,7 @@ export type LevelSession = {
 export type LevelsDifficulty = Record<string, LevelDifficulty>;
 
 export type LevelDifficulty = {
-  effective: number;
+  effective: number | null;
   evaluated: number;
 };
 
@@ -28,12 +28,12 @@ export type LevelsStats = Record<string, LevelStats>;
 
 export type LevelStats = {
   played: number;
-  tries: {
+  tries: null | {
     mean: number;
     min: number;
     max: number;
   };
-  playTime: {
+  playTime: null | {
     mean: number;
     min: number;
     max: number;

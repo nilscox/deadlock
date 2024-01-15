@@ -1,206 +1,151 @@
+import { evaluateLevelDifficulty } from './evaluate-difficulty';
 import { CellType, Level, LevelDefinition } from './level';
-import { ReflectionTransform, RotationTransform } from './level-transforms';
+import { Player } from './player';
 import { solve } from './solve';
-import { Direction, Path, getOppositeDirection, isHorizontal, isVertical } from './utils/direction';
-import { randBool, randInt, randItem } from './utils/math';
+import { Path, directions } from './utils/direction';
+import { randItem, randItems } from './utils/math';
 import { IPoint } from './utils/point';
-import { array, identity } from './utils/utils';
+import { array } from './utils/utils';
 
 export type GenerateLevelsOptions = {
+  count: number;
   width: number;
   height: number;
-  blocks: number;
-  limit?: number;
-  startHash?: string;
-  maxSolutions?: number;
-  singleStartPosition?: boolean;
-  nextLevel?: NextLevel;
+  nbBlocks: number;
+  maxSolutions: number;
+  minDifficulty: number;
 };
 
-export const generateLevels = async (
+export async function generateLevels(
   options: GenerateLevelsOptions,
-  onProgress: (levels: LevelDefinition[], index: number, hasSolutions: boolean) => void | Promise<void>,
-  onGenerated: (level: LevelDefinition, solutions: Path[]) => void | Promise<void>
-) => {
-  const levels = generateAllLevels(options);
+  onProgress: (total: number, index: number) => void | Promise<void>,
+  onGenerated: (level: LevelDefinition) => void | Promise<void>
+) {
+  for (let i = 0; i < options.count; ++i) {
+    let level: Level | undefined = undefined;
+    let tries = 0;
 
-  for (const level of levels) {
-    const paths = solve(level, options.maxSolutions);
-    const hasSolutions = Boolean(paths?.length);
-
-    if (level.blocks.length !== options.blocks) {
-      throw new Error(`invalid level generated: ${Level.load(level).fingerprint}`);
+    while (!level && tries < 10000) {
+      tries++;
+      level = generateLevel(options);
     }
 
-    await onProgress(levels, levels.indexOf(level), hasSolutions);
-
-    if (!hasSolutions) {
-      continue;
+    if (!level) {
+      throw new Error('Cannot generate level');
     }
 
-    await onGenerated(...applyRandomTransformations(level, paths as Path[]));
+    await onProgress(options.count, i);
+    await onGenerated(level.definition);
   }
-};
+}
 
-const generateAllLevels = (options: GenerateLevelsOptions): LevelDefinition[] => {
-  const {
+function generateLevel({ width, height, nbBlocks, maxSolutions, minDifficulty }: GenerateLevelsOptions) {
+  const solution: Path = [];
+
+  const cells: IPoint[] = array(height, (y) => array(width, (x) => ({ x, y }))).flat();
+  const [start, teleportStart, teleportEnd] = randItems(cells, 3);
+
+  const level = Level.load({
     width,
     height,
+    start,
+    blocks: [],
+    teleports: [teleportStart, teleportEnd],
+  });
+
+  const player = new Player(level.start);
+
+  while (solution.length < cells.length - nbBlocks - 2) {
+    const direction = randItem(availableDirections(level, player));
+
+    if (direction === undefined) {
+      return;
+    }
+
+    level.movePlayer(player, direction);
+    solution.push(direction);
+  }
+
+  const blocks = level.map.cells(CellType.empty);
+
+  level.restart();
+
+  level.load({
+    ...level.definition,
     blocks,
-    limit = Infinity,
-    startHash,
-    singleStartPosition,
-    nextLevel: next = nextLevel,
-  } = options;
+  });
 
-  if (width > height) {
-    return generateAllLevels({ ...options, width: height, height: width });
+  if (isBad(level)) {
+    return;
   }
 
-  const cells = Array<CellType>(width * height).fill(CellType.empty);
-  const levels: LevelDefinition[] = [];
+  const solutions = solve(level, maxSolutions);
+  if (!solutions || solution?.length > maxSolutions) {
+    return;
+  }
 
-  if (startHash) {
-    const level = Level.load(Level.load(startHash).fingerprint);
+  const difficulty = evaluateLevelDifficulty(level.definition);
+  if ((difficulty ?? 0) < minDifficulty) {
+    return;
+  }
 
-    for (const cell of level.map.cells(CellType.block)) {
-      cells[pointToIndex(cell.x, cell.y, height)] = CellType.block;
+  return level;
+}
+
+function availableDirections(level: Level, player: Player) {
+  return directions.filter((dir) => {
+    const canMove = level.movePlayer(player, dir);
+
+    if (canMove) {
+      level.movePlayerBack(player);
     }
 
-    for (const cell of level.map.cells(CellType.teleport)) {
-      cells[pointToIndex(cell.x, cell.y, height)] = CellType.teleport;
+    return canMove;
+  });
+}
+
+function isBad(level: Level) {
+  for (const { x, y } of level.map.cells(CellType.teleport)) {
+    if (!level.map.neighbors(x, y).find((cell) => cell.type === CellType.empty)) {
+      return true;
     }
-  } else {
-    for (let i = 0; i < blocks; ++i) {
-      cells[i] = CellType.block;
+
+    if (level.map.neighbors(x, y).find((cell) => cell.type === CellType.teleport)) {
+      return true;
     }
   }
 
-  do {
-    const blocks = Array(cells.length)
-      .fill(null)
-      .map((_, i) => indexToPoint(i, height))
-      .filter((_, i) => cells[i] === CellType.block);
+  const player = new Player(level.start);
+  let moves = 0;
 
-    const teleports = Array(cells.length)
-      .fill(null)
-      .map((_, i) => indexToPoint(i, height))
-      .filter((_, i) => cells[i] === CellType.teleport);
+  while (moves < 3) {
+    const options = directions.filter((dir) => {
+      const canMove = level.movePlayer(player, dir);
 
-    const generate = (start: { x: number; y: number }) => {
-      const definition: LevelDefinition = {
-        width,
-        height,
-        start,
-        blocks,
-        teleports,
-      };
-
-      const hash = Level.load(definition).hash;
-      const fp = Level.load(definition).fingerprint;
-
-      if (hash !== fp) {
-        return;
+      if (canMove) {
+        level.movePlayerBack(player);
       }
 
-      levels.push(definition);
-    };
+      return canMove;
+    });
 
-    if (singleStartPosition) {
-      const i = randItem(array(cells.length, identity).filter((i) => cells[i] === CellType.empty));
-
-      generate(indexToPoint(i, height));
-    } else {
-      for (let i = 0; i < cells.length; ++i) {
-        if (cells[i] !== CellType.empty) {
-          continue;
-        }
-
-        generate(indexToPoint(i, height));
-      }
-    }
-  } while (next(cells) !== -1 && levels.length < limit);
-
-  return levels.slice(0, limit);
-};
-
-type NextLevel = (cells: CellType[]) => number | unknown;
-
-export const nextLevel = (cells: CellType[], slice = cells.length): number => {
-  const lastBlockIdx = cells.slice(0, slice).lastIndexOf(CellType.block);
-
-  if (lastBlockIdx === -1) {
-    return -1;
-  }
-
-  if (lastBlockIdx === slice - 1) {
-    const idx = nextLevel(cells, slice - 1);
-
-    if (idx === -1) {
-      return -1;
+    if (options.length > 1) {
+      break;
     }
 
-    if (cells[idx + 1]) {
-      cells[lastBlockIdx] = CellType.empty;
-      cells[idx + 1] = CellType.block;
+    if (level.map.at(player.position.move(options[0])) === CellType.teleport) {
+      return true;
     }
-  } else {
-    cells[lastBlockIdx] = CellType.empty;
-    cells[lastBlockIdx + 1] = CellType.block;
+
+    level.movePlayer(player, options[0]);
+    moves += 1;
   }
 
-  return lastBlockIdx + 1;
-};
+  level.restart();
 
-const pointToIndex = (x: number, y: number, height: number): number => {
-  return x * height + y;
-};
-
-const indexToPoint = (index: number, height: number): IPoint => {
-  return {
-    x: Math.floor(index / height),
-    y: index % height,
-  };
-};
-
-const applyRandomTransformations = (
-  definition: LevelDefinition,
-  solutions: Path[]
-): [LevelDefinition, Path[]] => {
-  if (randBool(1)) {
-    definition = ReflectionTransform.horizontal(definition);
-    solutions = transformPaths(solutions, (dir) => (isHorizontal(dir) ? getOppositeDirection(dir) : dir));
+  if (moves === 3) {
+    return true;
   }
 
-  if (randBool(0)) {
-    definition = ReflectionTransform.vertical(definition);
-    solutions = transformPaths(solutions, (dir) => (isVertical(dir) ? getOppositeDirection(dir) : dir));
-  }
-
-  const angle = randInt(1, 4);
-
-  if (angle === 1) {
-    definition = RotationTransform.quarter(definition);
-
-    const cycle = [Direction.left, Direction.down, Direction.right, Direction.up];
-    solutions = transformPaths(solutions, (dir) => cycle[(cycle.indexOf(dir) + 1) % 4]);
-  }
-
-  if (angle === 2) {
-    definition = RotationTransform.half(definition);
-    solutions = transformPaths(solutions, getOppositeDirection);
-  }
-
-  if (angle === 3) {
-    definition = RotationTransform.threeQuarters(definition);
-
-    const cycle = [Direction.left, Direction.up, Direction.right, Direction.down];
-    solutions = transformPaths(solutions, (dir) => cycle[(cycle.indexOf(dir) + 1) % 4]);
-  }
-
-  return [definition, solutions];
-};
-
-const transformPaths = (paths: Path[], apply: (direction: Direction) => Direction): Path[] => {
-  return paths.map((path) => path.map(apply));
-};
+  return false;
+}
