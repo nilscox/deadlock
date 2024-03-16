@@ -20,7 +20,7 @@ export async function getStats(em: EntityManager, levelIds?: string[]): Promise<
   const count: CountResult = await em.execute('select level_id, count(*) from session group by level_id');
   const countMap = new Map(count.map(({ level_id, count }) => [level_id, Number(count)]));
 
-  const sessions: SessionsResult = await em.execute('select * from sessions');
+  const sessions: SessionsResult = await em.execute('select * from level_sessions');
 
   return toObject(
     sessions.filter((session) => !levelIds || levelIds.includes(session.level_id)),
