@@ -1,6 +1,5 @@
-import { defined } from '@deadlock/game';
 import { LevelSession } from '@deadlock/game/src/types';
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
 import { api } from '~/api';
@@ -27,13 +26,13 @@ export const SessionsTab = () => {
 };
 
 const useSessions = () => {
-  const { data } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: ['sessions'],
     queryFn: () => api.get<LevelSession[]>('/sessions'),
     refetchInterval: 5 * 1000,
   });
 
-  return defined(data);
+  return data;
 };
 
 const columnHelper = createColumnHelper<LevelSession>();

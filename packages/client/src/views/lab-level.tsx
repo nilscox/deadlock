@@ -8,7 +8,7 @@ import {
   randItem,
   toObject,
 } from '@deadlock/game';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Redirect } from 'wouter';
@@ -128,7 +128,7 @@ const LabLevel = ({ level, onNext }: LabLevelProps) => {
 };
 
 const useUnvalidatedLevels = () => {
-  const { data } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: ['levels', 'unvalidated'],
     queryFn: async () => {
       const levels = await api.get<LevelData[]>('/levels/unvalidated');
@@ -141,7 +141,7 @@ const useUnvalidatedLevels = () => {
     },
   });
 
-  return defined(data);
+  return data;
 };
 
 type FeedbackModalProps = {

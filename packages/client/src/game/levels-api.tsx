@@ -1,6 +1,5 @@
 import { LevelData, toObject } from '@deadlock/game';
-import { defined } from '@deadlock/game/src/utils/assert';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 
 import { useSearchParams } from '~/hooks/use-search-params';
 
@@ -10,7 +9,7 @@ export const useLevels = () => {
   const params = useSearchParams();
   const unvalidated = params.has('unvalidated');
 
-  const { data } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: ['levels', unvalidated],
     queryFn: async () => {
       const levels = await api.get<LevelData[]>(unvalidated ? '/levels/unvalidated' : '/levels');
@@ -23,7 +22,7 @@ export const useLevels = () => {
     },
   });
 
-  return defined(data);
+  return data;
 };
 
 type LevelSession = {

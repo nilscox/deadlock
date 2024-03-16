@@ -1,5 +1,5 @@
-import { defined, LevelData, LevelsStats, LevelStats } from '@deadlock/game';
-import { useQuery } from '@tanstack/react-query';
+import { LevelData, LevelsStats, LevelStats } from '@deadlock/game';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table';
 import { useMemo } from 'react';
 
@@ -44,13 +44,13 @@ export const LevelsTab = () => {
 };
 
 const useLevelsStats = (levelIds: string[]) => {
-  const { data } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: ['stats', levelIds],
     refetchInterval: 5 * 1000,
     queryFn: () => api.get<LevelsStats>(`/stats?${params(levelIds)}`),
   });
 
-  return defined(data);
+  return data;
 };
 
 const params = (levelIds: string[]) => {
