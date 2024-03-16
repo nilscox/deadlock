@@ -82,8 +82,8 @@ export function api(em: EntityManager) {
     res.end();
   });
 
-  router.get('/sessions', admin, async (req, res) => {
-    const sessions = await getSessions(em, getLevelIds(req.query.levelId));
+  router.get('/level/:levelId/sessions', admin, async (req, res) => {
+    const sessions = await getSessions(em, req.params.levelId);
 
     res.status(200);
     res.json(sessions);
@@ -125,6 +125,10 @@ const getLevelIds = (levelId: unknown) => {
 };
 
 const admin: RequestHandler = (req, res, next) => {
+  if (!process.env.ADMIN_TOKEN) {
+    return next();
+  }
+
   const token = req.headers['authorization'] ?? '';
 
   if (token !== process.env.ADMIN_TOKEN) {

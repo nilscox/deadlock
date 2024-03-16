@@ -1,12 +1,11 @@
 import { createColumnHelper } from '@tanstack/react-table';
 
-import { Copy } from './columns/copy-level-info-column';
+import { LevelRow } from './admin-view';
 import { Difficulty } from './columns/difficulty-column';
 import { ExpandColumn } from './columns/expand-column';
 import { Actions } from './columns/level-actions-column';
 import { PlayTimeColumn } from './columns/play-time-column';
 import { TriesColumn } from './columns/tries-column';
-import { LevelRow } from './levels-tab';
 
 const columnHelper = createColumnHelper<LevelRow>();
 
@@ -65,40 +64,11 @@ export const levelsColumns = [
     },
   }),
 
-  columnHelper.display({
-    id: 'specs',
-    size: 90,
-    header: 'Specs',
-    cell: ({ row }) => {
-      const level = row.original;
-
-      return (
-        <>
-          {level.definition.width}×{level.definition.height}×{level.definition.blocks.length}
-          {level.definition.teleports.length > 0 && '+T'}{' '}
-        </>
-      );
-    },
-  }),
-
   columnHelper.accessor('difficulty', {
     size: 160,
     id: 'difficulty',
     header: 'Difficulty',
     cell: ({ getValue }) => <Difficulty {...getValue()} />,
-  }),
-
-  columnHelper.accessor('flags', {
-    size: 140,
-    header: 'Flags',
-    cell: ({ getValue }) => <>{getValue().join(', ')}</>,
-  }),
-
-  columnHelper.display({
-    size: 120,
-    id: 'copy',
-    header: 'Copy',
-    cell: ({ row }) => <Copy level={row.original} />,
   }),
 
   columnHelper.display({

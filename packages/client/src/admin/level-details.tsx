@@ -1,10 +1,11 @@
 import { Direction, Game as GameClass, LevelDefinition, solve } from '@deadlock/game';
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import { Game } from '~/game/game';
 import { useBoolean } from '~/hooks/use-boolean';
 
-import { LevelRow } from './levels-tab';
+import { LevelRow } from './admin-view';
+import { SessionsList } from './sessions-list';
 
 type LevelDetailsProps = {
   level: LevelRow;
@@ -14,14 +15,20 @@ export const LevelDetails = ({ level }: LevelDetailsProps) => {
   const [controlsEnabled, enableControls, disableControls] = useBoolean(false);
 
   return (
-    <div
-      className="row justify-center items-center gap-8 mx-auto py-6"
-      onMouseOver={enableControls}
-      onMouseOut={disableControls}
-    >
-      <LevelPreview definition={level.definition} enableControls={controlsEnabled} />
-      <Solutions definition={level.definition} />
-    </div>
+    <>
+      <div
+        className="row justify-center items-center gap-8 mx-auto py-6"
+        onMouseOver={enableControls}
+        onMouseOut={disableControls}
+      >
+        <LevelPreview definition={level.definition} enableControls={controlsEnabled} />
+        <Solutions definition={level.definition} />
+      </div>
+
+      <Suspense>
+        <SessionsList levelId={level.id} />
+      </Suspense>
+    </>
   );
 };
 

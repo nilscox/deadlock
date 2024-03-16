@@ -1,31 +1,62 @@
-import { Redirect, Route, Switch } from 'wouter';
+import { LevelData, LevelsStats, LevelStats } from '@deadlock/game';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table';
+import { useMemo } from 'react';
 
-import { Tabs, Tab } from '~/components/tabs';
+import { api } from '~/api';
+import { Table, TableBody, TableHeader } from '~/components/table';
+import { useLevels } from '~/game/levels-api';
 
-import { LevelsTab } from './tabs/levels/levels-tab';
-import { SessionsTab } from './tabs/sessions/sessions-tab';
+import { levelsColumns } from './level-columns';
+import { LevelDetails } from './level-details';
 
-export const AdminView = () => (
-  <div className="h-full col">
-    <Tabs>
-      <Tab href="/admin/levels">Levels</Tab>
-      <Tab href="/admin/sessions">Sessions</Tab>
-    </Tabs>
+export type LevelRow = LevelData & {
+  stats: LevelStats;
+};
 
-    <div className="p-4 flex-1 overflow-hidden">
-      <Switch>
-        <Route path="/admin/levels">
-          <LevelsTab />
-        </Route>
+export const AdminView = () => {
+  const levels = useLevels();
+  const stats = useLevelsStats(Object.keys(levels));
 
-        <Route path="/admin/sessions">
-          <SessionsTab />
-        </Route>
+  const data = useMemo<LevelRow[]>(() => {
+    return Object.keys(levels).map((levelId) => ({
+      ...levels[levelId],
+      stats: stats[levelId],
+    }));
+  }, [levels, stats]);
 
-        <Route>
-          <Redirect href="/admin/levels" />
-        </Route>
-      </Switch>
+  const table = useReactTable({
+    data,
+    columns: levelsColumns,
+    getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getRowCanExpand: () => true,
+  });
+
+  return (
+    <div className="p-4 border rounded overflow-auto h-full">
+      <Table>
+        <TableHeader table={table} />
+        <TableBody table={table} renderExpanded={(level) => <LevelDetails level={level} />} />
+      </Table>
     </div>
-  </div>
-);
+  );
+};
+
+const useLevelsStats = (levelIds: string[]) => {
+  const { data } = useSuspenseQuery({
+    queryKey: ['stats', levelIds],
+    refetchInterval: 5 * 1000,
+    queryFn: () => api.get<LevelsStats>(`/stats?${params(levelIds)}`),
+  });
+
+  return data;
+};
+
+const params = (levelIds: string[]) => {
+  const search = new URLSearchParams();
+
+  levelIds.forEach((levelId) => search.append('levelId', levelId));
+
+  return search.toString();
+};
