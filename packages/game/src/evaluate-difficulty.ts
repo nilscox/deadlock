@@ -1,36 +1,116 @@
-import { Node, getNodes, getWinningPaths, graph } from './graph';
 import { Level, LevelDefinition } from './level';
-import { defined } from './utils/assert';
-import { sum } from './utils/math';
+import { Player } from './player';
+import { solve } from './solve';
+import { Direction, Path, directions, getOppositeDirection } from './utils/direction';
+import { clamp, sum } from './utils/math';
 
 export function evaluateLevelDifficulty(def: LevelDefinition) {
-  const node = graph(Level.load(def));
-  const height = Math.max(...getNodes(node).map((node) => node.height));
-
-  const nodesDifficulty = computeNodesDifficulty(node, height);
-  const winningPaths = getWinningPaths(node);
-
-  const pathsDifficulty = winningPaths.map((path) =>
-    sum(path.map((node) => defined(nodesDifficulty.get(node))))
-  );
-
-  return Math.min(...pathsDifficulty) / (def.width * def.height);
+  return getLevelDifficultyDetails(def)?.total ?? Infinity;
 }
 
-function computeNodesDifficulty(node: Node, height: number, map = new Map<Node, number>()) {
-  const children = Object.values(node.children);
+export function getLevelDifficultyDetails(def: LevelDefinition) {
+  const level = Level.load(def);
+  const solutions = solve(level);
 
-  for (const child of children) {
-    computeNodesDifficulty(child, height, map);
+  if (!solutions) {
+    return null;
   }
 
-  if (children.length <= 1) {
-    map.set(node, 0);
-  } else {
-    const invHeight = height - node.height;
-    const nbChoices = children.length - 1;
-    map.set(node, Math.pow(2, nbChoices) * invHeight);
+  const solutionsScores = solutions
+    .map((path) => getPathScore(level, path))
+    .sort((a, b) => a.total - b.total);
+
+  const easiestSolutionScores = solutionsScores[0];
+
+  const numberOfSolutions = solutions.length;
+  const numberOfSolutionsScore = getNumberOfSolutionsScore(numberOfSolutions);
+
+  return {
+    numberOfSolutions,
+    numberOfSolutionsScore,
+    ...easiestSolutionScores,
+    total: clamp(1, 6, numberOfSolutionsScore + easiestSolutionScores.total),
+  };
+}
+
+function getNumberOfSolutionsScore(numberOfSolutions: number): number {
+  if (numberOfSolutions < 5) {
+    return 1;
   }
 
-  return map;
+  return 0;
+}
+
+function getPathScore(level: Level, path: Path) {
+  const player = new Player(level.start);
+  let jumps = 0;
+  let opposite = 0;
+  let options = 0;
+  let last: Direction | undefined = undefined;
+
+  for (const dir of path) {
+    let hasOptions = false;
+
+    for (const d of directions.filter((d) => d !== dir)) {
+      if (level.movePlayer(player, d)) {
+        options++;
+        hasOptions = true;
+        level.movePlayerBack(player);
+      }
+    }
+
+    const prev = player.position;
+    level.movePlayer(player, dir);
+    const next = player.position;
+
+    if (!prev.move(dir).equals(next)) {
+      jumps++;
+    }
+
+    if (hasOptions && last && getOppositeDirection(last) === dir) {
+      opposite++;
+    }
+
+    last = dir;
+  }
+
+  level.restart();
+
+  const scores = {
+    jumpsScore: 0,
+    oppositeScore: 0,
+    optionsScore: 0,
+  };
+
+  if (jumps === 0) {
+    scores.jumpsScore = -1;
+  }
+
+  if (jumps >= 2) {
+    scores.jumpsScore = 1;
+  }
+
+  if (jumps >= 4) {
+    scores.jumpsScore = 2;
+  }
+
+  if (opposite > 0) {
+    scores.oppositeScore = 2;
+  }
+
+  if (options >= 10) {
+    scores.optionsScore = 1;
+  }
+
+  if (options < 3) {
+    scores.optionsScore = -1;
+  }
+
+  return {
+    jumps,
+    opposite,
+    options,
+    ...scores,
+    total: sum(Object.values(scores)),
+  };
 }

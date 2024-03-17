@@ -1,4 +1,10 @@
-import { Direction, Game as GameClass, LevelDefinition, solve } from '@deadlock/game';
+import {
+  Direction,
+  Game as GameClass,
+  LevelDefinition,
+  getLevelDifficultyDetails,
+  solve,
+} from '@deadlock/game';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import { Game } from '~/game/game';
@@ -13,6 +19,7 @@ type LevelDetailsProps = {
 
 export const LevelDetails = ({ level }: LevelDetailsProps) => {
   const [controlsEnabled, enableControls, disableControls] = useBoolean(false);
+  const score = useMemo(() => getLevelDifficultyDetails(level.definition), [level]);
 
   return (
     <>
@@ -24,6 +31,18 @@ export const LevelDetails = ({ level }: LevelDetailsProps) => {
         <LevelPreview definition={level.definition} enableControls={controlsEnabled} />
         <Solutions definition={level.definition} />
       </div>
+
+      <ul>
+        <li>Number of solutions: {score?.numberOfSolutions}</li>
+        <li>Number of solutions score: {score?.numberOfSolutionsScore}</li>
+        <li>Jumps: {score?.jumps}</li>
+        <li>Jumps score: {score?.jumpsScore}</li>
+        <li>Opposite: {score?.opposite}</li>
+        <li>Opposite score: {score?.oppositeScore}</li>
+        <li>Options: {score?.options}</li>
+        <li>Options score: {score?.optionsScore}</li>
+        <li>Total score: {score?.total}</li>
+      </ul>
 
       <Suspense>
         <SessionsList levelId={level.id} />

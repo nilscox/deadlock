@@ -79,8 +79,9 @@ export const Actions = ({ levelId, sessionId }: ActionsProps) => {
 
   const { mutate: deleteSession } = useMutation({
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['sessions', levelId] });
+      void queryClient.invalidateQueries({ queryKey: ['levels'] });
       void queryClient.invalidateQueries({ queryKey: ['stats'] });
+      void queryClient.invalidateQueries({ queryKey: ['sessions', levelId] });
     },
     mutationFn: () => api.delete(`/session/${sessionId}`),
   });

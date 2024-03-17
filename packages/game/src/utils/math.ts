@@ -23,6 +23,10 @@ export const max = (values: number[]) => {
   return Math.max(...values);
 };
 
+export const clamp = (min: number, max: number, value: number) => {
+  return Math.max(min, Math.min(max, value));
+};
+
 export const randBool = (p = 0.5) => {
   return Math.random() < p;
 };

@@ -30,6 +30,7 @@ program
 type GenerateOptions = {
   difficulty: number;
   maxSolutions: number;
+  teleports: boolean;
 };
 
 program
@@ -41,6 +42,7 @@ program
   .argument('<blocks>', 'number of blocks per level', parseInt)
   .option('-d --difficulty <number>', 'minimum difficulty', parseInt)
   .option('-m --max-solutions <number>', 'maximum number of solutions per level', parseInt)
+  .option('-t --teleports', 'generate with teleports', parseInt)
   .action(async (count: number, width: number, height: number, blocks: number, options: GenerateOptions) => {
     await generate({
       count,
@@ -49,6 +51,7 @@ program
       nbBlocks: blocks,
       maxSolutions: options.maxSolutions,
       minDifficulty: options.difficulty,
+      teleports: options.teleports,
     });
   });
 

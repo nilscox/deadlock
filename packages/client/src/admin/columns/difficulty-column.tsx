@@ -1,3 +1,5 @@
+import { abs } from '@deadlock/game';
+import { clsx } from 'clsx';
 import { useMemo } from 'react';
 
 type DifficultyProps = {
@@ -18,13 +20,17 @@ export const Difficulty = ({ effective, evaluated }: DifficultyProps) => {
     return [r, g, b];
   }, [effective]);
 
+  const diff = abs((effective ?? evaluated) - evaluated);
+
   return (
     <>
       <span className="font-bold" style={{ color: `rgb(${r}, ${g}, ${b})` }}>
         {effective ?? '-'}
       </span>
 
-      <span className="ml-2 text-muted text-sm">(evaluated: {evaluated})</span>
+      <span className="ml-2 text-muted text-sm">
+        (evaluated: {evaluated}, <span className={clsx(diff > 1 && 'text-red')}>diff: {diff}</span>)
+      </span>
     </>
   );
 };

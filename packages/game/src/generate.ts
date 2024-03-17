@@ -14,6 +14,7 @@ export type GenerateLevelsOptions = {
   nbBlocks: number;
   maxSolutions: number;
   minDifficulty: number;
+  teleports: boolean;
 };
 
 export async function generateLevels(
@@ -39,7 +40,14 @@ export async function generateLevels(
   }
 }
 
-function generateLevel({ width, height, nbBlocks, maxSolutions, minDifficulty }: GenerateLevelsOptions) {
+function generateLevel({
+  width,
+  height,
+  nbBlocks,
+  maxSolutions,
+  minDifficulty,
+  teleports,
+}: GenerateLevelsOptions) {
   const solution: Path = [];
 
   const cells: IPoint[] = array(height, (y) => array(width, (x) => ({ x, y }))).flat();
@@ -50,7 +58,7 @@ function generateLevel({ width, height, nbBlocks, maxSolutions, minDifficulty }:
     height,
     start,
     blocks: [],
-    teleports: [teleportStart, teleportEnd],
+    teleports: teleports ? [teleportStart, teleportEnd] : [],
   });
 
   const player = new Player(level.start);
@@ -85,7 +93,8 @@ function generateLevel({ width, height, nbBlocks, maxSolutions, minDifficulty }:
   }
 
   const difficulty = evaluateLevelDifficulty(level.definition);
-  if ((difficulty ?? 0) < minDifficulty) {
+
+  if (difficulty < minDifficulty) {
     return;
   }
 

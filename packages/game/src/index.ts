@@ -1,4 +1,4 @@
-export { evaluateLevelDifficulty } from './evaluate-difficulty';
+export { evaluateLevelDifficulty, getLevelDifficultyDetails } from './evaluate-difficulty';
 export { Emitter } from './utils/emitter';
 export { ControlEvent, Controls, Game } from './game';
 export { generateLevels, type GenerateLevelsOptions } from './generate';
