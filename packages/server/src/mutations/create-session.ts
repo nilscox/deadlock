@@ -1,17 +1,16 @@
 import { randomId } from '@deadlock/game';
 import { EntityManager, SqlLevel, SqlSession } from '@deadlock/persistence';
 
-type LevelSession = {
+type CreateLevelSession = {
   levelId: string;
   completed: boolean;
-  tries: number;
   time: number;
 };
 
-export async function storeSession(
+export async function createSession(
   em: EntityManager,
   ip: string,
-  { levelId, completed, tries, time }: LevelSession
+  { levelId, completed, time }: CreateLevelSession
 ) {
   const session = new SqlSession();
 
@@ -20,8 +19,10 @@ export async function storeSession(
   session.ip = ip;
   session.level = em.getReference(SqlLevel, levelId);
   session.completed = completed;
-  session.tries = tries;
+  session.tries = 1;
   session.time = time;
 
   await em.persistAndFlush(session);
+
+  return session.id;
 }

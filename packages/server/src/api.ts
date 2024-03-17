@@ -4,11 +4,12 @@ import { NextFunction, Request, RequestHandler, Response, Router } from 'express
 import * as yup from 'yup';
 
 import { createLevel } from './mutations/create-level';
+import { createSession } from './mutations/create-session';
 import { deleteLevel } from './mutations/delete-level';
 import { deleteSession } from './mutations/delete-session';
 import { flagLevel } from './mutations/flag-level';
-import { storeSession } from './mutations/store-session';
 import { updateLevel } from './mutations/upate-level';
+import { updateSession } from './mutations/update-session';
 import { getLevels } from './queries/get-levels';
 import { getSessions } from './queries/get-sessions';
 import { getStats } from './queries/get-stats';
@@ -36,9 +37,19 @@ export function api(em: EntityManager) {
 
   router.post('/session', async (req, res) => {
     const ip = String(req.headers['x-forwarded-for'] ?? req.socket.remoteAddress);
-    const body = await sessionBodySchema.validate(req.body);
+    const body = await createSessionBodySchema.validate(req.body);
 
-    await storeSession(em, ip, body);
+    const sessionId = await createSession(em, ip, body);
+
+    res.status(201);
+    res.contentType('text/plain');
+    res.send(sessionId);
+  });
+
+  router.put('/session/:sessionId', async (req, res) => {
+    const body = await updateSessionBodySchema.validate(req.body);
+
+    await updateSession(em, { sessionId: req.params.sessionId, ...body });
 
     res.status(204);
     res.end();
@@ -143,10 +154,14 @@ const updateLevelSchema = yup.object({
   position: yup.number().min(0).nullable().optional(),
 });
 
-const sessionBodySchema = yup.object({
+const createSessionBodySchema = yup.object({
   levelId: yup.string().required(),
   completed: yup.boolean().required(),
-  tries: yup.number().required(),
+  time: yup.number().required(),
+});
+
+const updateSessionBodySchema = yup.object({
+  completed: yup.boolean().required(),
   time: yup.number().required(),
 });
 

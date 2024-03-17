@@ -1,5 +1,6 @@
-import { LevelData, toObject } from '@deadlock/game';
+import { Game, LevelData, LevelEvent, toObject } from '@deadlock/game';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 import { useSearchParams } from '~/hooks/use-search-params';
 
@@ -25,17 +26,50 @@ export const useLevels = () => {
   return data;
 };
 
-type LevelSession = {
-  levelId: string;
-  completed: boolean;
-  tries: number;
+type SessionData = {
   time: number;
+  completed: boolean;
 };
 
-export const usePostLevelSession = () => {
-  const { mutate } = useMutation({
-    mutationFn: (session: LevelSession) => api.post('/session', session),
+export const useTrackSession = (levelId: string, game?: Game) => {
+  const { data: sessionId, mutate: createSession } = useMutation({
+    mutationKey: ['createSession', levelId],
+    mutationFn: (data: SessionData) => api.post('/session', { levelId, ...data }) as Promise<string>,
   });
 
-  return mutate;
+  const { mutate: updateSession } = useMutation({
+    mutationFn: (data: SessionData) => api.put(`/session/${sessionId as string}`, data),
+  });
+
+  useEffect(() => {
+    if (!game) {
+      return;
+    }
+
+    const handler = (completed: boolean) => {
+      const data: SessionData = {
+        time: game.stopwatch.elapsed,
+        completed,
+      };
+
+      if (sessionId) {
+        updateSession(data);
+      } else {
+        createSession(data);
+      }
+
+      game.stopwatch.restart();
+    };
+
+    const onRestarted = handler.bind(null, false);
+    const onCompleted = handler.bind(null, true);
+
+    game.level.addListener(LevelEvent.restarted, onRestarted);
+    game.level.addListener(LevelEvent.completed, onCompleted);
+
+    return () => {
+      game.level.removeListener(LevelEvent.restarted, onRestarted);
+      game.level.removeListener(LevelEvent.completed, onCompleted);
+    };
+  }, [game, sessionId, createSession, updateSession]);
 };

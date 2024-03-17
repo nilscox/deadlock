@@ -1,7 +1,7 @@
 import { Game, Level, LevelData, assert } from '@deadlock/game';
 import { useCallback, useMemo } from 'react';
 
-import { useLevels, usePostLevelSession } from './levels-api';
+import { useLevels } from './levels-api';
 import { LevelUserData, useLevelUserData, useSaveLevelUserData, useUserData } from './levels-user-data';
 
 export const useLevel = (levelId: string) => {
@@ -55,27 +55,20 @@ export const useOnSessionTerminated = (levelId: string) => {
   const userLevelData = useLevelUserData(levelId);
 
   const saveUserLevelData = useSaveLevelUserData();
-  const postLevelSession = usePostLevelSession();
 
   return useCallback(
     (game: Game, completed: boolean) => {
       assert(game);
 
-      const alreadyCompleted = userLevelData?.completed;
-
       const time = game.stopwatch.elapsed;
       const tries = game.tries;
 
-      if (!completed && time < 2000) {
+      if (completed && userLevelData && tries > userLevelData.tries) {
         return;
       }
 
-      postLevelSession({ levelId, completed, tries, time });
-
-      if (!alreadyCompleted) {
-        saveUserLevelData(levelId, { completed, tries, time });
-      }
+      saveUserLevelData(levelId, { completed, tries, time });
     },
-    [levelId, userLevelData, saveUserLevelData, postLevelSession]
+    [levelId, userLevelData, saveUserLevelData]
   );
 };

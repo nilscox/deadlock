@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight } from '~/components/arrows';
 import { Link } from '~/components/link';
 import { Translate } from '~/components/translate';
 import { Game } from '~/game/game';
+import { useTrackSession } from '~/game/levels-api';
 import {
   useIsLevelCompleted,
   useLevelDefinition,
@@ -37,6 +38,8 @@ export const GameView = ({ levelId }: GameViewProps) => {
   const nextLevel = useGoToNextLevel(levelId);
 
   const [game, setGame] = useState<GameClass>();
+
+  useTrackSession(levelId, game);
 
   const onCompleted = useCallback(() => {
     assert(game);

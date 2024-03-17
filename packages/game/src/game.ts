@@ -33,13 +33,8 @@ export class Game {
 
     this.enableControls();
 
-    this.level.addListener(LevelEvent.completed, () => {
-      this.stopwatch.pause();
-    });
-
     this.level.addListener(LevelEvent.loaded, () => {
       this.tries = 1;
-      this.stopwatch.restart();
     });
 
     this.level.addListener(LevelEvent.restarted, () => {
@@ -49,12 +44,16 @@ export class Game {
     const pause = this.stopwatch.pause.bind(this.stopwatch);
     const unpause = this.stopwatch.unpause.bind(this.stopwatch);
 
-    let timeout = setTimeout(pause, 5000);
+    let timeout = setTimeout(pause, 10000);
+
+    this.level.addListener(LevelEvent.restarted, () => {
+      timeout = setTimeout(pause, 10000);
+    });
 
     this.player.addListener(PlayerEvent.moved, () => {
       clearTimeout(timeout);
       unpause();
-      timeout = setTimeout(pause, 5000);
+      timeout = setTimeout(pause, 1000);
     });
   }
 
