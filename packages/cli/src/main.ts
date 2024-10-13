@@ -68,7 +68,7 @@ program
   .action(info);
 
 async function main() {
-  const orm = await createOrm(process.env.DB_URL as string, false);
+  const orm = await createOrm(process.env.DB_URL as string, process.env.DB_SSL === 'true', false);
 
   setOrm(orm, orm.em.fork());
 

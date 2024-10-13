@@ -7,10 +7,11 @@ export { serialize } from '@mikro-orm/core';
 export * from './entities';
 export type { EntityManager, MikroORM as Orm, FilterQuery };
 
-export const createOrm = (clientUrl: string, debug: boolean) => {
+export const createOrm = (clientUrl: string, ssl: boolean, debug: boolean) => {
   return MikroORM.init<PostgreSqlDriver>({
     ...config,
     clientUrl,
+    driverOptions: { connection: { ssl } },
     debug,
   });
 };

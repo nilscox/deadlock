@@ -40,7 +40,7 @@ export const setupTest = () => {
   let em: EntityManager;
 
   beforeEach(async () => {
-    orm = await createOrm(dbUrl, false);
+    orm = await createOrm(dbUrl, false, false);
     em = orm.em.fork();
 
     const schemaGenerator = orm.getSchemaGenerator();
