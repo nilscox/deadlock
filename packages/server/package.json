@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon -w src -e ts -x pnpm start",
-    "start": "ts-node src/main.ts",
+    "start": "vite-node src/main.ts",
     "test": "vitest",
     "lint": "eslint src"
   },

@@ -1,5 +1,6 @@
 {
-  "include": ["src"],
+  "include": ["src/**/*"],
+  "files": ["vite.config.ts"],
   "compilerOptions": {
     "lib": ["ESNext"],
     "module": "ESNext",
@@ -14,10 +15,5 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "types": ["vitest/globals"]
-  },
-  "ts-node": {
-    "esm": true,
-    "transpileOnly": true,
-    "experimentalSpecifierResolution": "node"
   }
 }
