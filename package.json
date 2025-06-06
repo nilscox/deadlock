@@ -1,9 +1,9 @@
 {
   "name": "@deadlock/root",
   "private": true,
-  "packageManager": "pnpm@8.15.4",
+  "packageManager": "pnpm@10.11.1",
   "engines": {
-    "node": "18"
+    "node": "22"
   },
   "scripts": {
     "test": "vitest",
