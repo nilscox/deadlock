@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { ControlEvent, Controls, Game } from './game';
 import { Direction } from './utils/direction';
 import { Point } from './utils/point';

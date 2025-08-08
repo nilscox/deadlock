@@ -1,7 +1,8 @@
-import { CellType, Level, LevelMap } from './level';
+import { type Cell, CellType, Level, LevelMap } from './level';
 import { Player } from './player';
+import { defined } from './utils/assert';
 import { Direction, directions } from './utils/direction';
-import { IPoint } from './utils/point';
+import { type IPoint } from './utils/point';
 
 export type Node = {
   map: LevelMap;
@@ -52,11 +53,10 @@ export function graph(
 }
 
 function nodeHash(node: Node) {
-  const [player] = node.map.cells(CellType.player);
+  const [player] = node.map.cells(CellType.player) as [Cell];
   const path = node.map.cells(CellType.path);
 
   return [
-    //
     ...path.sort(comparePoints).map(({ x, y }) => [x, y].join(',')),
     `${String(player.x)},${String(player.y)}`,
   ].join(';');
@@ -81,5 +81,5 @@ export function getPaths(node: Node): Node[][] {
 }
 
 export function getWinningPaths(node: Node): Node[][] {
-  return getPaths(node).filter((path) => path[path.length - 1].win);
+  return getPaths(node).filter((path) => defined(path[path.length - 1]).win);
 }

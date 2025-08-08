@@ -10,7 +10,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "moduleResolution": "node",
-    "types": ["vitest/globals"]
+    "noUncheckedIndexedAccess": true,
+    "moduleResolution": "node"
   }
 }

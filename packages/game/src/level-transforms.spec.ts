@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { LevelDefinition } from './level';
 import { ReflectionTransform, RotationTransform } from './level-transforms';
 

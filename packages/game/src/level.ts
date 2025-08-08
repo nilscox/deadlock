@@ -4,7 +4,7 @@ import { assert, defined } from './utils/assert';
 import { Direction, directions } from './utils/direction';
 import { Emitter } from './utils/emitter';
 import { inspectCustomSymbol } from './utils/inspect';
-import { IPoint, Point, PointArgs, pointArgs } from './utils/point';
+import { type IPoint, Point, type PointArgs, pointArgs } from './utils/point';
 import { array, first, isDefined } from './utils/utils';
 
 export enum LevelFlag {
@@ -62,7 +62,7 @@ export class LevelMap {
     return {
       width: this.width,
       height: this.height,
-      start: cellToPoint(this.cells(CellType.player)[0]),
+      start: cellToPoint(defined(this.cells(CellType.player)[0])),
       blocks: this.cells(CellType.block).map(cellToPoint),
       teleports: this.cells(CellType.teleport).map(cellToPoint),
     };
@@ -136,6 +136,9 @@ export class LevelMap {
   set(x: number, y: number, type: CellType) {
     assert(x < this.width);
     assert(y < this.height);
+
+    assert(this._cells[y]?.[x]);
+
     this._cells[y][x] = type;
   }
 
@@ -161,7 +164,7 @@ export class LevelMap {
     });
 
     lines.unshift(['+', ...Array<string>(this.width).fill('-'), '+']);
-    lines.push(lines[0]);
+    lines.push(defined(lines[0]));
 
     return lines.map((line) => line.join('')).join('\n');
   }
@@ -346,12 +349,19 @@ class LevelHash {
 
     const parsePoint = (str: string): IPoint => {
       const [x, y] = str.split(',').map(Number);
+
+      assert(x !== undefined);
+      assert(y !== undefined);
+
       return { x, y };
     };
 
     const parsePoints = (str?: string): IPoint[] => {
       return str?.split(';').map(parsePoint) ?? [];
     };
+
+    assert(width !== undefined);
+    assert(height !== undefined);
 
     return {
       width,

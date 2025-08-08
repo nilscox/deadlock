@@ -1,4 +1,4 @@
-import { Mock, beforeEach, expect, vi } from 'vitest';
+import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Emitter } from './emitter';
 

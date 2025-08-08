@@ -1,3 +1,5 @@
+import { describe, expect, it, vi } from 'vitest';
+
 import { CellType, Level, LevelDefinition, LevelEvent } from './level';
 import { Player } from './player';
 import { Direction } from './utils/direction';

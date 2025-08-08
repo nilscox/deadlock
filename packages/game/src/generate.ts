@@ -1,10 +1,11 @@
 import { evaluateLevelDifficulty } from './evaluate-difficulty';
-import { CellType, Level, LevelDefinition } from './level';
+import { CellType, Level, type LevelDefinition } from './level';
 import { Player } from './player';
 import { solve } from './solve';
-import { Path, directions } from './utils/direction';
+import { defined } from './utils/assert';
+import { type Path, directions } from './utils/direction';
 import { randItem, randItems } from './utils/math';
-import { IPoint } from './utils/point';
+import { type IPoint } from './utils/point';
 import { array } from './utils/utils';
 
 export type GenerateLevelsOptions = {
@@ -51,7 +52,7 @@ function generateLevel({
   const solution: Path = [];
 
   const cells: IPoint[] = array(height, (y) => array(width, (x) => ({ x, y }))).flat();
-  const [start, teleportStart, teleportEnd] = randItems(cells, 3);
+  const [start, teleportStart, teleportEnd] = randItems(cells, 3) as [IPoint, IPoint, IPoint];
 
   const level = Level.load({
     width,
@@ -142,11 +143,13 @@ function isBad(level: Level) {
       break;
     }
 
-    if (level.map.at(player.position.move(options[0])) === CellType.teleport) {
+    const option = defined(options[0]);
+
+    if (level.map.at(player.position.move(option)) === CellType.teleport) {
       return true;
     }
 
-    level.movePlayer(player, options[0]);
+    level.movePlayer(player, option);
     moves += 1;
   }
 

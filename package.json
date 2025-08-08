@@ -6,7 +6,7 @@
     "node": "22"
   },
   "scripts": {
-    "test": "vitest",
+    "test": "pnpm run -r --no-bail test",
     "lint": "pnpm run -r --no-bail lint"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { LevelDefinition, LevelFlag } from './level';
+import { type LevelDefinition, LevelFlag } from './level';
 
 export type LevelData = {
   id: string;

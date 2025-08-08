@@ -1,7 +1,8 @@
-import { Level, LevelDefinition } from './level';
+import { Level, type LevelDefinition } from './level';
 import { Player } from './player';
 import { solve } from './solve';
-import { Direction, Path, directions, getOppositeDirection } from './utils/direction';
+import { defined } from './utils/assert';
+import { Direction, type Path, directions, getOppositeDirection } from './utils/direction';
 import { clamp, sum } from './utils/math';
 
 export function evaluateLevelDifficulty(def: LevelDefinition) {
@@ -20,7 +21,7 @@ export function getLevelDifficultyDetails(def: LevelDefinition) {
     .map((path) => getPathScore(level, path))
     .sort((a, b) => a.total - b.total);
 
-  const easiestSolutionScores = solutionsScores[0];
+  const easiestSolutionScores = defined(solutionsScores[0]);
 
   const numberOfSolutions = solutions.length;
   const numberOfSolutionsScore = getNumberOfSolutionsScore(numberOfSolutions);

@@ -9,6 +9,9 @@ export default tseslint.config(
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
   {
+    ignores: ['eslint.config.js', 'vitest.config.ts'],
+  },
+  {
     languageOptions: {
       parserOptions: {
         projectService: true,

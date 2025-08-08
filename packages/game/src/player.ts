@@ -1,6 +1,6 @@
 import { assert } from './utils/assert';
 import { Emitter } from './utils/emitter';
-import { IPoint, Point } from './utils/point';
+import { type IPoint, Point } from './utils/point';
 
 export enum PlayerEvent {
   moved = 'moved',

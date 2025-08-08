@@ -1,5 +1,5 @@
-import { LevelDefinition } from './level';
-import { IPoint } from './utils/point';
+import { type LevelDefinition } from './level';
+import { type IPoint } from './utils/point';
 
 abstract class LevelTransform {
   abstract point(def: LevelDefinition, point: IPoint): IPoint;
