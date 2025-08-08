@@ -1,161 +1,59 @@
-import { assert, Emitter, IPoint } from '@deadlock/game';
-import paper from 'paper';
+import { Emitter } from '@deadlock/game';
+
+import { type EasingFunction, easings } from '../math';
 
 export enum AnimationEvent {
   started = 'started',
-  ended = 'ended',
+  completed = 'completed',
+  update = 'update',
 }
 
-function easeOutCubic(x: number): number {
-  return 1 - Math.pow(1 - x, 3);
+export interface AnimationEventMap {
+  [AnimationEvent.update]: { t: number };
 }
 
-function interpolate(a: number, b: number, t: number) {
-  return (b - a) * t + a;
-}
+type AnimationOptions = Partial<{
+  duration: number;
+  ease: EasingFunction;
+}>;
 
-abstract class Animation extends Emitter<AnimationEvent> {
-  private _startAt?: number;
+export class Animation extends Emitter<AnimationEvent, AnimationEventMap> {
+  private startedAt: number | null;
+  private duration: number;
+  private ease: EasingFunction;
 
-  constructor(public duration: number) {
+  constructor(options: AnimationOptions = {}) {
     super();
 
-    this.addListener(AnimationEvent.started, () => {
-      this._startAt = Date.now();
-    });
-
-    this.addListener(AnimationEvent.ended, () => {
-      delete this._startAt;
-    });
+    this.startedAt = null;
+    this.duration = options.duration ?? 100;
+    this.ease = options.ease ?? easings.linear;
   }
 
-  protected abstract onFrame(t: number): void;
-  protected abstract onEnd(): void;
+  private get t() {
+    if (this.startedAt === null) {
+      return null;
+    }
 
-  frame(): void {
-    if (!this._startAt) {
+    return this.ease((Date.now() - this.startedAt) / this.duration);
+  }
+
+  start() {
+    this.startedAt = Date.now();
+    this.emit(AnimationEvent.started);
+  }
+
+  update() {
+    const t = this.t;
+
+    if (t === null) {
       return;
     }
 
-    const elapsed = Date.now() - this._startAt;
-
-    if (elapsed >= this.duration) {
-      this.onEnd();
+    if (t < 1) {
+      this.emit(AnimationEvent.update, { t });
     } else {
-      this.onFrame(easeOutCubic(elapsed / this.duration));
+      this.emit(AnimationEvent.completed);
     }
-  }
-}
-
-export class PositionAnimation extends Animation {
-  private _start?: IPoint;
-  private _end?: IPoint;
-
-  constructor(private item: paper.Item, duration: number) {
-    super(duration);
-
-    this.addListener(AnimationEvent.ended, () => {
-      delete this._start;
-      delete this._end;
-    });
-  }
-
-  set target(target: IPoint) {
-    this._start = this.item.bounds.topLeft.clone();
-    this._end = { ...target };
-    this.emit(AnimationEvent.started);
-  }
-
-  protected onEnd(): void {
-    this.item.bounds.topLeft.set(this._end);
-    this.emit(AnimationEvent.ended);
-  }
-
-  protected onFrame(t: number): void {
-    assert(this._start);
-    assert(this._end);
-
-    this.item.bounds.topLeft.set(
-      interpolate(this._start.x, this._end.x, t),
-      interpolate(this._start.y, this._end.y, t)
-    );
-  }
-}
-
-export class ScaleAnimation extends Animation {
-  private _start?: IPoint;
-  private _end?: IPoint;
-
-  constructor(private item: paper.Item, duration: number) {
-    super(duration);
-
-    this.addListener(AnimationEvent.ended, () => {
-      delete this._end;
-    });
-  }
-
-  set target(target: number) {
-    this._start = this.item.scaling.clone();
-    this._end = { x: target, y: target };
-    this.emit(AnimationEvent.started);
-  }
-
-  protected onEnd(): void {
-    this.item.scaling.set(this._end);
-    this.emit(AnimationEvent.ended);
-  }
-
-  protected onFrame(t: number): void {
-    assert(this._start);
-    assert(this._end);
-
-    this.item.scaling.set(
-      interpolate(this._start.x, this._end.x, t),
-      interpolate(this._start.y, this._end.y, t)
-    );
-  }
-}
-
-export class ColorAnimation extends Animation {
-  private _from?: paper.Color;
-  private _to?: paper.Color;
-
-  constructor(private item: paper.Item, duration: number) {
-    super(duration);
-
-    this.addListener(AnimationEvent.ended, () => {
-      delete this._from;
-      delete this._to;
-    });
-  }
-
-  set target(target: paper.Color) {
-    assert(this.item.fillColor);
-
-    this._from = this.item.fillColor.clone();
-    this._to = target.clone();
-
-    this.emit(AnimationEvent.started);
-  }
-
-  protected onEnd(): void {
-    assert(this.item.fillColor);
-    assert(this._to);
-
-    this.item.fillColor = this._to;
-
-    this.emit(AnimationEvent.ended);
-  }
-
-  protected onFrame(t: number): void {
-    assert(this.item.fillColor);
-    assert(this._from);
-    assert(this._to);
-
-    this.item.fillColor = new paper.Color(
-      interpolate(this._from.red, this._to.red, t),
-      interpolate(this._from.green, this._to.green, t),
-      interpolate(this._from.blue, this._to.blue, t)
-    );
   }
 }

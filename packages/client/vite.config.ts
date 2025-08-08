@@ -1,12 +1,9 @@
 import react from '@vitejs/plugin-react';
-import tsconfigPaths from 'vite-tsconfig-paths';
-import { mergeConfig } from 'vitest/config';
+import { defineConfig } from 'vite';
 
-import baseConfig from '../../vitest.config';
-
-export default mergeConfig(baseConfig, {
+export default defineConfig({
   base: process.env.VITE_APP_BASE_URL,
-  plugins: [tsconfigPaths(), react()],
+  plugins: [react()],
   build: {
     sourcemap: true,
   },

@@ -1,8 +1,12 @@
-import { Direction, IPoint, Point, max, min } from '@deadlock/game';
+import { Direction, type IPoint, Point, assert, max, min } from '@deadlock/game';
+
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 
 export const getLevelBoundaries = (cells: IPoint[]) => {
   const map = new Set(cells.map(({ x, y }) => `${x},${y}`));
   const visited = new Set<string>();
+
+  assert(cells[0] !== undefined);
 
   const p = new Point(cells[0]);
   const boundaries: IPoint[] = [];
@@ -23,6 +27,8 @@ export const getLevelBoundaries = (cells: IPoint[]) => {
   };
 
   const canGo = (dir: Direction) => {
+    assert(boundaries[0] !== undefined);
+
     if (p.move(dir).equals(boundaries[0])) {
       return true;
     }
@@ -51,6 +57,8 @@ export const getLevelBoundaries = (cells: IPoint[]) => {
     }
 
     const last = boundaries[boundaries.length - 1];
+
+    assert(last !== undefined);
 
     for (let x = min([last.x, p.x]); x <= max([last.x, p.x]); ++x) {
       for (let y = min([last.y, p.y]); y <= max([last.y, p.y]); ++y) {

@@ -1,20 +1,18 @@
 {
-  "include": ["src"],
+  "include": ["src", "lang"],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "target": "ESNext",
-    "strict": true,
-    "noEmit": true,
-    "moduleResolution": "node",
-    "isolatedModules": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vitest/globals"],
-    "paths": {
-      "~/*": ["./src/*"]
-    }
+    "strict": true,
+    "noUncheckedIndexedAccess": true
   }
 }

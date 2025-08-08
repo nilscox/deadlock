@@ -1,36 +1,21 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Suspense } from 'react';
-import * as ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
+
+import '@fontsource-variable/source-code-pro';
+import 'modern-normalize/modern-normalize.css';
+import './main.css';
 
 import { App } from './app';
-import { InitThemeMode } from './hooks/use-theme-mode';
-import { IntlProvider } from './intl/intl-provider';
+import { Providers } from './contexts';
 
-import './styles.css';
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const container = document.getElementById('root')!;
+const root = createRoot(container);
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      refetchOnMount: false,
-      throwOnError: true,
-    },
-  },
-});
-
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <QueryClientProvider client={queryClient}>
-    {import.meta.env.DEV && <ReactQueryDevtools />}
-    <Suspense fallback={null}>
-      <IntlProvider>
-        <InitThemeMode />
-        <App />
-      </IntlProvider>
-    </Suspense>
-  </QueryClientProvider>
+root.render(
+  <Suspense fallback={<>Loading...</>}>
+    <Providers>
+      <App />
+    </Providers>
+  </Suspense>,
 );
-
-if ('serviceWorker' in navigator) {
-  void navigator.serviceWorker.register('/service-worker.js');
-}
