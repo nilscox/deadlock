@@ -10,7 +10,7 @@ type CreateLevelSession = {
 export async function createSession(
   em: EntityManager,
   ip: string,
-  { levelId, completed, time }: CreateLevelSession
+  { levelId, completed, time }: CreateLevelSession,
 ) {
   const session = new SqlSession();
 

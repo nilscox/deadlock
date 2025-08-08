@@ -1,4 +1,4 @@
-import { Level, LevelDefinition, LevelEvent } from './level';
+import { Level, type LevelDefinition, LevelEvent } from './level';
 import { Player, PlayerEvent } from './player';
 import { Stopwatch } from './stopwatch';
 import { Direction } from './utils/direction';

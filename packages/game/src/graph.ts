@@ -14,7 +14,7 @@ export function graph(
   level: Level,
   player = new Player(level.start),
   nodes = new Map<string, Node>(),
-  height = 0
+  height = 0,
 ): Node {
   const children: Node['children'] = {};
 
@@ -35,7 +35,7 @@ export function graph(
     children,
   };
 
-  if (Object.values(children).some((child) => child?.win)) {
+  if (Object.values(children).some((child) => child.win)) {
     node.win = true;
   }
 
@@ -58,7 +58,7 @@ function nodeHash(node: Node) {
   return [
     //
     ...path.sort(comparePoints).map(({ x, y }) => [x, y].join(',')),
-    `${player.x},${player.y}`,
+    `${String(player.x)},${String(player.y)}`,
   ].join(';');
 }
 

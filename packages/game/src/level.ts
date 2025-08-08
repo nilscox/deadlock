@@ -222,10 +222,6 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   }
 
   restart() {
-    if (!this.definition) {
-      return;
-    }
-
     this.map.definition = this.definition;
     this.states = [];
 
@@ -296,6 +292,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 class LevelHash {
   static getHash(definition: LevelDefinition): string {
     const { width, height, start, blocks, teleports } = definition;
@@ -332,7 +329,8 @@ class LevelHash {
       ...rotations(ReflectionTransform.vertical(definition)),
     ].sort();
 
-    return first(hashes) as string;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return first(hashes)!;
   }
 
   static parse(hash: string): LevelDefinition {

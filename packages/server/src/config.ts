@@ -1,7 +1,6 @@
-import { assert } from '@deadlock/game';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 
-dotenv.config();
+import { assert } from '@deadlock/game';
 
 const {
   HOST: host = 'localhost',

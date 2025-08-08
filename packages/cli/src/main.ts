@@ -27,11 +27,11 @@ program
   .description('Recompute evaluated difficulties of every level')
   .action(recomputeDifficulties);
 
-type GenerateOptions = {
+interface GenerateOptions {
   difficulty: number;
   maxSolutions: number;
   teleports: boolean;
-};
+}
 
 program
   .command('generate')
@@ -68,7 +68,8 @@ program
   .action(info);
 
 async function main() {
-  const orm = await createOrm(process.env.DB_URL as string, process.env.DB_SSL === 'true', false);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const orm = await createOrm(process.env.DB_URL!, process.env.DB_SSL === 'true', false);
 
   setOrm(orm, orm.em.fork());
 

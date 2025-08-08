@@ -9,6 +9,7 @@ export class Point implements IPoint {
 
   constructor();
   constructor(x: number, y: number);
+  // eslint-disable-next-line @typescript-eslint/unified-signatures
   constructor(other: IPoint);
 
   constructor(...args: PointArgs) {
@@ -69,7 +70,7 @@ export class Point implements IPoint {
   }
 
   toString() {
-    return `(${this.x}, ${this.y})`;
+    return `(${String(this.x)}, ${String(this.y)})`;
   }
 
   [inspectCustomSymbol]() {

@@ -36,7 +36,7 @@ export const createLevel = createFactory<LevelDefinition>(() => ({
 type SqlEntity = SqlLevel | SqlSession;
 
 export const setupTest = () => {
-  let orm: Orm;
+  let orm: Orm | undefined;
   let em: EntityManager;
 
   beforeEach(async () => {

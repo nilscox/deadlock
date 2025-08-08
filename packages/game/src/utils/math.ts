@@ -39,7 +39,7 @@ export const randInt = (min: number, max: number) => {
   return Math.floor(randFloat(min, max));
 };
 
-export const randItem = <T>(array: T[]) => {
+export const randItem = <T>(array: T[]): T | undefined => {
   return array[randInt(0, array.length)];
 };
 

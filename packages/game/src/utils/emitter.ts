@@ -2,7 +2,7 @@ import { MapSet } from './map-set';
 
 export type Listener<Event> = (event: Event) => void;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export class Emitter<Type extends string, EventsMap extends Partial<Record<Type, unknown>> = {}> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private listeners = new MapSet<string, Listener<any>>();

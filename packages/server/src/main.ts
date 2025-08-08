@@ -1,9 +1,8 @@
+import 'dotenv/config';
+
 import { createOrm } from '@deadlock/persistence';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import express, { json } from 'express';
-
-dotenv.config();
 
 import { api } from './api';
 import { config } from './config';

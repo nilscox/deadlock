@@ -20,7 +20,7 @@ export type GenerateLevelsOptions = {
 export async function generateLevels(
   options: GenerateLevelsOptions,
   onProgress: (total: number, index: number) => void | Promise<void>,
-  onGenerated: (level: LevelDefinition) => void | Promise<void>
+  onGenerated: (level: LevelDefinition) => void | Promise<void>,
 ) {
   for (let i = 0; i < options.count; ++i) {
     let level: Level | undefined = undefined;
@@ -88,7 +88,7 @@ function generateLevel({
   }
 
   const solutions = solve(level, maxSolutions);
-  if (!solutions || solution?.length > maxSolutions) {
+  if (!solutions || solution.length > maxSolutions) {
     return;
   }
 

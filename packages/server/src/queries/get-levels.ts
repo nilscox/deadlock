@@ -10,7 +10,7 @@ export async function getLevels(em: EntityManager, validated = true) {
   const levels = await em.find(
     SqlLevel,
     { position: validated ? { $ne: null } : { $eq: null } },
-    { orderBy: { position: 'asc' } }
+    { orderBy: { position: 'asc' } },
   );
 
   const difficulties: DifficultiesResult = await em.execute('select * from level_difficulty');

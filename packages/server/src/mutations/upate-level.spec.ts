@@ -27,7 +27,7 @@ describe('updateLevel', () => {
       return toObject(
         levels,
         ({ id }) => id,
-        ({ position }) => position
+        ({ position }) => position,
       );
     };
 
@@ -62,7 +62,7 @@ describe('updateLevel', () => {
     it('moves a level to a lower position', async () => {
       const em = getEntityManager();
       const [, , , d] = await Promise.all(
-        array(5, (i) => create.level({ id: String(i + 1), position: i + 1 }))
+        array(5, (i) => create.level({ id: String(i + 1), position: i + 1 })),
       );
 
       await updateLevel(em, d.id, { position: 2 });

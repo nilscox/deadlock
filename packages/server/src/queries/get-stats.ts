@@ -26,7 +26,8 @@ export async function getStats(em: EntityManager, levelIds?: string[]): Promise<
     sessions.filter((session) => !levelIds || levelIds.includes(session.level_id)),
     (session) => session.level_id,
     (session) => ({
-      played: countMap.get(session.level_id) as number,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      played: countMap.get(session.level_id)!,
       tries: {
         min: session.tries_min,
         max: session.tries_max,
@@ -37,6 +38,6 @@ export async function getStats(em: EntityManager, levelIds?: string[]): Promise<
         max: session.time_max,
         mean: round(session.time_avg),
       },
-    })
+    }),
   );
 }

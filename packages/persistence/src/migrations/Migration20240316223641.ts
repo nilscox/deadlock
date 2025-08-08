@@ -1,7 +1,5 @@
 import { Migration } from '@mikro-orm/migrations';
 
-/* eslint-disable */
-
 const sessions = `
 create view level_sessions as
 select

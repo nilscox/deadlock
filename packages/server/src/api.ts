@@ -14,8 +14,6 @@ import { getLevels } from './queries/get-levels';
 import { getSessions } from './queries/get-sessions';
 import { getStats } from './queries/get-stats';
 
-/* eslint-disable @typescript-eslint/no-misused-promises */
-
 export function api(em: EntityManager) {
   const router = Router();
 
@@ -137,10 +135,11 @@ const getLevelIds = (levelId: unknown) => {
 
 const admin: RequestHandler = (req, res, next) => {
   if (!process.env.ADMIN_TOKEN) {
-    return next();
+    next();
+    return;
   }
 
-  const token = req.headers['authorization'] ?? '';
+  const token = req.headers.authorization ?? '';
 
   if (token !== process.env.ADMIN_TOKEN) {
     res.status(401);

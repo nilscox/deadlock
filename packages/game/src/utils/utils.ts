@@ -4,11 +4,11 @@ export const identity = <T>(value: T) => {
   return value;
 };
 
-export const getId = <T extends { id: string }>(obj: T) => {
+export const getId = (obj: { id: string }) => {
   return obj.id;
 };
 
-export const getIds = <T extends { id: string }>(array: Array<T>) => {
+export const getIds = (array: Array<{ id: string }>) => {
   return array.map(getId);
 };
 
