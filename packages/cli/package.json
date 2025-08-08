@@ -11,7 +11,7 @@
   "dependencies": {
     "@deadlock/game": "workspace:*",
     "@deadlock/persistence": "workspace:*",
-    "commander": "^10.0.1",
-    "nanoid": "^4.0.2"
+    "commander": "^14.0.0",
+    "nanoid": "^5.1.5"
   }
 }

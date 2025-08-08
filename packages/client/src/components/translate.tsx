@@ -37,7 +37,7 @@ export const Translate = ({ id, values }: TProps<Leaves<Translations>>) => {
 
 interface TranslateFunction<Keys> {
   (id: Keys): string;
-  (id: Keys, values: Record<string, React.ReactNode>): React.ReactNode;
+  (id: Keys, values: Record<string, React.ReactNode>): React.ReactNode[];
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

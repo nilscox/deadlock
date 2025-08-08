@@ -14,8 +14,8 @@ type TestEventsMap = {
 class TestEmitter extends Emitter<TestEvent, TestEventsMap> {}
 
 describe('Emitter', () => {
-  let onJump: Mock<[], void>;
-  let onMove: Mock<['left' | 'right'], void>;
+  let onJump: Mock<() => void>;
+  let onMove: Mock<(direction: 'left' | 'right') => void>;
 
   beforeEach(() => {
     onJump = vi.fn();

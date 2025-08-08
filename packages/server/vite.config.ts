@@ -4,7 +4,6 @@ export default defineConfig({
   test: {
     watch: false,
     globals: true,
-    threads: false,
     reporters: ['verbose'],
   },
 });

@@ -1,5 +1,5 @@
 import { Level, LevelDefinition } from '@deadlock/game';
-import { EntityManager, FilterQuery, SqlLevel } from '@deadlock/persistence';
+import { EntityManager, QBFilterQuery, SqlLevel } from '@deadlock/persistence';
 
 type Fields = {
   definition?: LevelDefinition;
@@ -39,7 +39,7 @@ async function updateLevelPosition(em: EntityManager, level: SqlLevel, position:
     return;
   }
 
-  const shift = async (sign: '+' | '-', where: Array<FilterQuery<SqlLevel>>) => {
+  const shift = async (sign: '+' | '-', where: Array<QBFilterQuery<SqlLevel>>) => {
     const qb = em.createQueryBuilder(SqlLevel).update({ position: em.raw(`position ${sign} 1`) });
 
     where.forEach((where) => void qb.andWhere(where));
