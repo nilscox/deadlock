@@ -5,6 +5,10 @@ body,
   overflow: hidden;
 }
 
+html {
+  overscroll-behavior: none;
+}
+
 #root {
   display: flex;
   flex-direction: column;
