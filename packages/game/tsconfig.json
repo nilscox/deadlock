@@ -2,15 +2,16 @@
   "include": ["src"],
   "compilerOptions": {
     "lib": ["ESNext"],
-    "module": "ESNext",
+    "module": "nodenext",
+    "moduleResolution": "node16",
     "target": "es2022",
-    "noEmit": true,
+    "outDir": "./lib",
+    "declaration": true,
     "strict": true,
     "isolatedModules": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noUncheckedIndexedAccess": true,
-    "moduleResolution": "node"
+    "noUncheckedIndexedAccess": true
   }
 }

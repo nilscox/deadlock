@@ -1,8 +1,8 @@
-import { type Cell, CellType, Level, LevelMap } from './level';
-import { Player } from './player';
-import { defined } from './utils/assert';
-import { Direction, directions } from './utils/direction';
-import { type IPoint } from './utils/point';
+import { type Cell, CellType, Level, LevelMap } from './level.js';
+import { Player } from './player.js';
+import { defined } from './utils/assert.js';
+import { Direction, directions } from './utils/direction.js';
+import { type IPoint } from './utils/point.js';
 
 export type Node = {
   map: LevelMap;

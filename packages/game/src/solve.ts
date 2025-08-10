@@ -1,8 +1,8 @@
-import { getWinningPaths, graph } from './graph';
-import { Level, type LevelDefinition } from './level';
-import { Player } from './player';
-import { defined } from './utils/assert';
-import { Direction, type Path, directions } from './utils/direction';
+import { getWinningPaths, graph } from './graph.js';
+import { Level, type LevelDefinition } from './level.js';
+import { Player } from './player.js';
+import { defined } from './utils/assert.js';
+import { Direction, type Path, directions } from './utils/direction.js';
 
 export const solve = (lvl: Level | LevelDefinition, max = Infinity) => {
   const level = lvl instanceof Level ? lvl : Level.load(lvl);

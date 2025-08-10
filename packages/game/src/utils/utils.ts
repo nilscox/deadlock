@@ -1,4 +1,4 @@
-import { type IPoint } from './point';
+import { type IPoint } from './point.js';
 
 export const identity = <T>(value: T) => {
   return value;

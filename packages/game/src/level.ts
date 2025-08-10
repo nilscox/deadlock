@@ -1,18 +1,13 @@
-import { ReflectionTransform, RotationTransform } from './level-transforms';
-import { Player } from './player';
-import { assert, defined } from './utils/assert';
-import { Direction, directions } from './utils/direction';
-import { Emitter } from './utils/emitter';
-import { inspectCustomSymbol } from './utils/inspect';
-import { type IPoint, Point, type PointArgs, pointArgs } from './utils/point';
-import { array, first, isDefined } from './utils/utils';
+import { ReflectionTransform, RotationTransform } from './level-transforms.js';
+import { Player } from './player.js';
+import { assert, defined } from './utils/assert.js';
+import { Direction, directions } from './utils/direction.js';
+import { Emitter } from './utils/emitter.js';
+import { inspectCustomSymbol } from './utils/inspect.js';
+import { type IPoint, Point, type PointArgs, pointArgs } from './utils/point.js';
+import { array, first, isDefined } from './utils/utils.js';
 
-export enum LevelFlag {
-  déjàVu = 'déjà_vu',
-  easy = 'easy',
-  hard = 'hard',
-  cool = 'cool',
-}
+export type LevelFlag = 'déjàVu' | 'easy' | 'hard' | 'cool';
 
 export type LevelDefinition = {
   width: number;

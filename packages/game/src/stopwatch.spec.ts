@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { Stopwatch } from './stopwatch';
+import { Stopwatch } from './stopwatch.js';
 
 describe('Stopwatch', () => {
   let time = 0;

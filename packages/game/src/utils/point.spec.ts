@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { Point } from './point';
+import { Point } from './point.js';
 
 describe('Point', () => {
   it('new point', () => {

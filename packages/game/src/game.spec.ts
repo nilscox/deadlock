@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { ControlEvent, Controls, Game } from './game';
-import { Direction } from './utils/direction';
-import { Point } from './utils/point';
+import { ControlEvent, Controls, Game } from './game.js';
+import { Direction } from './utils/direction.js';
+import { Point } from './utils/point.js';
 
 describe('Game', () => {
   it('creates a new game', () => {

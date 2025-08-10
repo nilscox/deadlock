@@ -1,12 +1,12 @@
-import { evaluateLevelDifficulty } from './evaluate-difficulty';
-import { CellType, Level, type LevelDefinition } from './level';
-import { Player } from './player';
-import { solve } from './solve';
-import { defined } from './utils/assert';
-import { type Path, directions } from './utils/direction';
-import { randItem, randItems } from './utils/math';
-import { type IPoint } from './utils/point';
-import { array } from './utils/utils';
+import { evaluateLevelDifficulty } from './evaluate-difficulty.js';
+import { CellType, Level, type LevelDefinition } from './level.js';
+import { Player } from './player.js';
+import { solve } from './solve.js';
+import { defined } from './utils/assert.js';
+import { type Path, directions } from './utils/direction.js';
+import { randItem, randItems } from './utils/math.js';
+import { type IPoint } from './utils/point.js';
+import { array } from './utils/utils.js';
 
 export type GenerateLevelsOptions = {
   count: number;

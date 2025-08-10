@@ -1,6 +1,6 @@
 import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { Emitter } from './emitter';
+import { Emitter } from './emitter.js';
 
 enum TestEvent {
   move = 'move',

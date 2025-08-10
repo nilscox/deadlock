@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { CellType, Level, LevelDefinition, LevelEvent } from './level';
-import { Player } from './player';
-import { Direction } from './utils/direction';
-import { Point } from './utils/point';
+import { CellType, Level, LevelDefinition, LevelEvent } from './level.js';
+import { Player } from './player.js';
+import { Direction } from './utils/direction.js';
+import { Point } from './utils/point.js';
 
 const setup = (definition?: Partial<LevelDefinition>) => {
   const level = Level.load({

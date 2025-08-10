@@ -1,4 +1,4 @@
-import { MapSet } from './map-set';
+import { MapSet } from './map-set.js';
 
 export type Listener<Event> = (event: Event) => void;
 

@@ -1,6 +1,6 @@
-import { assert } from './utils/assert';
-import { Emitter } from './utils/emitter';
-import { type IPoint, Point } from './utils/point';
+import { assert } from './utils/assert.js';
+import { Emitter } from './utils/emitter.js';
+import { type IPoint, Point } from './utils/point.js';
 
 export enum PlayerEvent {
   moved = 'moved',

@@ -1,8 +1,8 @@
-import { Level, type LevelDefinition, LevelEvent } from './level';
-import { Player, PlayerEvent } from './player';
-import { Stopwatch } from './stopwatch';
-import { Direction } from './utils/direction';
-import { Emitter } from './utils/emitter';
+import { Level, type LevelDefinition, LevelEvent } from './level.js';
+import { Player, PlayerEvent } from './player.js';
+import { Stopwatch } from './stopwatch.js';
+import { Direction } from './utils/direction.js';
+import { Emitter } from './utils/emitter.js';
 
 export enum ControlEvent {
   movePlayer = 'movePlayer',

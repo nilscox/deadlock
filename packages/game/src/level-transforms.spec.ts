@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { LevelDefinition } from './level';
-import { ReflectionTransform, RotationTransform } from './level-transforms';
+import { ReflectionTransform, RotationTransform } from './level-transforms.js';
+import { LevelDefinition } from './level.js';
 
 describe('LevelTransforms', () => {
   const def: LevelDefinition = {
