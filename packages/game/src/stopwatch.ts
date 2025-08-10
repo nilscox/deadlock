@@ -1,8 +1,11 @@
 export class Stopwatch {
+  private getTime: () => number;
+
   private startedAt: number;
   private pausedAt?: number;
 
-  constructor(private getTime = () => new Date().getTime()) {
+  constructor(getTime = () => new Date().getTime()) {
+    this.getTime = getTime;
     this.startedAt = this.now;
   }
 

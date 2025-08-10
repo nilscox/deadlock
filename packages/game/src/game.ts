@@ -1,20 +1,16 @@
-import { Level, type LevelDefinition, LevelEvent } from './level.js';
-import { Player, PlayerEvent } from './player.js';
-import { Stopwatch } from './stopwatch.js';
-import { Direction } from './utils/direction.js';
-import { Emitter } from './utils/emitter.js';
-
-export enum ControlEvent {
-  movePlayer = 'movePlayer',
-  movePlayerBack = 'movePlayerBack',
-  restartLevel = 'restartLevel',
-}
+import { Level, type LevelDefinition } from './level.ts';
+import { Player } from './player.ts';
+import { Stopwatch } from './stopwatch.ts';
+import { type Direction } from './utils/direction.ts';
+import { Emitter } from './utils/emitter.ts';
 
 export type ControlsEventsMap = {
-  [ControlEvent.movePlayer]: { direction: Direction };
+  movePlayer: { direction: Direction };
+  movePlayerBack: never;
+  restartLevel: never;
 };
 
-export class Controls extends Emitter<ControlEvent, ControlsEventsMap> {}
+export class Controls extends Emitter<ControlsEventsMap> {}
 
 export class Game {
   private controls: Controls;
@@ -33,11 +29,11 @@ export class Game {
 
     this.enableControls();
 
-    this.level.addListener(LevelEvent.loaded, () => {
+    this.level.addListener('loaded', () => {
       this.tries = 1;
     });
 
-    this.level.addListener(LevelEvent.restarted, () => {
+    this.level.addListener('restarted', () => {
       this.tries++;
     });
 
@@ -46,11 +42,11 @@ export class Game {
 
     let timeout = setTimeout(pause, 10000);
 
-    this.level.addListener(LevelEvent.restarted, () => {
+    this.level.addListener('restarted', () => {
       timeout = setTimeout(pause, 10000);
     });
 
-    this.player.addListener(PlayerEvent.moved, () => {
+    this.player.addListener('moved', () => {
       clearTimeout(timeout);
       unpause();
       timeout = setTimeout(pause, 1000);
@@ -65,15 +61,15 @@ export class Game {
   enableControls() {
     this.controls.removeListeners();
 
-    this.controls.addListener(ControlEvent.movePlayer, (event) => {
+    this.controls.addListener('movePlayer', (event) => {
       this.level.movePlayer(this.player, event.direction);
     });
 
-    this.controls.addListener(ControlEvent.movePlayerBack, () => {
+    this.controls.addListener('movePlayerBack', () => {
       this.level.movePlayerBack(this.player);
     });
 
-    this.controls.addListener(ControlEvent.restartLevel, () => {
+    this.controls.addListener('restartLevel', () => {
       this.level.restart();
       this.player.reset();
     });

@@ -1,5 +1,5 @@
-import { type LevelDefinition } from './level.js';
-import { type IPoint } from './utils/point.js';
+import { type LevelDefinition } from './level.ts';
+import { type IPoint } from './utils/point.ts';
 
 abstract class LevelTransform {
   abstract point(def: LevelDefinition, point: IPoint): IPoint;
@@ -19,8 +19,11 @@ abstract class LevelTransform {
 }
 
 export class ReflectionTransform extends LevelTransform {
-  private constructor(private direction: 'horizontal' | 'vertical') {
+  private direction: 'horizontal' | 'vertical';
+
+  private constructor(direction: 'horizontal' | 'vertical') {
     super();
+    this.direction = direction;
   }
 
   point({ width, height }: LevelDefinition, { x, y }: IPoint): IPoint {

@@ -1,11 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import assert from 'node:assert';
+import test, { suite } from 'node:test';
 
-import { ControlEvent, Controls, Game } from './game.js';
-import { Direction } from './utils/direction.js';
-import { Point } from './utils/point.js';
+import { Controls, Game } from './game.ts';
+import { Point } from './utils/point.ts';
 
-describe('Game', () => {
-  it('creates a new game', () => {
+await suite('Game', async () => {
+  await test('creates a new game', () => {
     const controls = new Controls();
 
     const game = new Game(controls, {
@@ -16,8 +16,8 @@ describe('Game', () => {
       teleports: [],
     });
 
-    controls.emit(ControlEvent.movePlayer, { direction: Direction.right });
+    controls.emit('movePlayer', { direction: 'right' });
 
-    expect(game.player.position).toEqual(new Point({ x: 1, y: 0 }));
+    assert.deepStrictEqual(game.player.position, new Point({ x: 1, y: 0 }));
   });
 });

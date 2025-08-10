@@ -1,19 +1,14 @@
-import { assert } from './utils/assert.js';
-import { Emitter } from './utils/emitter.js';
-import { type IPoint, Point } from './utils/point.js';
-
-export enum PlayerEvent {
-  moved = 'moved',
-  teleported = 'teleported',
-  reset = 'reset',
-}
+import { assert } from './utils/assert.ts';
+import { Emitter } from './utils/emitter.ts';
+import { type IPoint, Point } from './utils/point.ts';
 
 export type PlayerEventsMap = {
-  [PlayerEvent.moved]: IPoint;
-  [PlayerEvent.teleported]: IPoint;
+  moved: IPoint;
+  teleported: IPoint;
+  reset: never;
 };
 
-export class Player extends Emitter<PlayerEvent, PlayerEventsMap> {
+export class Player extends Emitter<PlayerEventsMap> {
   private _start: Point;
   private _position: Point;
   private _path: Point[];
@@ -38,14 +33,14 @@ export class Player extends Emitter<PlayerEvent, PlayerEventsMap> {
     this._position.set(this._start);
     this._path = [];
 
-    this.emit(PlayerEvent.reset);
+    this.emit('reset');
   }
 
   move(x: number, y: number) {
     this._path.push(this.position);
     this._position.set(x, y);
 
-    this.emit(PlayerEvent.moved, this._position);
+    this.emit('moved', this._position);
   }
 
   moveBack() {
@@ -54,13 +49,13 @@ export class Player extends Emitter<PlayerEvent, PlayerEventsMap> {
     assert(lastPosition);
     this._position.set(lastPosition);
 
-    this.emit(PlayerEvent.moved, this._position);
+    this.emit('moved', this._position);
   }
 
   teleport(x: number, y: number) {
     this._path.push(this.position);
     this._position.set(x, y);
 
-    this.emit(PlayerEvent.teleported, this._position);
+    this.emit('teleported', this._position);
   }
 }

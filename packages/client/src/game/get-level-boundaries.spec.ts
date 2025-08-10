@@ -1,4 +1,4 @@
-import { type IPoint } from '@deadlock/game';
+import type { IPoint } from '@deadlock/game';
 import { describe, expect, it } from 'vitest';
 
 import { getLevelBoundaries } from './get-level-boundaries';

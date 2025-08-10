@@ -1,19 +1,17 @@
 {
-  "include": ["src/**/*"],
-  "files": ["vite.config.ts"],
+  "include": ["src"],
   "compilerOptions": {
-    "lib": ["ESNext"],
-    "module": "ESNext",
     "target": "es2022",
-    "strict": true,
+    "module": "nodenext",
+    "moduleResolution": "node16",
+    "lib": ["es2022", "ESNext.Array", "ESNext.Collection", "ESNext.Iterator"],
     "noEmit": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "types": ["vitest/globals"]
+    "esModuleInterop": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true
   }
 }

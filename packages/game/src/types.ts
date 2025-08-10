@@ -1,4 +1,4 @@
-import { type LevelDefinition, LevelFlag } from './level.js';
+import type { LevelDefinition, LevelFlag } from './level.ts';
 
 export type LevelData = {
   id: string;

@@ -1,15 +1,14 @@
-import { evaluateLevelDifficulty } from './evaluate-difficulty.js';
-import { CellType, Level, type LevelDefinition } from './level.js';
-import { Player } from './player.js';
-import { solve } from './solve.js';
-import { defined } from './utils/assert.js';
-import { type Path, directions } from './utils/direction.js';
-import { randItem, randItems } from './utils/math.js';
-import { type IPoint } from './utils/point.js';
-import { array } from './utils/utils.js';
+import { evaluateLevelDifficulty } from './evaluate-difficulty.ts';
+import { Level, type LevelDefinition } from './level.ts';
+import { Player } from './player.ts';
+import { solve } from './solve.ts';
+import { defined } from './utils/assert.ts';
+import { type Path, directions } from './utils/direction.ts';
+import { randItem, randItems } from './utils/math.ts';
+import { type IPoint } from './utils/point.ts';
+import { array } from './utils/utils.ts';
 
-export type GenerateLevelsOptions = {
-  count: number;
+export type GenerateLevelOptions = {
   width: number;
   height: number;
   nbBlocks: number;
@@ -18,37 +17,8 @@ export type GenerateLevelsOptions = {
   teleports: boolean;
 };
 
-export async function generateLevels(
-  options: GenerateLevelsOptions,
-  onProgress: (total: number, index: number) => void | Promise<void>,
-  onGenerated: (level: LevelDefinition) => void | Promise<void>,
-) {
-  for (let i = 0; i < options.count; ++i) {
-    let level: Level | undefined = undefined;
-    let tries = 0;
-
-    while (!level && tries < 10000) {
-      tries++;
-      level = generateLevel(options);
-    }
-
-    if (!level) {
-      throw new Error('Cannot generate level');
-    }
-
-    await onProgress(options.count, i);
-    await onGenerated(level.definition);
-  }
-}
-
-function generateLevel({
-  width,
-  height,
-  nbBlocks,
-  maxSolutions,
-  minDifficulty,
-  teleports,
-}: GenerateLevelsOptions) {
+export function generateLevel(options: GenerateLevelOptions): LevelDefinition {
+  const { width, height, nbBlocks, maxSolutions, minDifficulty, teleports } = options;
   const solution: Path = [];
 
   const cells: IPoint[] = array(height, (y) => array(width, (x) => ({ x, y }))).flat();
@@ -68,14 +38,14 @@ function generateLevel({
     const direction = randItem(availableDirections(level, player));
 
     if (direction === undefined) {
-      return;
+      return generateLevel(options);
     }
 
     level.movePlayer(player, direction);
     solution.push(direction);
   }
 
-  const blocks = level.map.cells(CellType.empty);
+  const blocks = level.map.cells('empty');
 
   level.restart();
 
@@ -85,21 +55,22 @@ function generateLevel({
   });
 
   if (isBad(level)) {
-    return;
+    return generateLevel(options);
   }
 
   const solutions = solve(level, maxSolutions);
+
   if (!solutions || solution.length > maxSolutions) {
-    return;
+    return generateLevel(options);
   }
 
   const difficulty = evaluateLevelDifficulty(level.definition);
 
   if (difficulty < minDifficulty) {
-    return;
+    return generateLevel(options);
   }
 
-  return level;
+  return level.definition;
 }
 
 function availableDirections(level: Level, player: Player) {
@@ -115,12 +86,12 @@ function availableDirections(level: Level, player: Player) {
 }
 
 function isBad(level: Level) {
-  for (const { x, y } of level.map.cells(CellType.teleport)) {
-    if (!level.map.neighbors(x, y).find((cell) => cell.type === CellType.empty)) {
+  for (const { x, y } of level.map.cells('teleport')) {
+    if (!level.map.neighbors(x, y).find((cell) => cell.type === 'empty')) {
       return true;
     }
 
-    if (level.map.neighbors(x, y).find((cell) => cell.type === CellType.teleport)) {
+    if (level.map.neighbors(x, y).find((cell) => cell.type === 'teleport')) {
       return true;
     }
   }
@@ -145,7 +116,7 @@ function isBad(level: Level) {
 
     const option = defined(options[0]);
 
-    if (level.map.at(player.position.move(option)) === CellType.teleport) {
+    if (level.map.at(player.position.move(option)) === 'teleport') {
       return true;
     }
 

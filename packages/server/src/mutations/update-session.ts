@@ -1,17 +1,38 @@
-import { EntityManager, SqlSession } from '@deadlock/persistence';
+import { eq, sql } from 'drizzle-orm';
 
-type UpdateLevelSession = {
+import type { Database } from '../infra/database.ts';
+import type { DatePort } from '../infra/date.ts';
+import type { LoggerPort } from '../infra/logger.ts';
+import { sessions } from '../schema.ts';
+
+type UpdateSession = {
   sessionId: string;
   completed: boolean;
   time: number;
 };
 
-export async function updateSession(em: EntityManager, { sessionId, completed, time }: UpdateLevelSession) {
-  const session = await em.findOneOrFail(SqlSession, { id: sessionId });
+export class UpdateSessionMutation {
+  private readonly date: DatePort;
+  private readonly logger: LoggerPort;
+  private readonly database: Database;
 
-  session.completed = completed;
-  session.tries += 1;
-  session.time += time;
+  constructor(date: DatePort, logger: LoggerPort, database: Database) {
+    this.date = date;
+    this.logger = logger;
+    this.database = database;
+  }
 
-  await em.flush();
+  async execute(data: UpdateSession) {
+    this.logger.info(`Updating session ${data.sessionId}`, data);
+
+    await this.database
+      .update(sessions)
+      .set({
+        completed: data.completed,
+        tries: sql<number>`${sessions.tries} + 1`,
+        time: sql<number>`${sessions.time} + ${data.time}`,
+        updatedAt: this.date.now(),
+      })
+      .where(eq(sessions.id, data.sessionId));
+  }
 }

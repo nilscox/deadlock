@@ -1,63 +1,64 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import assert from 'node:assert';
+import test, { beforeEach, mock, suite } from 'node:test';
 
-import { Stopwatch } from './stopwatch.js';
+import { Stopwatch } from './stopwatch.ts';
 
-describe('Stopwatch', () => {
+await suite('Stopwatch', async () => {
   let time = 0;
   const tick = () => time++;
 
-  const getTime = vi.fn(() => time);
+  const getTime = mock.fn(() => time);
 
   beforeEach(() => {
     time = 0;
   });
 
-  it('creates a stopwatch', () => {
+  await test('creates a stopwatch', () => {
     const stopwatch = new Stopwatch(getTime);
 
-    expect(stopwatch.elapsed).toEqual(0);
+    assert.strictEqual(stopwatch.elapsed, 0);
 
     tick();
-    expect(stopwatch.elapsed).toEqual(1);
+    assert.strictEqual(stopwatch.elapsed, 1);
   });
 
-  it('restarts a stopwatch', () => {
+  await test('restarts a stopwatch', () => {
     const stopwatch = new Stopwatch(getTime);
 
     tick();
     stopwatch.restart();
 
-    expect(stopwatch.elapsed).toEqual(0);
+    assert.strictEqual(stopwatch.elapsed, 0);
 
     tick();
-    expect(stopwatch.elapsed).toEqual(1);
+    assert.strictEqual(stopwatch.elapsed, 1);
   });
 
-  it('pauses a stopwatch', () => {
+  await test('pauses a stopwatch', () => {
     const stopwatch = new Stopwatch(getTime);
 
     stopwatch.pause();
-    expect(stopwatch.paused).toBe(true);
+    assert.strictEqual(stopwatch.paused, true);
 
     tick();
-    expect(stopwatch.elapsed).toBe(0);
+    assert.strictEqual(stopwatch.elapsed, 0);
 
     stopwatch.unpause();
-    expect(stopwatch.paused).toBe(false);
-    expect(stopwatch.elapsed).toBe(0);
+    assert.strictEqual(stopwatch.paused, false);
+    assert.strictEqual(stopwatch.elapsed, 0);
 
     tick();
-    expect(stopwatch.elapsed).toBe(1);
+    assert.strictEqual(stopwatch.elapsed, 1);
   });
 
-  it('restarts a paused stopwatch', () => {
+  await test('restarts a paused stopwatch', () => {
     const stopwatch = new Stopwatch(getTime);
 
     stopwatch.pause();
     stopwatch.restart();
     tick();
 
-    expect(stopwatch.paused).toBe(false);
-    expect(stopwatch.elapsed).toBe(1);
+    assert.strictEqual(stopwatch.paused, false);
+    assert.strictEqual(stopwatch.elapsed, 1);
   });
 });

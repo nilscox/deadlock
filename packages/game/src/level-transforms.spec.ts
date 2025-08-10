@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import assert from 'node:assert';
+import test, { suite } from 'node:test';
 
-import { ReflectionTransform, RotationTransform } from './level-transforms.js';
-import { LevelDefinition } from './level.js';
+import { ReflectionTransform, RotationTransform } from './level-transforms.ts';
+import type { LevelDefinition } from './level.ts';
 
-describe('LevelTransforms', () => {
+await suite('LevelTransforms', async () => {
   const def: LevelDefinition = {
     width: 3,
     height: 2,
@@ -12,8 +13,8 @@ describe('LevelTransforms', () => {
     teleports: [],
   };
 
-  it('horizontal reflection', () => {
-    expect(ReflectionTransform.horizontal(def)).toEqual({
+  await test('horizontal reflection', () => {
+    assert.deepStrictEqual(ReflectionTransform.horizontal(def), {
       width: 3,
       height: 2,
       start: { x: 2, y: 0 },
@@ -22,8 +23,8 @@ describe('LevelTransforms', () => {
     });
   });
 
-  it('vertical reflection', () => {
-    expect(ReflectionTransform.vertical(def)).toEqual({
+  await test('vertical reflection', () => {
+    assert.deepStrictEqual(ReflectionTransform.vertical(def), {
       width: 3,
       height: 2,
       start: { x: 0, y: 1 },
@@ -32,8 +33,8 @@ describe('LevelTransforms', () => {
     });
   });
 
-  it('quarter rotation', () => {
-    expect(RotationTransform.quarter(def)).toEqual({
+  await test('quarter rotation', () => {
+    assert.deepStrictEqual(RotationTransform.quarter(def), {
       width: 2,
       height: 3,
       start: { x: 0, y: 2 },
@@ -42,8 +43,8 @@ describe('LevelTransforms', () => {
     });
   });
 
-  it('half rotation', () => {
-    expect(RotationTransform.half(def)).toEqual({
+  await test('half rotation', () => {
+    assert.deepStrictEqual(RotationTransform.half(def), {
       width: 3,
       height: 2,
       start: { x: 2, y: 1 },
@@ -52,8 +53,8 @@ describe('LevelTransforms', () => {
     });
   });
 
-  it('three quarters rotation', () => {
-    expect(RotationTransform.threeQuarters(def)).toEqual({
+  await test('three quarters rotation', () => {
+    assert.deepStrictEqual(RotationTransform.threeQuarters(def), {
       width: 2,
       height: 3,
       start: { x: 1, y: 0 },

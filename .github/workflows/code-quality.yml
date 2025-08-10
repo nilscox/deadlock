@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
-      - run: pnpm tsc -b
+      - run: pnpm tsc --build
 
   lint:
     name: Lint
@@ -32,8 +32,7 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: tests
+          POSTGRES_HOST_AUTH_METHOD: trust
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -45,4 +44,5 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm test
         env:
-          DB_URL: postgresql://postgres:postgres@postgres/test
+          TEST_DATABASE_HOST: postgres
+          TEST_DATABASE_USER: postgres

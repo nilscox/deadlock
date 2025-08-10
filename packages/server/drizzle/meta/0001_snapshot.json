@@ -1,0 +1,296 @@
+{
+  "id": "9982902c-b505-46a1-9eb8-0047fb5b4a3b",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.level": {
+      "name": "level",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(16)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "width": {
+          "name": "width",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "height": {
+          "name": "height",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "blocks": {
+          "name": "blocks",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start": {
+          "name": "start",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "teleports": {
+          "name": "teleports",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fingerprint": {
+          "name": "fingerprint",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "difficulty": {
+          "name": "difficulty",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "flags": {
+          "name": "flags",
+          "type": "level_flag[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "level_fingerprint_unique": {
+          "name": "level_fingerprint_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "fingerprint"
+          ]
+        },
+        "level_position_unique": {
+          "name": "level_position_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "position"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.session": {
+      "name": "session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(16)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "level_id": {
+          "name": "level_id",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "completed": {
+          "name": "completed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tries": {
+          "name": "tries",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "time": {
+          "name": "time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ip": {
+          "name": "ip",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "session_level_id_level_id_fk": {
+          "name": "session_level_id_level_id_fk",
+          "tableFrom": "session",
+          "tableTo": "level",
+          "columnsFrom": [
+            "level_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.level_flag": {
+      "name": "level_flag",
+      "schema": "public",
+      "values": [
+        "déjàVu",
+        "easy",
+        "hard",
+        "cool"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {
+    "public.level_difficulty": {
+      "columns": {
+        "levelId": {
+          "name": "levelId",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "difficulty": {
+          "name": "difficulty",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "definition": "\nselect\n  level_id,\n  case\n    -- when l.flags @> '{easy}' then 1\n    -- when l.flags @> '{hard}' then 6\n    when tries_avg <= 1 or time_avg < 5 then 1\n    when tries_avg <= 3 or time_avg < 10 then 2\n    when tries_avg <= 6 or time_avg < 15 then 3\n    when tries_avg <= 10 or time_avg < 25 then 4\n    when tries_avg <= 20 or time_avg < 90 then 5\n    else 6\n  end difficulty\nfrom\n  level l\n  join level_sessions s on s.level_id = l.id\n",
+      "name": "level_difficulty",
+      "schema": "public",
+      "isExisting": false,
+      "materialized": false
+    },
+    "public.level_sessions": {
+      "columns": {
+        "levelId": {
+          "name": "levelId",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "triesMin": {
+          "name": "triesMin",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "triesMax": {
+          "name": "triesMax",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "triesAvg": {
+          "name": "triesAvg",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timeMin": {
+          "name": "timeMin",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timeMax": {
+          "name": "timeMax",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timeAvg": {
+          "name": "timeAvg",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "definition": "\nselect\n  l.id level_id,\n  min(s.tries) tries_min,\n  max(s.tries) tries_max,\n  avg(s.tries) tries_avg,\n  min(s.time) / 1000 time_min,\n  max(s.time) / 1000 time_max,\n  avg(s.time) / 1000 time_avg\nfrom\n  level l\n  join session s on l.id = s.level_id\ngroup by\n  l.id\norder by\n  l.position\n",
+      "name": "level_sessions",
+      "schema": "public",
+      "isExisting": false,
+      "materialized": false
+    }
+  },
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -1,30 +1,21 @@
-import {
-  type Cell,
-  CellType,
-  Level,
-  type LevelDefinition,
-  LevelEvent,
-  Player,
-  PlayerEvent,
-  defined,
-} from '@deadlock/game';
+import { type Cell, type CellType, Level, type LevelDefinition, Player, defined } from '@deadlock/game';
 import Two from 'two.js';
 import type { Rectangle } from 'two.js/src/shapes/rectangle';
 import { Vector } from 'two.js/src/vector';
 
 import { easings, interpolate } from '../math';
 
-import { Animation, AnimationEvent } from './animations';
-import { Controls, ControlsEvent } from './controls';
+import { Animation } from './animations';
+import { Controls } from './controls';
 import { getLevelBoundaries } from './get-level-boundaries';
 
 export class GameRenderer {
   private static colorMap = new Map<CellType, string>([
-    [CellType.empty, 'transparent'],
-    [CellType.path, '#EEE'],
-    [CellType.block, '#CCC'],
-    [CellType.player, '#99F'],
-    [CellType.teleport, '#CFF'],
+    ['empty', 'transparent'],
+    ['path', '#EEE'],
+    ['block', '#CCC'],
+    ['player', '#99F'],
+    ['teleport', '#CFF'],
   ]);
 
   private two = new Two({
@@ -54,10 +45,10 @@ export class GameRenderer {
     this.animations = [];
 
     this.level = Level.load(definition);
-    this.player = new Player(defined(this.level.map.cells(CellType.player)[0]));
-    this.playerRect = this.createCell(defined(this.level.map.cells(CellType.player)[0]));
+    this.player = new Player(defined(this.level.map.cells('player')[0]));
+    this.playerRect = this.createCell(defined(this.level.map.cells('player')[0]));
 
-    this.level.addListener(LevelEvent.restarted, () => {
+    this.level.addListener('restarted', () => {
       Object.values(this.layers).forEach((group) => {
         group.remove(group.children);
       });
@@ -66,47 +57,47 @@ export class GameRenderer {
       this.init();
     });
 
-    this.level.addListener(LevelEvent.completed, () => {
+    this.level.addListener('completed', () => {
       this.layers.path.fill = '#CFC';
       this.layers.boundaries.stroke = '#0C0';
     });
 
-    this.controls.addListener(ControlsEvent.movePlayer, ({ direction }) => {
+    this.controls.addListener('movePlayer', ({ direction }) => {
       this.level.movePlayer(this.player, direction);
     });
 
-    this.controls.addListener(ControlsEvent.movePlayerBack, () => {
+    this.controls.addListener('movePlayerBack', () => {
       this.level.movePlayerBack(this.player);
     });
 
-    this.controls.addListener(ControlsEvent.restartLevel, () => {
+    this.controls.addListener('restartLevel', () => {
       if (this.animations.length === 0) {
         this.level.restart();
       }
     });
 
-    this.player.addListener(PlayerEvent.teleported, ({ x, y }) => {
+    this.player.addListener('teleported', ({ x, y }) => {
       const teleportIn = new Animation({ ease: easings.easeOutCubic });
       const teleportOut = new Animation({ ease: easings.easeInCubic });
 
-      teleportIn.addListener(AnimationEvent.started, () => {
+      teleportIn.addListener('started', () => {
         // eslint-disable-next-line @typescript-eslint/no-misused-spread
-        this.layers.path.add(this.createCell({ ...this.playerRect.position, type: CellType.path }));
+        this.layers.path.add(this.createCell({ ...this.playerRect.position, type: 'path' }));
       });
 
-      teleportIn.addListener(AnimationEvent.update, ({ t }) => {
+      teleportIn.addListener('update', ({ t }) => {
         this.playerRect.scale = 1 - t;
       });
 
-      teleportOut.addListener(AnimationEvent.started, () => {
+      teleportOut.addListener('started', () => {
         this.playerRect.position.set(x, y);
       });
 
-      teleportOut.addListener(AnimationEvent.update, ({ t }) => {
+      teleportOut.addListener('update', ({ t }) => {
         this.playerRect.scale = t;
       });
 
-      teleportOut.addListener(AnimationEvent.completed, () => {
+      teleportOut.addListener('completed', () => {
         this.playerRect.scale = 1;
       });
 
@@ -114,23 +105,23 @@ export class GameRenderer {
       this.addAnimation(teleportOut);
     });
 
-    this.player.addListener(PlayerEvent.moved, (target) => {
+    this.player.addListener('moved', (target) => {
       const animation = new Animation({ ease: easings.easeOutCubic });
       const end = new Vector(target.x, target.y);
       let start = new Vector();
 
-      animation.addListener(AnimationEvent.started, () => {
+      animation.addListener('started', () => {
         start = this.playerRect.position.clone();
 
         // eslint-disable-next-line @typescript-eslint/no-misused-spread
-        this.layers.path.add(this.createCell({ ...start, type: CellType.path }));
+        this.layers.path.add(this.createCell({ ...start, type: 'path' }));
       });
 
-      animation.addListener(AnimationEvent.update, ({ t }) => {
+      animation.addListener('update', ({ t }) => {
         this.playerRect.position.set(interpolate(start.x, end.x, t), interpolate(start.y, end.y, t));
       });
 
-      animation.addListener(AnimationEvent.completed, () => {
+      animation.addListener('completed', () => {
         this.playerRect.position.set(end.x, end.y);
       });
 
@@ -154,8 +145,8 @@ export class GameRenderer {
     const cells = this.level.map.cells().filter((cell) => !this.isEdgeBlock(cell.x, cell.y));
 
     for (const [type, layer] of [
-      [CellType.block, this.layers.blocks],
-      [CellType.teleport, this.layers.teleports],
+      ['block', this.layers.blocks],
+      ['teleport', this.layers.teleports],
     ] as const) {
       cells.filter((cell) => cell.type === type).forEach((cell) => layer.add(this.createCell(cell)));
     }
@@ -192,7 +183,7 @@ export class GameRenderer {
   addAnimation(animation: Animation) {
     this.animations.push(animation);
 
-    animation.once(AnimationEvent.completed, () => {
+    animation.once('completed', () => {
       this.animations.shift();
       this.animations[0]?.start();
     });
@@ -215,7 +206,7 @@ export class GameRenderer {
     const type = this.level.map.atUnsafe(x, y);
     const key = `${String(x)},${String(y)}`;
 
-    if (type !== CellType.block || visited.has(key)) {
+    if (type !== 'block' || visited.has(key)) {
       return false;
     }
 

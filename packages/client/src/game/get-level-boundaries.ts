@@ -1,4 +1,4 @@
-import { Direction, type IPoint, Point, assert, max, min } from '@deadlock/game';
+import { type Direction, type IPoint, Point, assert, max, min } from '@deadlock/game';
 
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 
@@ -10,7 +10,7 @@ export const getLevelBoundaries = (cells: IPoint[]) => {
 
   const p = new Point(cells[0]);
   const boundaries: IPoint[] = [];
-  let dir: Direction | undefined = Direction.right;
+  let dir: Direction | undefined = 'right';
 
   const hasHorizontalEdge = (p: Point) => {
     const up = map.has(`${p.x},${p.y - 1}`);
@@ -38,10 +38,10 @@ export const getLevelBoundaries = (cells: IPoint[]) => {
     }
 
     return {
-      [Direction.right]: hasHorizontalEdge(p),
-      [Direction.down]: hasVerticalEdge(p),
-      [Direction.left]: hasHorizontalEdge(p.add(-1, 0)),
-      [Direction.up]: hasVerticalEdge(p.add(0, -1)),
+      ['right']: hasHorizontalEdge(p),
+      ['down']: hasVerticalEdge(p),
+      ['left']: hasHorizontalEdge(p.add(-1, 0)),
+      ['up']: hasVerticalEdge(p.add(0, -1)),
     }[dir];
   };
 
@@ -66,7 +66,7 @@ export const getLevelBoundaries = (cells: IPoint[]) => {
       }
     }
 
-    dir = Direction.right;
+    dir = 'right';
 
     while (dir && !canGo(dir)) {
       dir = nextDirection(dir);
@@ -76,7 +76,7 @@ export const getLevelBoundaries = (cells: IPoint[]) => {
   return boundaries;
 };
 
-const cycle = [Direction.right, Direction.down, Direction.left, Direction.up];
+const cycle = ['right', 'down', 'left', 'up'];
 
 const nextDirection = (dir: Direction): Direction | undefined => {
   const index = cycle.indexOf(dir);

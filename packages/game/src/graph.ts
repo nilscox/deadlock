@@ -1,8 +1,9 @@
-import { type Cell, CellType, Level, LevelMap } from './level.js';
-import { Player } from './player.js';
-import { defined } from './utils/assert.js';
-import { Direction, directions } from './utils/direction.js';
-import { type IPoint } from './utils/point.js';
+import { type Cell, Level, LevelMap } from './level.ts';
+import { Player } from './player.ts';
+import { defined } from './utils/assert.ts';
+import { type Direction, directions } from './utils/direction.ts';
+import { type IPoint } from './utils/point.ts';
+import { isDefined } from './utils/utils.ts';
 
 export type Node = {
   map: LevelMap;
@@ -31,12 +32,12 @@ export function graph(
 
   const node: Node = {
     map: level.map.clone(),
-    win: level.map.cells(CellType.empty).length === 0,
+    win: level.map.cells('empty').length === 0,
     height,
     children,
   };
 
-  if (Object.values(children).some((child) => child.win)) {
+  if (Object.values(children).some((child) => child?.win)) {
     node.win = true;
   }
 
@@ -53,8 +54,8 @@ export function graph(
 }
 
 function nodeHash(node: Node) {
-  const [player] = node.map.cells(CellType.player) as [Cell];
-  const path = node.map.cells(CellType.path);
+  const [player] = node.map.cells('player') as [Cell];
+  const path = node.map.cells('path');
 
   return [
     ...path.sort(comparePoints).map(({ x, y }) => [x, y].join(',')),
@@ -67,7 +68,7 @@ function comparePoints(a: IPoint, b: IPoint) {
 }
 
 export function getNodes(node: Node): Node[] {
-  return [node, ...Object.values(node.children).flatMap(getNodes)];
+  return [node, ...Object.values(node.children).filter(isDefined).flatMap(getNodes)];
 }
 
 export function getPaths(node: Node): Node[][] {
@@ -77,7 +78,10 @@ export function getPaths(node: Node): Node[][] {
     return [[node]];
   }
 
-  return children.flatMap(getPaths).map((path) => [node, ...path]);
+  return children
+    .filter(isDefined)
+    .flatMap(getPaths)
+    .map((path) => [node, ...path]);
 }
 
 export function getWinningPaths(node: Node): Node[][] {

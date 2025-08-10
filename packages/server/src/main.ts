@@ -1,25 +1,21 @@
 import 'dotenv/config';
 
-import { createOrm } from '@deadlock/persistence';
-import cors from 'cors';
-import express, { json } from 'express';
+import { container } from './container.ts';
+import { TOKENS } from './tokens.ts';
 
-import { api } from './api';
-import { config } from './config';
+async function main() {
+  const logger = container.resolve(TOKENS.logger);
+  const server = container.resolve(TOKENS.server);
 
-startServer().catch(console.error);
+  const handleSignal: NodeJS.SignalsListener = (signal) => {
+    logger.info(`Received signal ${signal}`);
+    void server.close();
+  };
 
-async function startServer() {
-  const orm = await createOrm(config.dbUrl, config.dbSsl, config.dbDebug);
-  const app = express();
+  process.addListener('SIGINT', handleSignal);
+  process.addListener('SIGTERM', handleSignal);
 
-  app.use(cors({ origin: true }));
-  app.use(json());
-  app.use(api(orm.em));
-
-  const { host, port } = config;
-
-  app.listen(Number(port), host, () => {
-    console.log(`server listening on ${host}:${port}`);
-  });
+  await server.start();
 }
+
+main().catch(console.error);

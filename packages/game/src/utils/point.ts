@@ -1,5 +1,5 @@
-import { Direction, getDirectionVector } from './direction.js';
-import { inspectCustomSymbol } from './inspect.js';
+import { type Direction, getDirectionVector } from './direction.ts';
+import { inspectCustomSymbol } from './inspect.ts';
 
 export type IPoint = { x: number; y: number };
 

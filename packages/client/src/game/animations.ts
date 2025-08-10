@@ -2,22 +2,18 @@ import { Emitter } from '@deadlock/game';
 
 import { type EasingFunction, easings } from '../math';
 
-export enum AnimationEvent {
-  started = 'started',
-  completed = 'completed',
-  update = 'update',
-}
-
-export interface AnimationEventMap {
-  [AnimationEvent.update]: { t: number };
-}
+export type AnimationEventMap = {
+  started: never;
+  update: { t: number };
+  completed: never;
+};
 
 type AnimationOptions = Partial<{
   duration: number;
   ease: EasingFunction;
 }>;
 
-export class Animation extends Emitter<AnimationEvent, AnimationEventMap> {
+export class Animation extends Emitter<AnimationEventMap> {
   private startedAt: number | null;
   private duration: number;
   private ease: EasingFunction;
@@ -40,7 +36,7 @@ export class Animation extends Emitter<AnimationEvent, AnimationEventMap> {
 
   start() {
     this.startedAt = Date.now();
-    this.emit(AnimationEvent.started);
+    this.emit('started');
   }
 
   update() {
@@ -51,9 +47,9 @@ export class Animation extends Emitter<AnimationEvent, AnimationEventMap> {
     }
 
     if (t < 1) {
-      this.emit(AnimationEvent.update, { t });
+      this.emit('update', { t });
     } else {
-      this.emit(AnimationEvent.completed);
+      this.emit('completed');
     }
   }
 }

@@ -1,145 +1,143 @@
-import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
+import assert from 'node:assert';
+import test, { type Mock, beforeEach, mock, suite } from 'node:test';
 
-import { Emitter } from './emitter.js';
-
-enum TestEvent {
-  move = 'move',
-  jump = 'jump',
-}
+import { Emitter } from './emitter.ts';
 
 type TestEventsMap = {
-  [TestEvent.move]: 'left' | 'right';
+  move: 'left' | 'right';
+  jump: never;
 };
 
-class TestEmitter extends Emitter<TestEvent, TestEventsMap> {}
+class TestEmitter extends Emitter<TestEventsMap> {}
 
-describe('Emitter', () => {
+await suite('Emitter', async () => {
   let onJump: Mock<() => void>;
   let onMove: Mock<(direction: 'left' | 'right') => void>;
 
   beforeEach(() => {
-    onJump = vi.fn();
-    onMove = vi.fn();
+    onJump = mock.fn();
+    onMove = mock.fn();
   });
 
-  it('binds a listener to an event', () => {
+  await test('binds a listener to an event', () => {
     const emitter = new TestEmitter();
 
-    emitter.addListener(TestEvent.jump, onJump);
-    emitter.emit(TestEvent.jump);
+    emitter.addListener('jump', onJump);
+    emitter.emit('jump');
 
-    expect(onJump).toHaveBeenCalledWith(undefined);
-    expect(onMove).not.toHaveBeenCalled();
+    assert.strictEqual(onJump.mock.callCount(), 1);
+    assert.strictEqual(onMove.mock.callCount(), 0);
   });
 
-  it('binds a listener to an event with payload', () => {
+  await test('binds a listener to an event with payload', () => {
     const emitter = new TestEmitter();
-    const onMove = vi.fn();
+    const onMove = mock.fn();
 
-    emitter.addListener(TestEvent.move, onMove);
-    emitter.emit(TestEvent.move, 'left');
+    emitter.addListener('move', onMove);
+    emitter.emit('move', 'left');
 
-    expect(onJump).not.toHaveBeenCalled();
-    expect(onMove).toHaveBeenCalledWith('left');
+    assert.strictEqual(onJump.mock.callCount(), 0);
+    assert.strictEqual(onMove.mock.callCount(), 1);
+    assert.deepStrictEqual(onMove.mock.calls[0]?.arguments, ['left']);
   });
 
-  it('removes a listener', () => {
+  await test('removes a listener', () => {
     const emitter = new TestEmitter();
-    const onJump = vi.fn();
+    const onJump = mock.fn();
 
-    emitter.addListener(TestEvent.jump, onJump);
-    emitter.removeListener(TestEvent.jump, onJump);
+    emitter.addListener('jump', onJump);
+    emitter.removeListener('jump', onJump);
 
-    emitter.emit(TestEvent.jump);
+    emitter.emit('jump');
 
-    expect(onJump).not.toHaveBeenCalled();
+    assert.strictEqual(onJump.mock.callCount(), 0);
   });
 
-  it('removes a listener using the returned callback', () => {
+  await test('removes a listener using the returned callback', () => {
     const emitter = new TestEmitter();
-    const onJump = vi.fn();
+    const onJump = mock.fn();
 
-    const unsubscribe = emitter.addListener(TestEvent.jump, onJump);
+    const unsubscribe = emitter.addListener('jump', onJump);
     unsubscribe();
 
-    emitter.emit(TestEvent.jump);
+    emitter.emit('jump');
 
-    expect(onJump).not.toHaveBeenCalled();
+    assert.strictEqual(onJump.mock.callCount(), 0);
   });
 
-  it('removes all listeners for an event type', () => {
+  await test('removes all listeners for an event type', () => {
     const emitter = new TestEmitter();
-    const onJump = vi.fn();
+    const onJump = mock.fn();
 
-    emitter.addListener(TestEvent.jump, onJump);
-    emitter.addListener(TestEvent.move, onMove);
+    emitter.addListener('jump', onJump);
+    emitter.addListener('move', onMove);
 
-    emitter.removeListeners(TestEvent.jump);
+    emitter.removeListeners('jump');
 
-    emitter.emit(TestEvent.jump);
-    emitter.emit(TestEvent.move, 'left');
+    emitter.emit('jump');
+    emitter.emit('move', 'left');
 
-    expect(onJump).not.toHaveBeenCalled();
-    expect(onMove).toHaveBeenCalled();
+    assert.strictEqual(onJump.mock.callCount(), 0);
+    assert.strictEqual(onMove.mock.callCount(), 1);
   });
 
-  it('removes all listeners', () => {
+  await test('removes all listeners', () => {
     const emitter = new TestEmitter();
-    const onJump = vi.fn();
+    const onJump = mock.fn();
 
-    emitter.addListener(TestEvent.jump, onJump);
-    emitter.addListener(TestEvent.move, onMove);
+    emitter.addListener('jump', onJump);
+    emitter.addListener('move', onMove);
 
     emitter.removeListeners();
 
-    emitter.emit(TestEvent.jump);
-    emitter.emit(TestEvent.move, 'left');
+    emitter.emit('jump');
+    emitter.emit('move', 'left');
 
-    expect(onJump).not.toHaveBeenCalled();
-    expect(onMove).not.toHaveBeenCalled();
+    assert.strictEqual(onJump.mock.callCount(), 0);
+    assert.strictEqual(onMove.mock.callCount(), 0);
   });
 
-  it('binds a listener to an event once', () => {
+  await test('binds a listener to an event once', () => {
     const emitter = new TestEmitter();
-    const onJump = vi.fn();
+    const onJump = mock.fn();
 
-    emitter.once(TestEvent.jump, onJump);
+    emitter.once('jump', onJump);
 
-    emitter.emit(TestEvent.jump);
-    emitter.emit(TestEvent.jump);
+    emitter.emit('jump');
+    emitter.emit('jump');
 
-    expect(onJump).toHaveBeenCalledTimes(1);
+    assert.strictEqual(onJump.mock.callCount(), 1);
   });
 
-  it('clones an emitter', () => {
-    const emitter = new TestEmitter();
-    const clone = emitter.cloneEmitter();
-
-    const onJump2 = vi.fn();
-
-    emitter.addListener(TestEvent.jump, onJump);
-    clone.addListener(TestEvent.jump, onJump2);
-
-    emitter.emit(TestEvent.jump);
-
-    expect(onJump).toHaveBeenCalled();
-    expect(onJump2).toHaveBeenCalled();
-  });
-
-  it('removes all listeners on a cloned emitter', () => {
+  await test('clones an emitter', () => {
     const emitter = new TestEmitter();
     const clone = emitter.cloneEmitter();
 
-    const onJump2 = vi.fn();
+    const onJump2 = mock.fn();
 
-    emitter.addListener(TestEvent.jump, onJump);
-    clone.addListener(TestEvent.jump, onJump2);
+    emitter.addListener('jump', onJump);
+    clone.addListener('jump', onJump2);
+
+    emitter.emit('jump');
+
+    assert.strictEqual(onJump.mock.callCount(), 1);
+    assert.strictEqual(onJump2.mock.callCount(), 1);
+  });
+
+  await test('removes all listeners on a cloned emitter', () => {
+    const emitter = new TestEmitter();
+    const clone = emitter.cloneEmitter();
+
+    const onJump2 = mock.fn();
+
+    emitter.addListener('jump', onJump);
+    clone.addListener('jump', onJump2);
 
     clone.removeListeners();
 
-    emitter.emit(TestEvent.jump);
+    emitter.emit('jump');
 
-    expect(onJump).toHaveBeenCalled();
-    expect(onJump2).not.toHaveBeenCalled();
+    assert.strictEqual(onJump.mock.callCount(), 1);
+    assert.strictEqual(onJump2.mock.callCount(), 0);
   });
 });

@@ -1,16 +1,12 @@
-import { Direction, Emitter, type IPoint, abs, defined } from '@deadlock/game';
-
-export enum ControlsEvent {
-  movePlayer = 'movePlayer',
-  movePlayerBack = 'movePlayerBack',
-  restartLevel = 'restartLevel',
-}
+import { type Direction, Emitter, type IPoint, abs, defined } from '@deadlock/game';
 
 type ControlsEventMap = {
-  [ControlsEvent.movePlayer]: { direction: Direction };
+  movePlayer: { direction: Direction };
+  movePlayerBack: never;
+  restartLevel: never;
 };
 
-export class Controls extends Emitter<ControlsEvent, ControlsEventMap> {
+export class Controls extends Emitter<ControlsEventMap> {
   constructor() {
     super();
 
@@ -32,28 +28,28 @@ export class Controls extends Emitter<ControlsEvent, ControlsEventMap> {
   }
 
   private static domDirectionMap: Record<string, Direction> = {
-    ArrowLeft: Direction.left,
-    ArrowRight: Direction.right,
-    ArrowUp: Direction.up,
-    ArrowDown: Direction.down,
+    ArrowLeft: 'left',
+    ArrowRight: 'right',
+    ArrowUp: 'up',
+    ArrowDown: 'down',
   };
 
   private handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === ' ') {
       event.preventDefault();
-      this.emit(ControlsEvent.restartLevel);
+      this.emit('restartLevel');
     }
 
     if (event.key === 'Backspace') {
       event.preventDefault();
-      this.emit(ControlsEvent.movePlayerBack);
+      this.emit('movePlayerBack');
     }
 
     const direction = Controls.domDirectionMap[event.key];
 
     if (direction !== undefined) {
       event.preventDefault();
-      this.emit(ControlsEvent.movePlayer, { direction });
+      this.emit('movePlayer', { direction });
     }
   };
 
@@ -89,12 +85,12 @@ export class Controls extends Emitter<ControlsEvent, ControlsEventMap> {
     let direction: Direction;
 
     if (abs(dx) > abs(dy)) {
-      direction = dx > 0 ? Direction.right : Direction.left;
+      direction = dx > 0 ? 'right' : 'left';
     } else {
-      direction = dy > 0 ? Direction.down : Direction.up;
+      direction = dy > 0 ? 'down' : 'up';
     }
 
-    this.emit(ControlsEvent.movePlayer, { direction });
+    this.emit('movePlayer', { direction });
   };
 
   private lastTapTime?: number;
@@ -109,7 +105,7 @@ export class Controls extends Emitter<ControlsEvent, ControlsEventMap> {
     }
 
     if (elapsed < 300) {
-      this.emit(ControlsEvent.restartLevel);
+      this.emit('restartLevel');
     }
   };
 }

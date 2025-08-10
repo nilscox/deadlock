@@ -9,6 +9,7 @@ export default tseslint.config(
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
   {
+    files: ['src/**/*'],
     languageOptions: {
       parserOptions: {
         projectService: true,
@@ -18,10 +19,6 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/consistent-type-definitions': 'off',
       '@typescript-eslint/array-type': 'off',
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { ignoreRestSiblings: true, varsIgnorePattern: '^_', argsIgnorePattern: '^_' },
-      ],
     },
   },
 );

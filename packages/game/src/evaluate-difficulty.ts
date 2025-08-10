@@ -1,9 +1,9 @@
-import { Level, type LevelDefinition } from './level.js';
-import { Player } from './player.js';
-import { solve } from './solve.js';
-import { defined } from './utils/assert.js';
-import { Direction, type Path, directions, getOppositeDirection } from './utils/direction.js';
-import { clamp, sum } from './utils/math.js';
+import { Level, type LevelDefinition } from './level.ts';
+import { Player } from './player.ts';
+import { solve } from './solve.ts';
+import { defined } from './utils/assert.ts';
+import { type Direction, type Path, directions, getOppositeDirection } from './utils/direction.ts';
+import { clamp, sum } from './utils/math.ts';
 
 export function evaluateLevelDifficulty(def: LevelDefinition) {
   return getLevelDifficultyDetails(def)?.total ?? Infinity;

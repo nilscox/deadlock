@@ -1,4 +1,4 @@
-import { Level, LevelEvent } from '@deadlock/game';
+import { Level } from '@deadlock/game';
 import { use, useEffect, useState } from 'react';
 
 import { LevelsContext, UserDataContext } from '../contexts';
@@ -33,10 +33,10 @@ export function Tutorial({ levelId, level }: TutorialProps) {
   useEffect(() => {
     const onRestarted = () => setRestarted(true);
 
-    level.addListener(LevelEvent.restarted, onRestarted);
+    level.addListener('restarted', onRestarted);
 
     return () => {
-      level.removeListener(LevelEvent.restarted, onRestarted);
+      level.removeListener('restarted', onRestarted);
     };
   }, [level]);
 

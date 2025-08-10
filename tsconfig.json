@@ -1,10 +1,8 @@
 {
-  "files": [],
+  "include": [],
   "references": [
-    { "path": "./packages/cli/tsconfig.json" },
-    { "path": "./packages/client/tsconfig.json" },
-    { "path": "./packages/game/tsconfig.json" },
-    { "path": "./packages/server/tsconfig.json" },
-    { "path": "./packages/persistence/tsconfig.json" }
+    { "path": "./packages/client" },
+    { "path": "./packages/game" },
+    { "path": "./packages/server" }
   ]
 }

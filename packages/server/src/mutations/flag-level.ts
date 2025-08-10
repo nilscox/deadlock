@@ -1,9 +1,33 @@
-import { LevelFlag } from '@deadlock/game';
-import { EntityManager, SqlLevel } from '@deadlock/persistence';
+import type { LevelFlag } from '@deadlock/game';
+import { eq, sql } from 'drizzle-orm';
 
-export async function flagLevel(em: EntityManager, levelId: string, flag: LevelFlag) {
-  const level = await em.findOneOrFail(SqlLevel, levelId);
+import type { Database } from '../infra/database.ts';
+import type { DatePort } from '../infra/date.ts';
+import type { LoggerPort } from '../infra/logger.ts';
+import { levels } from '../schema.ts';
 
-  level.flags.push(flag);
-  await em.flush();
+export type FlagLevel = {
+  levelId: string;
+  flag: LevelFlag;
+};
+
+export class FlagLevelMutation {
+  private readonly date: DatePort;
+  private readonly logger: LoggerPort;
+  private readonly database: Database;
+
+  constructor(date: DatePort, logger: LoggerPort, database: Database) {
+    this.date = date;
+    this.logger = logger;
+    this.database = database;
+  }
+
+  async execute(data: FlagLevel) {
+    this.logger.info(`Adding flag to level ${data.levelId}`, data.flag);
+
+    await this.database
+      .update(levels)
+      .set({ flags: sql`array_append(${levels.flags}, ${data.flag})`, updatedAt: this.date.now() })
+      .where(eq(levels.id, data.levelId));
+  }
 }

@@ -1,17 +1,20 @@
 {
   "include": ["src"],
   "compilerOptions": {
-    "lib": ["ESNext"],
+    "target": "es2022",
     "module": "nodenext",
     "moduleResolution": "node16",
-    "target": "es2022",
-    "outDir": "./lib",
-    "declaration": true,
-    "strict": true,
+    "noEmit": true,
     "isolatedModules": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "declaration": true,
+    "lib": ["ESNext"],
     "skipLibCheck": true,
-    "noUncheckedIndexedAccess": true
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true
   }
 }

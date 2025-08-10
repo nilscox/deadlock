@@ -1,4 +1,4 @@
-import { LevelEvent, PlayerEvent, assert } from '@deadlock/game';
+import { assert } from '@deadlock/game';
 import { Stopwatch } from '@deadlock/game/src/stopwatch';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { use, useEffect, useRef, useState } from 'react';
@@ -43,12 +43,12 @@ export function GamePage() {
     renderer.appendTo(gameContainer.current);
 
     reporting.onLoaded();
-    renderer.level.addListener(LevelEvent.loaded, reporting.onLoaded);
-    renderer.level.addListener(LevelEvent.restarted, reporting.onRestarted);
-    renderer.level.addListener(LevelEvent.completed, reporting.onCompleted);
-    renderer.player.addListener(PlayerEvent.moved, reporting.onMoved);
+    renderer.level.addListener('loaded', reporting.onLoaded);
+    renderer.level.addListener('restarted', reporting.onRestarted);
+    renderer.level.addListener('completed', reporting.onCompleted);
+    renderer.player.addListener('moved', reporting.onMoved);
 
-    renderer.level.addListener(LevelEvent.completed, () => {
+    renderer.level.addListener('completed', () => {
       setTimeout(() => navigate(nextLevelLink ?? '/'), 750);
     });
 

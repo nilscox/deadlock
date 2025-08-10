@@ -4,10 +4,11 @@
   "description": "",
   "private": true,
   "type": "module",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
-    "test": "vitest run",
+    "test:run": "node --experimental-strip-types --test",
+    "test": "pnpm run test:run 'src/**/*.spec.ts'",
     "lint": "eslint src"
   }
 }

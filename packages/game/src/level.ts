@@ -1,11 +1,11 @@
-import { ReflectionTransform, RotationTransform } from './level-transforms.js';
-import { Player } from './player.js';
-import { assert, defined } from './utils/assert.js';
-import { Direction, directions } from './utils/direction.js';
-import { Emitter } from './utils/emitter.js';
-import { inspectCustomSymbol } from './utils/inspect.js';
-import { type IPoint, Point, type PointArgs, pointArgs } from './utils/point.js';
-import { array, first, isDefined } from './utils/utils.js';
+import { ReflectionTransform, RotationTransform } from './level-transforms.ts';
+import { Player } from './player.ts';
+import { assert, defined } from './utils/assert.ts';
+import { type Direction, directions } from './utils/direction.ts';
+import { Emitter } from './utils/emitter.ts';
+import { inspectCustomSymbol } from './utils/inspect.ts';
+import { type IPoint, Point, type PointArgs, pointArgs } from './utils/point.ts';
+import { array, first, isDefined } from './utils/utils.ts';
 
 export type LevelFlag = 'déjàVu' | 'easy' | 'hard' | 'cool';
 
@@ -23,13 +23,7 @@ export type Cell = {
   type: CellType;
 };
 
-export enum CellType {
-  empty = 'empty',
-  block = 'block',
-  player = 'player',
-  path = 'path',
-  teleport = 'teleport',
-}
+export type CellType = 'empty' | 'block' | 'player' | 'path' | 'teleport';
 
 export class LevelMap {
   private _cells = new Array<Array<CellType>>();
@@ -57,26 +51,26 @@ export class LevelMap {
     return {
       width: this.width,
       height: this.height,
-      start: cellToPoint(defined(this.cells(CellType.player)[0])),
-      blocks: this.cells(CellType.block).map(cellToPoint),
-      teleports: this.cells(CellType.teleport).map(cellToPoint),
+      start: cellToPoint(defined(this.cells('player')[0])),
+      blocks: this.cells('block').map(cellToPoint),
+      teleports: this.cells('teleport').map(cellToPoint),
     };
   }
 
   set definition(definition: LevelDefinition) {
-    this._cells = array(definition.height, () => array(definition.width, () => CellType.empty));
+    this._cells = array(definition.height, () => array(definition.width, () => 'empty'));
 
     const set = (type: CellType) => {
       return ({ x, y }: IPoint) => {
-        assert(this.at(x, y) === CellType.empty);
+        assert(this.at(x, y) === 'empty');
         this.set(x, y, type);
       };
     };
 
-    set(CellType.player)(definition.start);
+    set('player')(definition.start);
 
-    definition.blocks.forEach(set(CellType.block));
-    definition.teleports.forEach(set(CellType.teleport));
+    definition.blocks.forEach(set('block'));
+    definition.teleports.forEach(set('teleport'));
   }
 
   clone() {
@@ -139,11 +133,11 @@ export class LevelMap {
 
   [inspectCustomSymbol]() {
     const charMap: Record<CellType, string> = {
-      [CellType.empty]: ' ',
-      [CellType.block]: '█',
-      [CellType.player]: 'x',
-      [CellType.path]: '░',
-      [CellType.teleport]: 'T',
+      ['empty']: ' ',
+      ['block']: '█',
+      ['player']: 'x',
+      ['path']: '░',
+      ['teleport']: 'T',
     };
 
     const lines: string[][] = [];
@@ -165,24 +159,23 @@ export class LevelMap {
   }
 }
 
-export enum LevelEvent {
-  loaded = 'loaded',
-  restarted = 'restarted',
-  completed = 'completed',
-  cellChanged = 'cellChanged',
-}
-
 type LevelEventsMap = {
-  [LevelEvent.cellChanged]: { x: number; y: number; type: CellType };
+  loaded: never;
+  restarted: never;
+  completed: never;
+  cellChanged: { x: number; y: number; type: CellType };
 };
 
-export class Level extends Emitter<LevelEvent, LevelEventsMap> {
+export class Level extends Emitter<LevelEventsMap> {
+  public definition: LevelDefinition;
   public map = new LevelMap();
 
   private states = new Array<LevelMap>();
 
-  private constructor(public definition: LevelDefinition) {
+  private constructor(definition: LevelDefinition) {
     super();
+
+    this.definition = definition;
     this.load(definition);
   }
 
@@ -203,7 +196,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     this.map.definition = this.definition;
     this.states = [];
 
-    this.emit(LevelEvent.loaded);
+    this.emit('loaded');
   }
 
   static load(definition: LevelDefinition | string) {
@@ -216,14 +209,14 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
 
   set(x: number, y: number, type: CellType) {
     this.map.set(x, y, type);
-    this.emit(LevelEvent.cellChanged, { x, y, type });
+    this.emit('cellChanged', { x, y, type });
   }
 
   restart() {
     this.map.definition = this.definition;
     this.states = [];
 
-    this.emit(LevelEvent.restarted);
+    this.emit('restarted');
   }
 
   movePlayer(player: Player, direction: Direction) {
@@ -233,32 +226,32 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     do {
       p.set(p.move(direction));
       cell = this.map.atUnsafe(p.x, p.y);
-    } while (cell === CellType.path);
+    } while (cell === 'path');
 
-    if (!cell || cell === CellType.block) {
+    if (!cell || cell === 'block') {
       return false;
     }
 
     this.states.push(this.map.clone());
 
-    this.set(player.position.x, player.position.y, CellType.path);
-    this.set(p.x, p.y, CellType.player);
+    this.set(player.position.x, player.position.y, 'path');
+    this.set(p.x, p.y, 'player');
 
     player.move(p.x, p.y);
 
-    if (cell === CellType.teleport) {
-      const [dest] = this.map.cells(CellType.teleport).filter((cell) => !p.equals(cell));
+    if (cell === 'teleport') {
+      const [dest] = this.map.cells('teleport').filter((cell) => !p.equals(cell));
 
       assert(dest);
 
-      this.set(p.x, p.y, CellType.path);
-      this.set(dest.x, dest.y, CellType.player);
+      this.set(p.x, p.y, 'path');
+      this.set(dest.x, dest.y, 'player');
 
       player.teleport(dest.x, dest.y);
     }
 
     if (this.isCompleted()) {
-      this.emit(LevelEvent.completed);
+      this.emit('completed');
     }
 
     return true;
@@ -274,7 +267,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
     this.map = prevState.clone();
     player.moveBack();
 
-    if (this.map.at(player.position.x, player.position.y) === CellType.teleport) {
+    if (this.map.at(player.position.x, player.position.y) === 'teleport') {
       player.moveBack();
     }
 
@@ -282,7 +275,7 @@ export class Level extends Emitter<LevelEvent, LevelEventsMap> {
   }
 
   isCompleted(): boolean {
-    return this.map.cells(CellType.empty).length === 0 && this.map.cells(CellType.teleport).length === 0;
+    return this.map.cells('empty').length === 0 && this.map.cells('teleport').length === 0;
   }
 
   [inspectCustomSymbol]() {

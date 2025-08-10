@@ -6,22 +6,30 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon -w src -e ts -x pnpm start",
-    "start": "vite-node src/main.ts",
-    "test": "vitest",
+    "start": "node --experimental-strip-types src/main.ts",
+    "cli": "node --experimental-strip-types ./src/cli.ts",
+    "test:run": "node --experimental-strip-types --test --test-concurrency=1",
+    "test": "pnpm run test:run 'src/**/*.spec.ts'",
     "lint": "eslint src"
   },
   "dependencies": {
     "@deadlock/game": "workspace:*",
-    "@deadlock/persistence": "workspace:*",
+    "commander": "^14.0.0",
     "cors": "^2.8.5",
+    "ditox": "^3.0.0",
     "dotenv": "^17.2.1",
+    "drizzle-orm": "^0.44.4",
     "express": "5.1.0",
     "nanoid": "^5.1.5",
-    "yup": "^1.1.1"
+    "pg": "^8.16.3",
+    "remeda": "^2.30.0",
+    "zod": "^4.0.16"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",
     "@types/express": "^5.0.3",
+    "@types/pg": "^8.15.5",
+    "drizzle-kit": "^0.31.4",
     "nodemon": "^3.1.10"
   }
 }
